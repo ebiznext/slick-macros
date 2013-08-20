@@ -60,7 +60,7 @@ object ModelMacro { macro =>
     }
 
     /**
-     * create the field1 ~ field2 ~ ... ~fieldN string from case class column
+     * create the field1 ~ field2 ~ ... ~ fieldN string from case class column
      * does not handle correctly case classes with a single column (adding a dummy field would probably help)
      */
     def mkTilde(columnNames: List[c.universe.TermName]): String = {

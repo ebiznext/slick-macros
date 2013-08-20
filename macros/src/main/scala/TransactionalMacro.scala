@@ -17,7 +17,7 @@ object TransactionalMacro {
     val result = {
       annottees.map(_.tree).toList match {
         case DefDef(mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) :: Nil =>
-          DefDef(mods, name, tparams, vparamss, tpt, Apply(Select(Apply(Select(Ident(newTermName("Database")), newTermName("forURL")), List(Literal(Constant("jdbc:postgresql:tetra")), AssignOrNamedArg(Ident(newTermName("user")), Literal(Constant("tetra"))), AssignOrNamedArg(Ident(newTermName("password")), Literal(Constant("e-z12B24"))), AssignOrNamedArg(Ident(newTermName("driver")), Literal(Constant("org.postgresql.Driver"))))), newTermName("withSession")), List(rhs)))
+          DefDef(mods, name, tparams, vparamss, tpt, Apply(Select(Apply(Select(Ident(newTermName("Database")), newTermName("forURL")), List(Literal(Constant("jdbc:postgresql:tetra")), AssignOrNamedArg(Ident(newTermName("user")), Literal(Constant("tetra"))), AssignOrNamedArg(Ident(newTermName("password")), Literal(Constant("e-z12B24"))), AssignOrNamedArg(Ident(newTermName("driver")), Literal(Constant("org.postgresql.Driver"))))), newTermName("withTransaction")), List(rhs)))
         case _ => c.abort(c.enclosingPosition, "Transactional may be attached to a method definition only")
       }
     }
