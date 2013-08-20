@@ -17,7 +17,6 @@ import scala.reflect.macros.Context
 import scala.reflect.runtime.{ universe => u }
 import scala.slick.lifted.MappedTypeMapper
 
-
 object SampleApp extends App {
   import XDb._
   val ddls = Companies.ddl ++ Members.ddl ++ Project2Members.ddl

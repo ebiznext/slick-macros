@@ -14,7 +14,7 @@ object ModelMacro { macro =>
     val ww = ClassDef(Modifiers(CASE), newTypeName("Y"), List(), Template(List(Select(Ident("scala"), newTypeName("Product")), Select(Ident("scala"), newTypeName("Serializable"))), emptyValDef, List(DefDef(Modifiers(), nme.CONSTRUCTOR, List(), List(List()), TypeTree(), Block(List(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), List())), Literal(Constant(())))))))
     val www = ModuleDef(Modifiers(), newTermName("U"), Template(List(AppliedTypeTree(Ident(newTypeName("Z")), List(Ident(newTypeName("Y"))))), emptyValDef, List(DefDef(Modifiers(), nme.CONSTRUCTOR, List(), List(List()), TypeTree(), Block(List(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), List())), Literal(Constant(())))), EmptyTree)))
 
-    val reservedNames = List("id", "dateCreated", "dateUpdated")
+    val reservedNames = List("id" /*, "dateCreated", "dateUpdated"*/ )
     val caseAccessor = scala.reflect.internal.Flags.CASEACCESSOR.asInstanceOf[Long].asInstanceOf[FlagSet]
     val paramAccessor = scala.reflect.internal.Flags.PARAMACCESSOR.asInstanceOf[Long].asInstanceOf[FlagSet]
     val paramDefault = scala.reflect.internal.Flags.DEFAULTPARAM.asInstanceOf[Long].asInstanceOf[FlagSet]
@@ -22,13 +22,17 @@ object ModelMacro { macro =>
     val optionalDate = AppliedTypeTree(Ident(newTypeName("Option")), List(Select(Select(Ident(newTermName("java")), newTermName("sql")), newTypeName("Date"))))
     val idVal = ValDef(Modifiers(caseAccessor | paramAccessor), newTermName("id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName("Int")))), EmptyTree)
     val idValInCtor = ValDef(Modifiers(param | paramAccessor), newTermName("id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName("Int")))), EmptyTree)
+    /*
     def dateVal(name: String) = ValDef(Modifiers(caseAccessor | paramAccessor), newTermName(name), optionalDate, EmptyTree)
     def dateValInCtor(name: String) = ValDef(Modifiers(param | paramAccessor | paramDefault), newTermName(name), optionalDate, Ident(newTermName("None")))
-
-    def mkCaseClass(typeName: TypeName, columnVals: List[(Modifiers, TermName, Tree, _, _)], parents: List[Tree], self: ValDef, augment: Boolean = true) = {
-      val valdefs = columnVals.map(t => ValDef(t._1, t._2, t._3, EmptyTree))
-      val newAttrs = if (augment) idVal +: valdefs :+ dateVal("dateCreated") :+ dateVal("dateUpdated") else valdefs
-      val ctorParams = if (augment) idValInCtor +: valdefs :+ dateValInCtor("dateCreated") :+ dateValInCtor("dateUpdated") else valdefs
+     */
+    def mkCaseClass(typeName: TypeName, columnVals: List[(Modifiers, TermName, Tree, _, Option[(String, _)])], parents: List[Tree], self: ValDef, augment: Boolean = true) = {
+      val valdefs = columnVals.collect {
+        case (mods, name, self, _, Some(_)) => ValDef(mods, name, self, EmptyTree)
+        case (mods, name, self, _, None) => ValDef(mods, name, self, EmptyTree)
+      }
+      val newAttrs = if (augment) idVal +: valdefs /* :+ dateVal("dateCreated") :+ dateVal("dateUpdated")*/ else valdefs
+      val ctorParams = if (augment) idValInCtor +: valdefs /* :+ dateValInCtor("dateCreated") :+ dateValInCtor("dateUpdated") */ else valdefs
       val newCtor = DefDef(Modifiers(),
         nme.CONSTRUCTOR, List(),
         ctorParams :: Nil,
@@ -73,7 +77,7 @@ object ModelMacro { macro =>
     def mkTimes(typeName: TypeName, columnNames: List[c.universe.TermName], augment: Boolean): Tree = {
       val expr = {
         if (augment)
-          s"def * = id.? ~ ${mkTilde(columnNames)} ~ dateCreated.? ~ dateUpdated.? <> (${typeName.decoded}, ${typeName.decoded}.unapply _)"
+          s"def * = id.? ~ ${mkTilde(columnNames)} /* ~ dateCreated.? ~ dateUpdated.? */ <> (${typeName.decoded}, ${typeName.decoded}.unapply _)"
         else
           s"def * = ${mkTilde(columnNames)} <> (${typeName.decoded}, ${typeName.decoded}.unapply _)"
       }
@@ -84,11 +88,13 @@ object ModelMacro { macro =>
      * create the def forInsert = ...
      */
     def mkForInsert(typeName: TypeName, columnNames: List[c.universe.TermName]): Tree = {
-      val tuple = List.tabulate(columnNames.size + 2)(n => ("t._" + (n + 1).toString)).reduce(_ + ", " + _)
+      val tuple = List.tabulate(columnNames.size /*+ 2*/ )(n => ("t._" + (n + 1).toString)).reduce(_ + ", " + _)
       val apply = s"""{ t => ${typeName.decoded}(None, $tuple) }"""
       val fields = columnNames.map("x." + _.decoded).reduce(_ + "," + _)
-      val unapply = s"""{(x: ${typeName.decoded}) => Some(($fields, x.dateCreated, x.dateUpdated))}"""
-      val expr = s"def forInsert = ${mkTilde(columnNames)} ~ dateCreated.? ~ dateUpdated.? <> ($apply,$unapply)"
+      //val unapply = s"""{(x: ${typeName.decoded}) => Some(($fields, x.dateCreated, x.dateUpdated))}"""
+      val unapply = s"""{(x: ${typeName.decoded}) => Some(($fields))}"""
+      //val expr = s"def forInsert = ${mkTilde(columnNames)} /* ~ dateCreated.? ~ dateUpdated.? */ <> ($apply,$unapply)"
+      val expr = s"def forInsert = ${mkTilde(columnNames)} <> ($apply,$unapply)"
       c.parse(expr)
     }
 
@@ -112,7 +118,7 @@ object ModelMacro { macro =>
      */
     def mkTable(caseClassesName: List[String], classdef: Tree, augment: Boolean = true): List[Tree] = {
       val ClassDef(mod, typeName, Nil, Template(parents, self, body)) = classdef
-      val columnVals = body.collect {
+      val (listVals, simpleVals) = body.collect {
         case ValDef(mod, name, tpt, rhs) =>
           if (augment && reservedNames.exists(_ == name.decoded))
             c.abort(c.enclosingPosition, s"Column with name ${name.decoded} not allowed")
@@ -129,26 +135,30 @@ object ModelMacro { macro =>
                 (mod, name, tpt, rhs, None)
             }
           }
+      } partition {
+        case (mods, name, self, _, Some((tpe, _))) if (tpe == "List") => true
+        case _ => false
       }
-      val foreignKeys = columnVals.collect { it =>
+
+      val foreignKeys = simpleVals.collect { it =>
         it match {
-          case (_, name, _, rhs, Some((option, tpe))) if option == "" || option == "Option" =>
+          case (_, name, _, rhs, Some((option, tpe))) =>
             c.parse(s"""def ${tpe.decoded.toLowerCase} = foreignKey("${typeName.decoded.toLowerCase}2${tpe.decoded.toLowerCase}", $name, ${tableName(tpe.decoded)})(_.id)""")
         }
       }
-      val assocs = columnVals.collect { it =>
-        it match {
-          case (_, name, _, rhs, Some(("List", tpe))) =>
-            c.parse(s"""case class ${typeName.decoded}2${tpe.decoded}(${Introspector.decapitalize(typeName.decoded)}:${typeName.decoded}, ${Introspector.decapitalize(tpe.decoded)}:${tpe.decoded})""")
-        }
+      val assocs = listVals.map { it =>
+        val (_, name, _, rhs, Some(("List", tpe))) = it
+        c.parse(s"""case class ${typeName.decoded}2${tpe.decoded}(${Introspector.decapitalize(typeName.decoded)}:${typeName.decoded}, ${Introspector.decapitalize(tpe.decoded)}:${tpe.decoded})""")
       }
       val assocTables = assocs.flatMap { mkTable(caseClassesName, _, false) }
       val idVal = c.parse("""def id = column[Int]("id", O.PrimaryKey, O.AutoInc);""")
+      /*
       def dateCVal = c.parse("""def dateCreated = column[java.sql.Date]("dateCreated")""")
       def dateUVal = c.parse("""def dateUpdated = column[java.sql.Date]("dateUpdated")""")
-      val defdefs = columnVals.map(t => mkColumn(t._2, t._3))
-      val times = mkTimes(typeName, columnVals.map(_._2), augment)
-      val forInsert = mkForInsert(typeName, columnVals.map(_._2))
+      */
+      val defdefs = simpleVals.map(t => mkColumn(t._2, t._3))
+      val times = mkTimes(typeName, simpleVals.map(_._2), augment)
+      val forInsert = mkForInsert(typeName, simpleVals.map(_._2))
       val ctor =
         DefDef(
           Modifiers(),
@@ -164,8 +174,8 @@ object ModelMacro { macro =>
           Template(
             AppliedTypeTree(Ident(newTypeName("Table")), Ident(newTypeName(typeName.decoded)) :: Nil) :: Nil,
             emptyValDef,
-            if (augment) ctor :: idVal :: dateCVal :: dateUVal :: times :: forInsert :: defdefs ++ foreignKeys else ctor :: times :: defdefs ++ foreignKeys))
-      List(mkCaseClass(typeName, columnVals, parents, self, augment), moduledef) ++ assocTables
+            if (augment) ctor :: idVal /* :: dateCVal :: dateUVal */ :: times :: forInsert :: defdefs ++ foreignKeys else ctor :: times :: defdefs ++ foreignKeys))
+      List(mkCaseClass(typeName, simpleVals, parents, self, augment), moduledef) ++ assocTables
     }
     val result = {
       annottees.map(_.tree).toList match {
