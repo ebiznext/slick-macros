@@ -107,7 +107,7 @@ alter table "project2member" add constraint "project2member2project" foreign key
 
   ```
 
-- @Transactional (Work in progress) when put in front of a service will inject the database session around the service code.
+- @Transactional (Work in progress) when put in front of a service will inject the database transactional session around the service code.
   The code below
 
     ```scala
