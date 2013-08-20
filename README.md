@@ -34,55 +34,63 @@ slick-macros
     type UserRights = Value;
     val ADMIN = Value(1);
     val GUEST = Value(2)
-  };
-  import UserRights._;
-  implicit val UserRightsTypeMapper = MappedTypeMapper.base[UserRights.Value, Int](((it) => it.id), ((id) => UserRights(id)));
+  }
+  
+  implicit val UserRightsTypeMapper = MappedTypeMapper.base[UserRights.Value, Int](
+    {
+      it => it.id
+    },
+    {
+      id => UserRights(id)
+    })
+    
+  import UserRights._
 
   case class Company(id: Option[Int], name: String, website: String)
 
   object Companies extends Table[Company]("company") {
-    def id = column[Int]("id", O.PrimaryKey, O.AutoInc);
-    def name = column[String]("name");
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def name = column[String]("name")
     def website = column[String]("website")
-    def * = id.? ~ name ~ website <> (Company, (Company.unapply _));
+    def * = id.? ~ name ~ website <> (Company, (Company.unapply _))
 
-    def forInsert = name ~ website <> (((t) => Company(None, t._1, t._2)), ((x: Company) => Some((x.name, x.website))));
+    def forInsert = name ~ website <> (((t) => Company(None, t._1, t._2)), ((x: Company) => Some((x.name, x.website))))
   }
 
   case class Member(id: Option[Int], login: String, rights: UserRights, companyId: Int)
 
   object Members extends Table[Member]("member") {
-    def id = column[Int]("id", O.PrimaryKey, O.AutoInc);
-    def login = column[String]("login");
-    def rights = column[UserRights]("rights");
-    def companyId = column[Int]("companyId");
-    def * = id.? ~ login ~ rights ~ companyId <> (Member, (Member.unapply _));
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def login = column[String]("login")
+    def rights = column[UserRights]("rights")
+    def companyId = column[Int]("companyId")
+    def * = id.? ~ login ~ rights ~ companyId <> (Member, (Member.unapply _))
 
-    def forInsert = login ~ rights ~ companyId <> (((t) => Member(None, t._1, t._2, t._3)), ((x: Member) => Some((x.login, x.rights, x.companyId))));
+    def forInsert = login ~ rights ~ companyId <> (((t) => Member(None, t._1, t._2, t._3)), ((x: Member) => Some((x.login, x.rights, x.companyId))))
 
     def company = foreignKey("member2company", companyId, Companies)(_.id)
-  };
+  }
 
   case class Project(id: Option[Int], name: String, companyId: Int)
 
   object Projects extends Table[Project]("project") {
-    def id = column[Int]("id", O.PrimaryKey, O.AutoInc);
-    def name = column[String]("name");
-    def companyId = column[Int]("companyId");
-    def * = id.? ~ name ~ companyId <> (Project, (Project.unapply _));
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def name = column[String]("name")
+    def companyId = column[Int]("companyId")
+    def * = id.? ~ name ~ companyId <> (Project, (Project.unapply _))
     
-    def forInsert = name ~ companyId <> (((t) => Project(None, t._1, t._2)), ((x: Project) => Some((x.name, x.companyId))));
+    def forInsert = name ~ companyId <> (((t) => Project(None, t._1, t._2)), ((x: Project) => Some((x.name, x.companyId))))
 
     def company = foreignKey("project2company", companyId, Companies)(_.id)
-  };
+  }
 
-  case class Project2Member(val projectId: Int, val memberId: Int);
+  case class Project2Member(val projectId: Int, val memberId: Int)
   object Project2Members extends Table[Project2Member]("project2member") {
-    def projectId = column[Int]("projectId");
-    def memberId = column[Int]("memberId");
-    def * = projectId ~ memberId <> (Project2Member, (Project2Member.unapply _));
+    def projectId = column[Int]("projectId")
+    def memberId = column[Int]("memberId")
+    def * = projectId ~ memberId <> (Project2Member, (Project2Member.unapply _))
     
-    def project = foreignKey("project2member2project", projectId, Projects)(_.id);
+    def project = foreignKey("project2member2project", projectId, Projects)(_.id)
     def member = foreignKey("project2member2member", memberId, Members)(_.id)
   }
 }
