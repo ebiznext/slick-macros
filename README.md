@@ -104,9 +104,6 @@ create table "project2member" ("projectId" INTEGER NOT NULL,"memberId" INTEGER N
 alter table "member" add constraint "member2company" foreign key("companyId") references "company"("id") on update NO ACTION on delete NO ACTION
 alter table "project2member" add constraint "project2member2member" foreign key("memberId") references "member"("id") on update NO ACTION on delete NO ACTION
 alter table "project2member" add constraint "project2member2project" foreign key("projectId") references "project"("id") on update NO ACTION on delete NO ACTION
-alter table "member" drop constraint "member2company"
-alter table "project2member" drop constraint "project2member2member"
-alter table "project2member" drop constraint "project2member2project"
 
   ```
 
