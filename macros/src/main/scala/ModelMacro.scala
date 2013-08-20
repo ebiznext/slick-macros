@@ -11,8 +11,6 @@ object ModelMacro { macro =>
   def impl(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
     import Flag._
-    val ww = ClassDef(Modifiers(CASE), newTypeName("Y"), List(), Template(List(Select(Ident("scala"), newTypeName("Product")), Select(Ident("scala"), newTypeName("Serializable"))), emptyValDef, List(DefDef(Modifiers(), nme.CONSTRUCTOR, List(), List(List()), TypeTree(), Block(List(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), List())), Literal(Constant(())))))))
-    val www = ModuleDef(Modifiers(), newTermName("U"), Template(List(AppliedTypeTree(Ident(newTypeName("Z")), List(Ident(newTypeName("Y"))))), emptyValDef, List(DefDef(Modifiers(), nme.CONSTRUCTOR, List(), List(List()), TypeTree(), Block(List(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), List())), Literal(Constant(())))), EmptyTree)))
 
     val reservedNames = List("id" /*, "dateCreated", "dateUpdated"*/ )
     val caseAccessor = scala.reflect.internal.Flags.CASEACCESSOR.asInstanceOf[Long].asInstanceOf[FlagSet]
