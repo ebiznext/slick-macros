@@ -136,7 +136,7 @@ object ModelMacro { macro =>
             }
           }
       } partition {
-        case (mods, name, self, _, Some((tpe, _))) if (tpe == "List") => true
+        case (mods, name, self, _, Some(("List", _))) => true
         case _ => false
       }
 
@@ -202,9 +202,7 @@ object ModelMacro { macro =>
           c.abort(c.enclosingPosition, s"Only module defs allowed here")
       }
     }
-    println("========================")
     println(result)
-    println("========================")
     c.Expr[Any](result)
   }
 }
