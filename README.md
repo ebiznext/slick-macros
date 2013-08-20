@@ -116,7 +116,7 @@ alter table "project2member" add constraint "project2member2project" foreign key
     
     will generate the AST for the code below
     ```scala
-    def myService(...) = Database.forURL(...) withSession { body }
+    def myService(...) = Database.forURL(...) withTransaction { body }
     ```
     
 - The DynamicAccessor (Work in progress)  Trait will inject timestamps into insert and update statements and allow updates
