@@ -25,8 +25,6 @@ object SampleApp extends App {
   stmts.foreach(println)
   
   @Transactional def allCompanies = Query(Companies).list
-  @SessionOnly def allCompaniesExplicit(implicit x:DatabaseOptions) = Query(Companies).list
-  
+  @SessionOnly def allCompaniesExplicit(implicit x:DbConnectionInfos) = Query(Companies).list
   implicit val dbConnectionInfo = DbConnectionInfos(jndiName = "vars/jndi/jdbc/mydb")
 }
-

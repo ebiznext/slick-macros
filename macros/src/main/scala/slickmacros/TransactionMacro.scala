@@ -28,6 +28,7 @@ object TransactionMacro {
   def implTransaction(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     impl(c, "withTransaction")(annottees: _*)
   }
+
   def implSession(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     impl(c, "withSession")(annottees: _*)
   }
@@ -36,72 +37,57 @@ object TransactionMacro {
     import Flag._
     val param = scala.reflect.internal.Flags.PARAM.asInstanceOf[Long].asInstanceOf[FlagSet]
     val implict = scala.reflect.internal.Flags.IMPLICIT.asInstanceOf[Long].asInstanceOf[FlagSet]
+
     // Quasiquotes would be more than welcome here :(
     val result = {
       annottees.map(_.tree).toList match {
-        case DefDef(mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) :: Nil =>
-          // case DefDef(mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) :: Nil =>
+        case q"$mods def $name[..$tparams](...$vparamss): $tpt = $body" :: Nil =>
           val implictParam = vparamss.find { it =>
             it match {
-              case ValDef(mods, name, Ident(tpe), _) :: Nil if mods.hasFlag(implict) && tpe.decoded == "DbConnectionInfos" => true
+              // "$IMPLICIT ..." did not work here
+              case q"$mods val $name:$tpt = $rhs" :: Nil if mods.hasFlag(implict) && tpt.toString == "DbConnectionInfos" => true
               case _ => false
             }
           } map { it =>
-            val ValDef(_, name, _, _) :: Nil = it
+            val q"$mods val $name:$tpt = $rhs" :: Nil = it
             name.decoded
           } map { it =>
             (it, Nil :: Nil)
           } getOrElse {
-            ("_dbOptions", List(ValDef(Modifiers(implict | param), newTermName("_dbOptions"), Ident(newTypeName("DbConnectionInfos")), EmptyTree) :: Nil))
+            ("_dbOptions", List(q"implicit val _dbOptions:DbConnectionInfos") :: Nil)
           }
           val implicitValName = implictParam._1
 
-          /*
-          s"""
-		    val db =
+          val dbval = c.parse(s"""
+		    val _db =
 		      if ($implicitValName.jndiName ne null)
 		        Database.forName($implicitValName.jndiName)
 		      else if ($implicitValName.dataSource ne null)
 		        Database.forDataSource($implicitValName.dataSource)
 		      else if ($implicitValName.driver ne null)
 		        Database.forDriver($implicitValName.driver, $implicitValName.url, $implicitValName.user, $implicitValName.password, $implicitValName.properties)
-		      else if (_dbOptions.driverClassName ne null)
+		      else if ($implicitValName.driverClassName ne null)
 		        Database.forURL($implicitValName.url, $implicitValName.user, $implicitValName.password, $implicitValName.properties, $implicitValName.driverClassName)
 		        else
 		          throw new SlickException("One of jndiName / dataSource / driver / driverClassName must be set")
-		    db withTransaction {
-		
-		    }
-              """
-              */
-          DefDef(
-            mods,
-            name,
-            tparams,
-            vparamss ++ implictParam._2,
-            tpt,
-            Block(
-              List(
-                ValDef(
-                  Modifiers(),
-                  newTermName("_db"),
-                  TypeTree(),
-                  If(Apply(Select(Select(Ident(newTermName(implicitValName)), newTermName("jndiName")), newTermName("ne")), Literal(Constant(null)) :: Nil),
-                    Apply(Select(Ident(newTermName("Database")), newTermName("forName")), Select(Ident(newTermName(implicitValName)), newTermName("jndiName")) :: Nil),
-                    If(Apply(Select(Select(Ident(newTermName(implicitValName)), newTermName("dataSource")), newTermName("ne")), Literal(Constant(null)) :: Nil),
-                      Apply(Select(Ident(newTermName("Database")), newTermName("forDataSource")), Select(Ident(newTermName(implicitValName)), newTermName("dataSource")) :: Nil),
-                      If(Apply(Select(Select(Ident(newTermName(implicitValName)), newTermName("driver")), newTermName("ne")), Literal(Constant(null)) :: Nil),
-                        Apply(Select(Ident(newTermName("Database")), newTermName("forDriver")), List(Select(Ident(newTermName(implicitValName)), newTermName("driver")), Select(Ident(newTermName(implicitValName)), newTermName("url")), Select(Ident(newTermName(implicitValName)), newTermName("user")), Select(Ident(newTermName(implicitValName)), newTermName("password")), Select(Ident(newTermName(implicitValName)), newTermName("properties")))),
-                        If(Apply(Select(Select(Ident(newTermName(implicitValName)), newTermName("driverClassName")), newTermName("ne")), Literal(Constant(null)) :: Nil),
-                          Apply(Select(Ident(newTermName("Database")), newTermName("forURL")), List(Select(Ident(newTermName(implicitValName)), newTermName("url")), Select(Ident(newTermName(implicitValName)), newTermName("user")), Select(Ident(newTermName(implicitValName)), newTermName("password")), Select(Ident(newTermName(implicitValName)), newTermName("properties")), Select(Ident(newTermName(implicitValName)), newTermName("driverClassName")))),
-                          Throw(Apply(Select(New(Ident(newTypeName("SlickException"))), nme.CONSTRUCTOR), Literal(Constant("One of jndiName / dataSource / driver / driverClassName must be set")) :: Nil)))))))),
-              Apply(Select(Ident(newTermName("_db")), newTermName(sessionType)), rhs :: Nil)))
+              """)
+          val newvparams = vparamss ++ implictParam._2
+
+          // Had to split in two since quasiquotes fails to generate correctly the final string.
+          val defdef = q"""$mods def $name[..$tparams](...$newvparams): $tpt = { 
+              	$dbval
+              	_db withTransaction { 
+              		$body 
+              	}
+              }"""
+          defdef
         case _ => c.abort(c.enclosingPosition, "Transaction may be attached to a method definition only")
       }
     }
     println(result)
     c.Expr[Any](result)
   }
+
 }
 
 class Transactional extends StaticAnnotation {
