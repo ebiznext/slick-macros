@@ -107,16 +107,42 @@ alter table "project2member" add constraint "project2member2project" foreign key
 
   ```
 
-- @Transactional (Work in progress) when put in front of a service will inject the database transactional session around the service code.
+- @SessionOnly (@Transactional) when put in front of a service will inject the database (transactional) session around the service code.
   The code below
 
     ```scala
     @Transactional def myService(...) = body
+    @SessionOnly def myService2(...) = body2
     ```
     
     will generate the AST for the code below
     ```scala
-    def myService(...) = Database.forURL(...) withTransaction { body }
+    def myService(...) = Database.for[URL|Driver|Name|DataSource](...) withTransaction { body }
+    def myService2(...) = Database.for[URL|Driver|Name|DataSource](...) withSession { body2 }
+    ```
+    
+    The database connection infos has to be provided through an implicit value of the type DbConnectionInfos
+    ```scala
+    case class DbConnectionInfos(
+      jndiName: String = null,
+      dataSource: DataSource = null,
+      url: String = null,
+      user: String = null,
+      password: String = null,
+      driverClassName: String = null,
+      driver: Driver = null,
+      properties: Properties = null)
+    ```
+    
+    For a JNDI datasource simply provide the implicit as below :
+    ```scala
+      implicit val jndiDBConnectionInfo = DbConnectionInfos(jndiName = "vars/jndi/jdbc/tetradb")
+    ```
+    
+    For a URL datasource simply provide the implicit as below :
+    ```scala
+    implicit val jndiDBConnectionInfo = DbConnectionInfos(url="jdbc:postgresql:tetra", driver = "org.postgresql.Driver",
+                                                          user = "tetra", password = "e-z12B24")
     ```
     
 - The DynamicAccessor (Work in progress)  Trait will inject timestamps into insert and update statements and allow updates
