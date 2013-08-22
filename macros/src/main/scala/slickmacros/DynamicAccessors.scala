@@ -1,14 +1,8 @@
-import scala.language.existentials
-import java.lang.reflect.Method
-import scala.slick.SlickException
-import scala.reflect.ClassTag
-import scala.language.dynamics
-import language.experimental.macros
-import scala.language.experimental.macros
-import scala.reflect.ClassTag
-import scala.reflect.NameTransformer
+package slickmacros
+
 import scala.reflect.macros.Context
 import scala.reflect.runtime.{ universe => u }
+import scala.language.experimental.macros
 
 /**
  * Work in progress

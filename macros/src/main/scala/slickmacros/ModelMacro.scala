@@ -1,11 +1,12 @@
+package slickmacros
+
 import scala.reflect.macros.Context
-import scala.language.experimental.macros
 import scala.annotation.StaticAnnotation
 import scala.util.parsing.combinator._
 import scala.reflect.runtime.universe._
-import scala.tools.reflect.ToolBox
-import scala.reflect.runtime.{ currentMirror => m }
 import java.beans.Introspector;
+import scala.Option.option2Iterable
+import scala.language.experimental.macros
 
 object ModelMacro { macro =>
   def impl(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
@@ -191,9 +192,8 @@ object ModelMacro { macro =>
             case _ => None
           }
           val tables = caseClasses.flatMap(mkTable(caseClassesName, _))
-          val mods = modules.flatMap {
-            case ModuleDef(modifiers, name, tmpl) => Some(mkModules(name.decoded))
-            case _ => None
+          val mods = modules.collect {
+            case ModuleDef(modifiers, name, tmpl) => mkModules(name.decoded)
           }
           ModuleDef(Modifiers(), moduleName, Template(parents, self, modules ++ mods ++ tables))
         case _ =>

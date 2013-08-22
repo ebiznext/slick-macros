@@ -16,11 +16,17 @@ import scala.reflect.NameTransformer
 import scala.reflect.macros.Context
 import scala.reflect.runtime.{ universe => u }
 import scala.slick.lifted.MappedTypeMapper
+import slickmacros._
 
 object SampleApp extends App {
-  import XDb._
+  import model.XDb._
   val ddls = Companies.ddl ++ Members.ddl ++ Project2Members.ddl
   val stmts = ddls.createStatements ++ ddls.dropStatements
-  stmts.foreach(println(_))
-
+  stmts.foreach(println)
+  
+  @Transactional def allCompanies = Query(Companies).list
+  @SessionOnly def allCompaniesExplicit(implicit x:DatabaseOptions) = Query(Companies).list
+  
+  implicit val dbConnectionInfo = DbConnectionInfos(jndiName = "vars/jndi/jdbc/mydb")
 }
+
