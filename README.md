@@ -136,13 +136,13 @@ alter table "project2member" add constraint "project2member2project" foreign key
     
     For a JNDI datasource simply provide the implicit as below :
     ```scala
-      implicit val jndiDBConnectionInfo = DbConnectionInfos(jndiName = "vars/jndi/jdbc/tetradb")
+      implicit val myJndiDBConnectionInfo = DbConnectionInfos(jndiName = "vars/jndi/jdbc/tetradb")
     ```
     
     For a URL datasource simply provide the implicit as below :
     ```scala
-    implicit val jndiDBConnectionInfo = DbConnectionInfos(url="jdbc:postgresql:tetra", driver = "org.postgresql.Driver",
-                                                          user = "tetra", password = "e-z12B24")
+  implicit val myUrlDBConnectionInfo = DbConnectionInfos(url="jdbc:postgresql:tetra", driver = "org.postgresql.Driver",
+                                                        user = "tetra", password = "e-z12B24")
     ```
     
 - The DynamicAccessor (Work in progress)  Trait will inject timestamps into insert and update statements and allow updates
