@@ -29,13 +29,13 @@ slick-macros
         stmts.foreach(println)
 
       @Transactional def sampleService = {
-        val company : Company = Companies.byId(CompanyId(1))
+        val company : Company = Companies.byId(1)
 
-        val member : Member = Members.byId(MemberId(1)).getOrElse(throw new Exception("?"))
+        val member : Member = Members.byId(1).getOrElse(throw new Exception("?"))
 
         val mymanager : Option[Member] = member.manager
 
-        val project : Project = Projects.byId(ProjectId(1)).getOrElse(throw new Exception("??"))
+        val project : Project = Projects.byId(1).getOrElse(throw new Exception("??"))
 
         val someProjectMembers : List[Member] = project.members.take(2).list
       }
@@ -68,24 +68,12 @@ slick-macros
       id => UserRights(id)
     })
     
-  case class CompanyId(val rowId: Long)
-  implicit object CompanyId extends (Long => CompanyId)
-
-  case class ProjectId(val rowId: Long)
-  implicit object ProjectId extends (Long => ProjectId)
-
-  case class MemberId(val rowId: Long)
-  implicit object MemberId extends (Long => MemberId)
-
-  implicit def IdTypeMapper[T <: { val rowId: Long }](implicit comap: Long => T) = MappedTypeMapper.base[T, Long](_.rowId, comap)
-
-    
   import UserRights._
 
-  case class Company(id: Option[CompanyId], name: String, website: String)
+  case class Company(id: Option[Long], name: String, website: String)
 
   object Companies extends Table[Company]("company") {
-    def id = column[CompanyId]("id", O.PrimaryKey, O.AutoInc)
+    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name")
     def website = column[String]("website")
     def * = id.? ~ name ~ website <> (Company, (Company.unapply _))
@@ -94,25 +82,24 @@ slick-macros
     
     // code below to be moved to a trait
     def insert(obj: Company) = forInsert.returning(id).insert(obj);
-    def delete(objId: CompanyId) = Query(this).where(_.id === objId).delete;
+    def delete(objId: Long) = Query(this).where(_.id === objId).delete;
     def update(obj: Company) = (for { row <- this if row.id === obj.xid } yield row) update (obj)
-    def byId(rowId : Long) = byId(CompanyId(rowId))
-    def byId(objId: CompanyId) = Query(this).where(_.id === objId).firstOption
+    def byId(objId: Long) = Query(this).where(_.id === objId).firstOption
     
   }
 
-  case class Member(id: Option[MemberId], login: String, rights: UserRights, companyId: Int) {
+  case class Member(id: Option[Long], login: String, rights: UserRights, companyId: Long) {
     def company = Query(Companies).where(_.id === companyId).first
     def manager = Query(Companies).where(_.id === managerId).firstOption
     
   }
 
   object Members extends Table[Member]("member") {
-    def id = column[MemberId]("id", O.PrimaryKey, O.AutoInc)
+    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
     def login = column[String]("login")
     def rights = column[UserRights]("rights")
-    def companyId = column[CompanyId]("companyId")
-    def managerId = column[Option[MemberId]]("managerId");
+    def companyId = column[Long]("companyId")
+    def managerId = column[Option[Long]]("managerId");
     
     def * = id.? ~ login ~ rights ~ companyId <> (Member, (Member.unapply _))
 
@@ -120,21 +107,20 @@ slick-macros
 
     // code below to be moved to a trait
     def insert(obj: Member) = forInsert.returning(id).insert(obj);
-    def delete(objId: MemberId) = Query(this).where(_.id === objId).delete;
+    def delete(objId: Long) = Query(this).where(_.id === objId).delete;
     def update(obj: Member) = (for { row <- this if row.id === obj.xid } yield row) update (obj)
-    def byId(rowId : Long) = byId(MemberId(rowId))
-    def byId(objId: MemberId) = Query(this).where(_.id === objId).firstOption
+    def byId(objId: Long) = Query(this).where(_.id === objId).firstOption
 
     def company = foreignKey("member2company", companyId, Companies)(_.id)
   }
 
-  case class Project(id: Option[ProjectId], name: String, companyId: Int) {
+  case class Project(id: Option[Long], name: String, companyId: Long) {
     def company = Query(Companies).where(_.id === companyId).first
     def members = Project2Members.members(id)
   }
 
   object Projects extends Table[Project]("project") {
-    def id = column[ProjectId]("id", O.PrimaryKey, O.AutoInc)
+    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name")
     def companyId = column[CompanyId]("companyId")
     def * = id.? ~ name ~ companyId <> (Project, (Project.unapply _))
@@ -143,25 +129,21 @@ slick-macros
     
     // code below to be moved to a trait
     def insert(obj: Project) = forInsert.returning(id).insert(obj);
-    def delete(objId: ProjectId) = Query(this).where(_.id === objId).delete;
+    def delete(objId: Long) = Query(this).where(_.id === objId).delete;
     def update(obj: Project) = (for { row <- this if row.id === obj.xid } yield row) update (obj)
-    def byId(rowId : Long) = byId(ProjectId(rowId))
-    def byId(objId: ProjectId) = Query(this).where(_.id === objId).firstOption
+    def byId(objId: Long) = Query(this).where(_.id === objId).firstOption
 
     def company = foreignKey("project2company", companyId, Companies)(_.id)
   }
 
-  case class Project2Member(val projectId: Int, val memberId: Int)
+  case class Project2Member(val projectId: Long, val memberId: Long)
   object Project2Members extends Table[Project2Member]("project2member") {
-    def projectId = column[ProjectId]("projectId")
-    def memberId = column[MemberId]("memberId")
+    def projectId = column[Long]("projectId")
+    def memberId = column[Long]("memberId")
     def * = projectId ~ memberId <> (Project2Member, (Project2Member.unapply _))
     
-    def members(rowId:Long) = members(ProjectId(rowId))
-    def projects(rowId:Long) = projects(MemberId(rowId))
-    
-    def members(id:ProjectId) = Query(Project2Members).where(_.projectId === id)
-    def projects(id:MemberId) = Query(Project2Members).where(_.memberId === id)
+    def members(id:Long) = Query(Project2Members).where(_.projectId === id)
+    def projects(id:Long) = Query(Project2Members).where(_.memberId === id)
     
     def project = foreignKey("project2member2project", projectId, Projects)(_.id)
     def member = foreignKey("project2member2member", memberId, Members)(_.id)
