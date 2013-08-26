@@ -96,6 +96,7 @@ slick-macros
     def insert(obj: Company) = forInsert.returning(id).insert(obj);
     def delete(objId: CompanyId) = Query(this).where(_.id === objId).delete;
     def update(obj: Company) = (for { row <- this if row.id === obj.xid } yield row) update (obj)
+    def byId(rowId : Long) = byId(CompanyId(rowId)
     def byId(objId: CompanyId) = Query(this).where(_.id === objId).firstOption
     
   }
@@ -121,6 +122,7 @@ slick-macros
     def insert(obj: Member) = forInsert.returning(id).insert(obj);
     def delete(objId: MemberId) = Query(this).where(_.id === objId).delete;
     def update(obj: Member) = (for { row <- this if row.id === obj.xid } yield row) update (obj)
+    def byId(rowId : Long) = byId(MemberId(rowId)
     def byId(objId: MemberId) = Query(this).where(_.id === objId).firstOption
 
     def company = foreignKey("member2company", companyId, Companies)(_.id)
@@ -143,6 +145,7 @@ slick-macros
     def insert(obj: Project) = forInsert.returning(id).insert(obj);
     def delete(objId: ProjectId) = Query(this).where(_.id === objId).delete;
     def update(obj: Project) = (for { row <- this if row.id === obj.xid } yield row) update (obj)
+    def byId(rowId : Long) = byId(ProjectId(rowId)
     def byId(objId: ProjectId) = Query(this).where(_.id === objId).firstOption
 
     def company = foreignKey("project2company", companyId, Companies)(_.id)
@@ -153,6 +156,9 @@ slick-macros
     def projectId = column[ProjectId]("projectId")
     def memberId = column[MemberId]("memberId")
     def * = projectId ~ memberId <> (Project2Member, (Project2Member.unapply _))
+    
+    def members(rowId:Long) = members(ProjectId(rowId))
+    def projects(rowId:Long) = projects(MemberId(rowId))
     
     def members(id:ProjectId) = Query(Project2Members).where(_.projectId === id)
     def projects(id:MemberId) = Query(Project2Members).where(_.memberId === id)
