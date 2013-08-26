@@ -14,7 +14,7 @@ slick-macros
   }
   import UserRights._
   case class Company(name: String, website: String)
-  case class Member(login: String, rights: UserRights, company: Company)
+  case class Member(login: String, rights: UserRights, company: Company, manager:Option[Member])
   case class Project(name: String, company: Company, members: List[Member])
 }
 
@@ -29,15 +29,15 @@ slick-macros
         stmts.foreach(println)
 
       @Transactional def sampleService = {
-        val company = Companies.byId(CompanyId(1))
+        val company : Company = Companies.byId(CompanyId(1))
 
-        val member = Members.byId(MemberId(1)).getOrElse(throw new Exception("?"))
+        val member : Member = Members.byId(MemberId(1)).getOrElse(throw new Exception("?"))
 
-        val mymanager = member.manager
+        val mymanager : Option[Member] = member.manager
 
-        val project = Projects.byId(ProjectId(1)).getOrElse(throw new Exception("??"))
+        val project : Project = Projects.byId(ProjectId(1)).getOrElse(throw new Exception("??"))
 
-        val someProjectMembers = project.members.take(2).list
+        val someProjectMembers : List[Member] = project.members.take(2).list
       }
     }
 
@@ -102,13 +102,17 @@ slick-macros
 
   case class Member(id: Option[MemberId], login: String, rights: UserRights, companyId: Int) {
     def company = Query(Companies).where(_.id === companyId).first
+    def manager = Query(Companies).where(_.id === managerId).firstOption
+    
   }
 
   object Members extends Table[Member]("member") {
     def id = column[MemberId]("id", O.PrimaryKey, O.AutoInc)
     def login = column[String]("login")
     def rights = column[UserRights]("rights")
-    def companyId = column[Int]("companyId")
+    def companyId = column[CompanyId]("companyId")
+    def managerId = column[Option[MemberId]]("managerId");
+    
     def * = id.? ~ login ~ rights ~ companyId <> (Member, (Member.unapply _))
 
     def forInsert = login ~ rights ~ companyId <> (((t) => Member(None, t._1, t._2, t._3)), ((x: Member) => Some((x.login, x.rights, x.companyId))))
@@ -130,7 +134,7 @@ slick-macros
   object Projects extends Table[Project]("project") {
     def id = column[ProjectId]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name")
-    def companyId = column[Int]("companyId")
+    def companyId = column[CompanyId]("companyId")
     def * = id.? ~ name ~ companyId <> (Project, (Project.unapply _))
     
     def forInsert = name ~ companyId <> (((t) => Project(None, t._1, t._2)), ((x: Project) => Some((x.name, x.companyId))))
@@ -146,8 +150,8 @@ slick-macros
 
   case class Project2Member(val projectId: Int, val memberId: Int)
   object Project2Members extends Table[Project2Member]("project2member") {
-    def projectId = column[Int]("projectId")
-    def memberId = column[Int]("memberId")
+    def projectId = column[ProjectId]("projectId")
+    def memberId = column[MemberId]("memberId")
     def * = projectId ~ memberId <> (Project2Member, (Project2Member.unapply _))
     
     def members(id:ProjectId) = Query(Project2Members).where(_.projectId === id)
