@@ -19,6 +19,30 @@ slick-macros
 }
 
     ```
+    A sample app look like this :
+
+    ```scala
+    object SampleApp extends App {
+        import model.XDb._
+        val ddls = Companies.ddl ++ Members.ddl ++ Projects.ddl ++ Project2Members.ddl
+        val stmts = ddls.createStatements ++ ddls.dropStatements
+        stmts.foreach(println)
+
+      @Transactional def sampleService = {
+        val company = Companies.byId(CompanyId(1))
+
+        val member = Members.byId(MemberId(1)).getOrElse(throw new Exception("?"))
+
+        val mymanager = member.manager
+
+        val project = Projects.byId(ProjectId(1)).getOrElse(throw new Exception("??"))
+
+        val someProjectMembers = project.members.take(2).list
+      }
+    }
+
+    ```
+
     The code above will be processed by applying the following rules :
     - A type mapper is generated for each Enumeration, so that they can be used as table columns (only Int values are handled for now)
     - an attribute that references another case class is converted to a foreign key
@@ -44,23 +68,44 @@ slick-macros
       id => UserRights(id)
     })
     
+  case class CompanyId(val rowId: Long)
+  implicit object CompanyId extends (Long => CompanyId)
+
+  case class ProjectId(val rowId: Long)
+  implicit object ProjectId extends (Long => ProjectId)
+
+  case class MemberId(val rowId: Long)
+  implicit object MemberId extends (Long => MemberId)
+
+  implicit def IdTypeMapper[T <: { val rowId: Long }](implicit comap: Long => T) = MappedTypeMapper.base[T, Long](_.rowId, comap)
+
+    
   import UserRights._
 
-  case class Company(id: Option[Int], name: String, website: String)
+  case class Company(id: Option[CompanyId], name: String, website: String)
 
   object Companies extends Table[Company]("company") {
-    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def id = column[CompanyId]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name")
     def website = column[String]("website")
     def * = id.? ~ name ~ website <> (Company, (Company.unapply _))
 
     def forInsert = name ~ website <> (((t) => Company(None, t._1, t._2)), ((x: Company) => Some((x.name, x.website))))
+    
+    // code below to be moved to a trait
+    def insert(obj: Company) = forInsert.returning(id).insert(obj);
+    def delete(objId: CompanyId) = Query(this).where(_.id === objId).delete;
+    def update(obj: Company) = (for { row <- this if row.id === obj.xid } yield row) update (obj)
+    def byId(objId: CompanyId) = Query(this).where(_.id === objId).firstOption
+    
   }
 
-  case class Member(id: Option[Int], login: String, rights: UserRights, companyId: Int)
+  case class Member(id: Option[MemberId], login: String, rights: UserRights, companyId: Int) {
+    def company = Query(Companies).where(_.id === companyId).first
+  }
 
   object Members extends Table[Member]("member") {
-    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def id = column[MemberId]("id", O.PrimaryKey, O.AutoInc)
     def login = column[String]("login")
     def rights = column[UserRights]("rights")
     def companyId = column[Int]("companyId")
@@ -68,18 +113,33 @@ slick-macros
 
     def forInsert = login ~ rights ~ companyId <> (((t) => Member(None, t._1, t._2, t._3)), ((x: Member) => Some((x.login, x.rights, x.companyId))))
 
+    // code below to be moved to a trait
+    def insert(obj: Member) = forInsert.returning(id).insert(obj);
+    def delete(objId: MemberId) = Query(this).where(_.id === objId).delete;
+    def update(obj: Member) = (for { row <- this if row.id === obj.xid } yield row) update (obj)
+    def byId(objId: MemberId) = Query(this).where(_.id === objId).firstOption
+
     def company = foreignKey("member2company", companyId, Companies)(_.id)
   }
 
-  case class Project(id: Option[Int], name: String, companyId: Int)
+  case class Project(id: Option[ProjectId], name: String, companyId: Int) {
+    def company = Query(Companies).where(_.id === companyId).first
+    def members = Project2Members.members(id)
+  }
 
   object Projects extends Table[Project]("project") {
-    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def id = column[ProjectId]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name")
     def companyId = column[Int]("companyId")
     def * = id.? ~ name ~ companyId <> (Project, (Project.unapply _))
     
     def forInsert = name ~ companyId <> (((t) => Project(None, t._1, t._2)), ((x: Project) => Some((x.name, x.companyId))))
+    
+    // code below to be moved to a trait
+    def insert(obj: Project) = forInsert.returning(id).insert(obj);
+    def delete(objId: ProjectId) = Query(this).where(_.id === objId).delete;
+    def update(obj: Project) = (for { row <- this if row.id === obj.xid } yield row) update (obj)
+    def byId(objId: ProjectId) = Query(this).where(_.id === objId).firstOption
 
     def company = foreignKey("project2company", companyId, Companies)(_.id)
   }
@@ -89,6 +149,9 @@ slick-macros
     def projectId = column[Int]("projectId")
     def memberId = column[Int]("memberId")
     def * = projectId ~ memberId <> (Project2Member, (Project2Member.unapply _))
+    
+    def members(id:ProjectId) = Query(Project2Members).where(_.projectId === id)
+    def projects(id:MemberId) = Query(Project2Members).where(_.memberId === id)
     
     def project = foreignKey("project2member2project", projectId, Projects)(_.id)
     def member = foreignKey("project2member2member", memberId, Members)(_.id)
