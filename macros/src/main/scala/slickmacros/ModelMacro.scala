@@ -36,7 +36,7 @@ object ModelMacro { macro =>
         case (mods, name, tpt, _, _) => q"$mods val $name:$tpt" // ValDef(mods, name, tpt, EmptyTree)
         //case (mods, name, tpt, _, None) => q"$mods val $name:$tpt" // ValDef(mods, name, tpt, EmptyTree)
       }
-      val idTypeName = newTypeName(s"${typeName.decoded}Id")
+      val idTypeName = newTypeName(s"${typeId(typeName.decoded)}")
       val newAttrs = if (augment) idVal(idTypeName) +: valdefs /* :+ dateVal("dateCreated") :+ dateVal("dateUpdated")*/ else valdefs
       val ctorParams = if (augment) idValInCtor(idTypeName) +: valdefs /* :+ dateValInCtor("dateCreated") :+ dateValInCtor("dateUpdated") */ else valdefs
       val newCtor = DefDef(Modifiers(),
@@ -190,11 +190,11 @@ object ModelMacro { macro =>
             })"""
       c.parse(mapper)
     }
-    def typeId(tpeName: String) = newTypeName(s"${tpeName}Id")
+    def typeId(tpeName: String) = newTypeName("Long") //newTypeName(s"${tpeName}Id")
     def mkTypeId(tpeName: String): List[Tree] = {
       val tp = typeId(tpeName)
       val obj = newTermName(s"${tpeName}Id")
-      val cc = q"""case class $tp(val slickId: Long)"""
+      val cc = q"""case class $tp(val rowId: Long)"""
       val imp = q"""implicit object $obj extends (Long => $tp)"""
       List(cc, imp)
     }
@@ -211,12 +211,12 @@ object ModelMacro { macro =>
           else {
             tpt match {
               case Ident(tpe) if caseClassesName.exists(_ == tpe.decoded) =>
-                (mod, newTermName(name.decoded + "Id"), Ident(newTypeName(s"${tpe.decoded}Id")), rhs, Some(FieldDesc(name.decoded, false, true, false, tpe.decoded)))
+                (mod, newTermName(name.decoded + "Id"), Ident(newTypeName(s"${typeId(tpe.decoded)}")), rhs, Some(FieldDesc(name.decoded, false, true, false, tpe.decoded)))
               case AppliedTypeTree(Ident(option), List(Ident(tpe))) if option.decoded == "Option" && caseClassesName.exists(_ == tpe.decoded) =>
-                (mod, newTermName(name.decoded + "Id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName(s"${tpe.decoded}Id")))), rhs, Some(FieldDesc(name.decoded, true, true, false, tpe.decoded)))
+                (mod, newTermName(name.decoded + "Id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName(s"${typeId(tpe.decoded)}")))), rhs, Some(FieldDesc(name.decoded, true, true, false, tpe.decoded)))
 
               case AppliedTypeTree(Ident(list), List(Ident(tpe))) if list.decoded == "List" && caseClassesName.exists(_ == tpe.decoded) =>
-                (mod, newTermName(name.decoded + "Id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName(s"${tpe.decoded}Id")))), rhs, Some(FieldDesc(name.decoded, false, true, true, tpe.decoded)))
+                (mod, newTermName(name.decoded + "Id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName(s"${typeId(tpe.decoded)}")))), rhs, Some(FieldDesc(name.decoded, false, true, true, tpe.decoded)))
               case _ =>
                 (mod, name, tpt, rhs, None)
             }
@@ -279,9 +279,9 @@ object ModelMacro { macro =>
           val caseClassesName = caseClasses.collect {
             case ClassDef(mod, typeName, Nil, tmpl) => typeName.decoded
           }
-          val idTypeMapper = q"implicit def IdTypeMapper[T <: { val slickId: Long }](implicit comap: Long => T): scala.slick.lifted.BaseTypeMapper[T] = MappedTypeMapper.base[T, Long](_.slickId, comap)"
+          //val idTypeMapper = q"implicit def IdTypeMapper[T <: { val rowId: Long }](implicit comap: Long => T): scala.slick.lifted.BaseTypeMapper[T] = MappedTypeMapper.base[T, Long](_.rowId, comap)"
 
-          val typeIds = caseClassesName map (mkTypeId(_)) flatten
+          val typeIds = List() //caseClassesName map (mkTypeId(_)) flatten
           val tables = caseClasses.flatMap(mkTable(caseClassesName, _))
           val mods = modules.collect {
             case ModuleDef(modifiers, name, tmpl) => mkModules(name.decoded)
@@ -289,7 +289,7 @@ object ModelMacro { macro =>
           //List(typeMapper) ++ typeIds ++ modules ++ mods ++ tables
 
           //val flat = typeIds.flatten
-          ModuleDef(Modifiers(), moduleName, Template(parents, self, modules ++ List(idTypeMapper) ++ typeIds ++ mods ++ tables))
+          ModuleDef(Modifiers(), moduleName, Template(parents, self, modules /* ++ List(idTypeMapper) */ ++ typeIds ++ mods ++ tables))
         case _ =>
           c.abort(c.enclosingPosition, s"Only module defs allowed here")
       }

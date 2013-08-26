@@ -31,13 +31,13 @@ object SampleApp extends App {
   @SessionOnly def allCompaniesExplicit(i: Int)(implicit x: DbConnectionInfos) = Query(Companies).list
   
 
-  Companies.byId(CompanyId(1))
+  Companies.byId(1)
 
-  val member = Members.byId(MemberId(1)).getOrElse(throw new Exception("?"))
+  val member = Members.byId(1).getOrElse(throw new Exception("?"))
 
   member.manager
 
-  val project = Projects.byId(ProjectId(1)).getOrElse(throw new Exception("??"))
+  val project = Projects.byId(1).getOrElse(throw new Exception("??"))
 
   project.members.take(2).list
 }
