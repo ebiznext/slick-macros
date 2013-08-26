@@ -20,11 +20,24 @@ import slickmacros._
 
 object SampleApp extends App {
   import model.XDb._
-  val ddls = Companies.ddl ++ Members.ddl ++ Project2Members.ddl
+  val ddls = Companies.ddl ++ Members.ddl ++ Projects.ddl ++ Project2Members.ddl
   val stmts = ddls.createStatements ++ ddls.dropStatements
   stmts.foreach(println)
+
+  implicit val dbConnectionInfo = DbConnectionInfos(jndiName = "vars/jndi/jdbc/mydb")
   
   @Transactional def allCompanies = Query(Companies).list
-  @SessionOnly def allCompaniesExplicit(implicit x:DbConnectionInfos) = Query(Companies).list
-  implicit val dbConnectionInfo = DbConnectionInfos(jndiName = "vars/jndi/jdbc/mydb")
+  
+  @SessionOnly def allCompaniesExplicit(i: Int)(implicit x: DbConnectionInfos) = Query(Companies).list
+  
+
+  Companies.byId(CompanyId(1))
+
+  val member = Members.byId(MemberId(1)).getOrElse(throw new Exception("?"))
+
+  member.manager
+
+  val project = Projects.byId(ProjectId(1)).getOrElse(throw new Exception("??"))
+
+  project.members.take(2).list
 }

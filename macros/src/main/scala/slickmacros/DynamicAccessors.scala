@@ -30,7 +30,6 @@ object DynamicAccessors {
       c.abort(c.enclosingPosition, s"${args.tpe} does not conform to $traitType")
   }
   //  def doInsert(r: DefMacroData) = DefMacroTable.forInsert returning DefMacroTable.id insert r
-
 }
 
 trait DynamicAccessors[T] {

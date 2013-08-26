@@ -25,6 +25,7 @@ case class DbConnectionInfos(
  * Just reference it in front of any method and the Database context will be injected
  */
 object TransactionMacro {
+  // dynamic session & dynamic transaction would be more than welcome here
   def implTransaction(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     impl(c, "withTransaction")(annottees: _*)
   }
@@ -52,13 +53,15 @@ object TransactionMacro {
             val q"$mods val $name:$tpt = $rhs" :: Nil = it
             name.decoded
           } map { it =>
-            (it, Nil :: Nil)
+            (it, None)
           } getOrElse {
-            ("_dbOptions", List(q"implicit val _dbOptions:DbConnectionInfos") :: Nil)
+            ("_dbOptions", Some(List(q"implicit val _dbOptions:DbConnectionInfos") :: Nil))
           }
-          val implicitValName = implictParam._1
+          val implicitValName = newTermName(implictParam._1)
 
-          val dbval = c.parse(s"""
+          val newvparams = implictParam._2 map(vparamss ++ _) getOrElse(vparamss)
+
+          val defdef = q"""$mods def $name[..$tparams](...$newvparams): $tpt = { 
 		    val _db =
 		      if ($implicitValName.jndiName ne null)
 		        Database.forName($implicitValName.jndiName)
@@ -70,12 +73,6 @@ object TransactionMacro {
 		        Database.forURL($implicitValName.url, $implicitValName.user, $implicitValName.password, $implicitValName.properties, $implicitValName.driverClassName)
 		        else
 		          throw new SlickException("One of jndiName / dataSource / driver / driverClassName must be set")
-              """)
-          val newvparams = vparamss ++ implictParam._2
-
-          // Had to split in two since quasiquotes fails to generate correctly the final string.
-          val defdef = q"""$mods def $name[..$tparams](...$newvparams): $tpt = { 
-              	$dbval
               	_db withTransaction { 
               		$body 
               	}
