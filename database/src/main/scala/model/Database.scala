@@ -25,11 +25,26 @@ import slickmacros._
     type UserRights = Value
     val ADMIN = Value(1)
     val GUEST = Value(2)
-  } 
+  }
 
   import UserRights._
+
+  /*
+ *  
+  implicit Constraints(x:String) {
+    def is
+    def not
+    def Nullable
+    validate() 
+  }
+    def constraints(t: Company) {
+        t.name is not Nullable and is not Blank and matches "regexp" and  is in future and is between 1 and 2 and is in ("ABC", "RTE", "", "") orElse "t con ou quoi " and is anticsrf hasLength(220)
+    }
+* 
+*/
+  
+  
   case class Company(name: String, website: String)
-  case class Member(login: String, rights: UserRights, company: Company, manager:Option[Member])
+  case class Member(login: String, rights: UserRights, company: Company, manager: Option[Member])
   case class Project(name: String, company: Company, members: List[Member])
 }
-

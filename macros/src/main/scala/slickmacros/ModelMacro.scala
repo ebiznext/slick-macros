@@ -53,15 +53,20 @@ object ModelMacro { macro =>
         case (_, _, _, _, Some(FieldDesc(name, true, true, false, tpe))) =>
           q"""def ${newTermName(name)} = Query(${newTermName(objectName(tpe))}).where(_.id === ${newTermName(colIdName(name))}).firstOption"""
       }
-      println(s"***********DEFDEFS $typeName*******************")
-      columnDefs.foreach(println)
       val one2manyDefs = columnDefs.collect {
         case (_, _, _, _, Some(FieldDesc(name, false, true, true, tpe))) =>
-          q"""def ${newTermName(name)} = Query(${newTermName(objectName(assocTableName(typeName.decoded, tpe)))}).where(_.${newTermName(colIdName(typeName.decoded))} === id)"""
+          q"""
+            def ${newTermName(name)} = for {
+        	  	x <- ${newTermName(objectName(assocTableName(typeName.decoded, tpe)))} if x.${newTermName(colIdName(typeName.decoded))} === id
+        		y <- ${newTermName(objectName(tpe))} if x.${newTermName(colIdName(tpe))} === y.id
+        	} yield(y)
+            """
       }
-      //defdefs.foreach(println)
-      println("***********-------*******************")
-      ClassDef(Modifiers(CASE), typeName, List(), Template(parents, self, if (augment) xid :: newCtor :: newAttrs ++ defdefs ++ one2manyDefs else newCtor :: newAttrs ++ defdefs ++ one2manyDefs))
+      val one2manyDefAdds = columnDefs.collect {
+        case (_, _, _, _, Some(FieldDesc(name, false, true, true, tpe))) =>
+          q"""def ${newTermName("add"+tpe)}(${newTermName(colIdName(tpe))} : ${newTypeName("Long")}) = ${newTermName(objectName(assocTableName(typeName.decoded, tpe)))}.insert(${newTermName(assocTableName(typeName.decoded, tpe))}(xid, ${newTermName(colIdName(tpe))}))"""
+      }
+      ClassDef(Modifiers(CASE), typeName, List(), Template(parents, self, if (augment) xid :: newCtor :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds else newCtor :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds))
     }
 
     /**

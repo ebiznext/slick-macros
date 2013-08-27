@@ -24,20 +24,36 @@ object SampleApp extends App {
   val stmts = ddls.createStatements ++ ddls.dropStatements
   stmts.foreach(println)
 
-  implicit val dbConnectionInfo = DbConnectionInfos(jndiName = "vars/jndi/jdbc/mydb")
-  
+  implicit val dbConnectionInfo = DbConnectionInfos(url = "jdbc:postgresql:SampleApp", user = "postgres", password = "e-z12B24", driverClassName = "org.postgresql.Driver")
+
   @Transactional def allCompanies = Query(Companies).list
-  
+
   @SessionOnly def allCompaniesExplicit(i: Int)(implicit x: DbConnectionInfos) = Query(Companies).list
-  
 
-  Companies.byId(1)
+  @Transactional def populate() {
+    val csize = Query(Companies).list.size
+    if (csize == 0) {
+      val typesafeId = Companies.insert(Company(None, "typesafe", "http://www.typesafe.com"))
+      val martinId = Members.insert(Member(None, "modersky", UserRights.ADMIN, typesafeId, None))
+      val szeigerId = Members.insert(Member(None, "szeiger", UserRights.GUEST, typesafeId, Some(martinId)))
 
-  val member = Members.byId(1).getOrElse(throw new Exception("?"))
+      val slickId = Projects.insert(Project(None, "Slick", typesafeId))
+      Project2Members.insert(Project2Member(slickId, martinId))
+      val project = Query(Projects).where(_.name === "Slick").first
+      project.addMember(szeigerId)
+    }
+  }
 
-  member.manager
+  @SessionOnly def queryDB() {
+    val company = Query(Companies).where(_.name === "typesafe").first
+    val project = Query(Projects).where(_.name === "Slick").first
 
-  val project = Projects.byId(1).getOrElse(throw new Exception("??"))
-
-  project.members.take(2).list
+    val members = project.members.list
+    members.foreach { m =>
+      m.manager.map(println)
+    }
+    project.members.drop(1).take(1).list.foreach(println)
+  }
+  populate
+  queryDB
 }
