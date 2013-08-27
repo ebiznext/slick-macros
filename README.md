@@ -37,8 +37,9 @@ package model
         val mymanager : Option[Member] = member.manager
 
         val project : Project = Projects.byId(1).getOrElse(throw new Exception("??"))
-
+        project.addMember(member.xid)
         val someProjectMembers : List[Member] = project.members.take(2).list
+
       }
     }
 
@@ -71,7 +72,9 @@ package model
     
   import UserRights._
 
-  case class Company(id: Option[Long], name: String, website: String)
+  case class Company(id: Option[Long], name: String, website: String) {
+    def xid = id.getOrElse(throw new Exception("Object has no id yet"));
+  }
 
   object Companies extends Table[Company]("company") {
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
@@ -90,6 +93,7 @@ package model
   }
 
   case class Member(id: Option[Long], login: String, rights: UserRights, companyId: Long) {
+    def xid = id.getOrElse(throw new Exception("Object has no id yet"));
     def company = Query(Companies).where(_.id === companyId).first
     def manager = Query(Companies).where(_.id === managerId).firstOption
     
@@ -116,8 +120,10 @@ package model
   }
 
   case class Project(id: Option[Long], name: String, companyId: Long) {
+    def xid = id.getOrElse(throw new Exception("Object has no id yet"));
     def company = Query(Companies).where(_.id === companyId).first
     def members = Project2Members.members(id)
+    def addMember(memberId: Long) = Project2Members.insert(Project2Member(id, memberId))
   }
 
   object Projects extends Table[Project]("project") {
