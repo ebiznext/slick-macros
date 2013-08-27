@@ -30,7 +30,7 @@ package model
         stmts.foreach(println)
 
       @Transactional def sampleService = {
-        val company : Company = Companies.byId(1)
+        val company : Option[Company] = Companies.byId(1)
 
         val member : Member = Members.byId(1).getOrElse(throw new Exception("?"))
 
