@@ -6,18 +6,19 @@ slick-macros
   the Enumeration Type Mapper
 
     ```scala
-@Model object XDb {
-  object UserRights extends Enumeration {
-    type UserRights = Value
-    val ADMIN = Value(1)
-    val GUEST = Value(2)
+package model
+  @Model object XDb {
+    object UserRights extends Enumeration {
+      type UserRights = Value
+      val ADMIN = Value(1)
+      val GUEST = Value(2)
+    }
+    import UserRights._
+    case class Company(name: String, website: String)
+    case class Member(login: String, rights: UserRights, company: Company, manager:Option[Member])
+    case class Project(name: String, company: Company, members: List[Member])
   }
-  import UserRights._
-  case class Company(name: String, website: String)
-  case class Member(login: String, rights: UserRights, company: Company, manager:Option[Member])
-  case class Project(name: String, company: Company, members: List[Member])
 }
-
     ```
     A sample app look like this :
 
