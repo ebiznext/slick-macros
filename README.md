@@ -1,6 +1,7 @@
 Roadmap
 =======
 03/SEP/2014 : Stable Version for Slick 1
+
 16/SEP/2014 : Stable Version for Slick 2 
 
 slick-macros
