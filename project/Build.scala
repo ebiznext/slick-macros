@@ -29,17 +29,30 @@ object TheBuild extends Build {
     file("macros"),
     settings = buildSettings ++ Seq(
       libraryDependencies ++= Seq(
+//	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
   "com.typesafe.slick" %% "slick" % "1.0.1",
  "postgresql" % "postgresql" % "9.1-901.jdbc4",
  "org.scala-lang" % "scala-compiler" % "2.10.2",
  "org.scala-lang" % "scala-reflect" % "2.10.2")
   ))
 
+  lazy val emfexport: Project = Project(
+    "emfexport",
+    file("emfexport"),
+    settings = buildSettings ++ Seq(
+	libraryDependencies ++= Seq(
+		  "org.eclipse.emf" % "ecore" % "2.1.0",
+		 "org.eclipse.emf" % "common" % "2.1.0",
+		 "org.eclipse.emf" % "ecore-xmi" % "2.1.0"
+		 )
+	  )) dependsOn(macros)
+
   lazy val database: Project = Project(
     "database",
     file("database"),
     settings = buildSettings ++ Seq(
 	libraryDependencies ++= Seq(
+//	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
 		 "com.typesafe.slick" %% "slick" % "1.0.1",
 		 "postgresql" % "postgresql" % "9.1-901.jdbc4")
 	  )) dependsOn(macros)
@@ -49,8 +62,11 @@ object TheBuild extends Build {
     file("sample"),
     settings = buildSettings ++ Seq(
 	libraryDependencies ++= Seq(
+//	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
 	 "com.typesafe.slick" %% "slick" % "1.0.1",
+	 "com.ebiznext" %% "database" % "0.0.1-SNAPSHOT",
+	 "com.ebiznext" %% "emfexport" % "0.0.1-SNAPSHOT",
 	 "postgresql" % "postgresql" % "9.1-901.jdbc4")
-	  )) dependsOn(database)
+	  )) dependsOn(database,emfexport )
 }
 

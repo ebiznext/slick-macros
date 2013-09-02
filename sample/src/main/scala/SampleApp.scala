@@ -1,4 +1,5 @@
 import scala.slick.driver.PostgresDriver.simple._
+
 import scala.slick.session.Database
 import scala.slick.session.Database.forDataSource
 import scala.language.existentials
@@ -17,13 +18,23 @@ import scala.reflect.macros.Context
 import scala.reflect.runtime.{ universe => u }
 import scala.slick.lifted.MappedTypeMapper
 import slickmacros._
+import slickmacros.Utils._
+import slickmacros.reflect._
+import scala.reflect.runtime.universe._
+import slickemf.export._
 
 object SampleApp extends App {
   import model.XDb._
+  def allTableObjects(any: Any): List[Symbol] = {
+    val typeMirror = runtimeMirror(any.getClass.getClassLoader)
+    val instanceMirror = typeMirror.reflect(any)
+    val members = instanceMirror.symbol.typeSignature.members
+    members.filter(_.typeSignature <:< typeOf[Table[_]]) toList
+  }
+
   val ddls = Companies.ddl ++ Members.ddl ++ Projects.ddl ++ Project2Members.ddl
   val stmts = ddls.createStatements ++ ddls.dropStatements
-  stmts.foreach(println)
-
+  //stmts.foreach(println)
   implicit val dbConnectionInfo = DbConnectionInfos(url = "jdbc:postgresql:SampleApp", user = "postgres", password = "e-z12B24", driverClassName = "org.postgresql.Driver")
 
   @Transactional def allCompanies = Query(Companies).list
@@ -54,6 +65,8 @@ object SampleApp extends App {
     }
     project.members.drop(1).take(1).list.foreach(println)
   }
-  populate
-  queryDB
+  val descs = new ObjectRef(model.XDb).reflect
+  Export.cases2Emf(descs, "database/slickcases.ecore")
+  Export.tables2Emf(descs, "database/slicktables.ecore")
+
 }
