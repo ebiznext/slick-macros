@@ -21,7 +21,7 @@ import slickmacros._
 import slickmacros.Utils._
 import slickmacros.reflect._
 import scala.reflect.runtime.universe._
-import slickemf.export._
+//import slickemf.export._
 
 object SampleApp extends App {
   import model.XDb._
@@ -66,7 +66,7 @@ object SampleApp extends App {
     project.members.drop(1).take(1).list.foreach(println)
   }
   val descs = new ObjectRef(model.XDb).reflect
-  Export.cases2Emf(descs, "database/slickcases.ecore")
-  Export.tables2Emf(descs, "database/slicktables.ecore")
+//  Export.cases2Emf(descs, "database/slickcases.ecore")
+//  Export.tables2Emf(descs, "database/slicktables.ecore")
 
 }
