@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ecore:EPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="SlickMacrosPackage" nsURI="SlickMacrosPackage" nsPrefix="SlickMacrosPackage">
+  <eClassifiers xsi:type="ecore:EClass" name="Project2MemberTable">
+    <eOperations name="*"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="memberFK" eType="//MemberTable"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="projectFK" eType="//ProjectTable"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="memberId">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="projectId">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ProjectTable">
+    <eOperations name="byId">
+      <eParameters name="objId">
+        <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+      </eParameters>
+    </eOperations>
+    <eOperations name="update">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eParameters name="obj"/>
+    </eOperations>
+    <eOperations name="delete">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eParameters name="objId">
+        <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+      </eParameters>
+    </eOperations>
+    <eOperations name="insert">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+      <eParameters name="obj"/>
+    </eOperations>
+    <eOperations name="forInsert"/>
+    <eOperations name="*"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="companyFK" eType="//CompanyTable"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="companyId">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MemberTable">
+    <eOperations name="byId">
+      <eParameters name="objId">
+        <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+      </eParameters>
+    </eOperations>
+    <eOperations name="update">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eParameters name="obj"/>
+    </eOperations>
+    <eOperations name="delete">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eParameters name="objId">
+        <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+      </eParameters>
+    </eOperations>
+    <eOperations name="insert">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+      <eParameters name="obj"/>
+    </eOperations>
+    <eOperations name="forInsert"/>
+    <eOperations name="*"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="memberFK" eType="//MemberTable"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="companyFK" eType="//CompanyTable"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="managerId"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="companyId">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="rights"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="login">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CompanyTable">
+    <eOperations name="byId">
+      <eParameters name="objId">
+        <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+      </eParameters>
+    </eOperations>
+    <eOperations name="update">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eParameters name="obj"/>
+    </eOperations>
+    <eOperations name="delete">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eParameters name="objId">
+        <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+      </eParameters>
+    </eOperations>
+    <eOperations name="insert">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+      <eParameters name="obj"/>
+    </eOperations>
+    <eOperations name="forInsert"/>
+    <eOperations name="*"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="website">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+</ecore:EPackage>
