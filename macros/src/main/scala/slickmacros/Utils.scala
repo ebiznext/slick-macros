@@ -1,7 +1,7 @@
 package slickmacros
 
 object Utils {
-  def colType(o: Any, s: String) {}
-  def colIndex(o: Any, isUnique: Boolean) {}
+  def colType(col: Any, dbType: String) {}
+  def colIndex(col: Any, unique: Boolean) {}
   def primaryKey(cols: Any*) {}
 }
