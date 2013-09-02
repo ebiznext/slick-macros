@@ -36,14 +36,28 @@ object ModelMacro { macro =>
         case (mods, name, tpt, _, _) => q"$mods val $name:$tpt" // ValDef(mods, name, tpt, EmptyTree)
         //case (mods, name, tpt, _, None) => q"$mods val $name:$tpt" // ValDef(mods, name, tpt, EmptyTree)
       }
+
       val idTypeName = newTypeName(s"${typeId(typeName.decoded)}")
       val newAttrs = if (augment) idVal(idTypeName) +: valdefs /* :+ dateVal("dateCreated") :+ dateVal("dateUpdated")*/ else valdefs
-      val ctorParams = if (augment) idValInCtor(idTypeName) +: valdefs /* :+ dateValInCtor("dateCreated") :+ dateValInCtor("dateUpdated") */ else valdefs
-      val newCtor = DefDef(Modifiers(),
+      val ctorParams1 = if (augment) idValInCtor(idTypeName) +: valdefs /* :+ dateValInCtor("dateCreated") :+ dateValInCtor("dateUpdated") */ else valdefs
+      val newCtor1 = DefDef(Modifiers(),
         nme.CONSTRUCTOR, List(),
-        ctorParams :: Nil,
+        ctorParams1 :: Nil,
         TypeTree(),
         Block(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), Nil) :: Nil, Literal(Constant(()))))
+
+      val terms = columnVals.collect {
+        //case (mods, name, tpt, _, Some(_)) => q"$mods val $name:$tpt" //ValDef(mods, name, tpt, EmptyTree)
+        case (mods, name, tpt, _, _) => Ident(name) // ValDef(mods, name, tpt, EmptyTree)
+        //case (mods, name, tpt, _, None) => q"$mods val $name:$tpt" // ValDef(mods, name, tpt, EmptyTree)
+      }
+      val ctor3body = Ident(newTermName("None")) :: terms
+
+      val newCtor3 = DefDef(Modifiers(),
+        nme.CONSTRUCTOR, List(),
+        valdefs :: Nil,
+        TypeTree(),
+        Block(List(Apply(Ident(nme.CONSTRUCTOR), ctor3body)), Literal(Constant(()))))
 
       val xid = q"""def xid = id.getOrElse(throw new Exception("Object has no id yet"))"""
 
@@ -64,22 +78,28 @@ object ModelMacro { macro =>
       }
       val one2manyDefAdds = columnDefs.collect {
         case (_, _, _, _, Some(FieldDesc(name, false, true, true, tpe))) =>
-          q"""def ${newTermName("add"+tpe)}(${newTermName(colIdName(tpe))} : ${newTypeName("Long")}) = ${newTermName(objectName(assocTableName(typeName.decoded, tpe)))}.insert(${newTermName(assocTableName(typeName.decoded, tpe))}(xid, ${newTermName(colIdName(tpe))}))"""
+          q"""def ${newTermName("add" + tpe)}(${newTermName(colIdName(tpe))} : ${newTypeName("Long")}) = ${newTermName(objectName(assocTableName(typeName.decoded, tpe)))}.insert(${newTermName(assocTableName(typeName.decoded, tpe))}(xid, ${newTermName(colIdName(tpe))}))"""
       }
-      ClassDef(Modifiers(CASE), typeName, List(), Template(parents, self, if (augment) xid :: newCtor :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds else newCtor :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds))
+      val lst = if (augment) newCtor1 :: xid :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds else newCtor1 :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds
+
+      ClassDef(Modifiers(CASE), typeName, List(), Template(parents, self, lst))
     }
 
     /**
      * given a fieldName and a type tree return "def fieldName = column[tpe]("fieldName")
      */
-    def mkColumn(name: TermName, tpe: Tree) = {
-      q"""def $name = column[$tpe](${name.decoded})"""
+    def mkColumn(name: TermName, tpe: Tree, customType: Option[Constant]) = {
+      customType map { it =>
+        q"""def $name = column[$tpe](${name.decoded}, O.DBType(${it}))"""
+      } getOrElse (q"""def $name = column[$tpe](${name.decoded})""")
     }
 
     def colIdName(caseClassName: String) = {
       s"${Introspector.decapitalize(caseClassName)}Id"
     }
+    
     /*
+     * 
      * Thank you Andromda.org and 
      * http://www.csse.monash.edu.au/~damian/papers/HTML/Plurals.html
      */
@@ -195,7 +215,7 @@ object ModelMacro { macro =>
             })"""
       c.parse(mapper)
     }
-    def typeId(tpeName: String) = newTypeName("Long") //newTypeName(s"${tpeName}Id")
+    def typeId(tpeName: String) = newTypeName("Long")
     def mkTypeId(tpeName: String): List[Tree] = {
       val tp = typeId(tpeName)
       val obj = newTermName(s"${tpeName}Id")
@@ -203,12 +223,35 @@ object ModelMacro { macro =>
       val imp = q"""implicit object $obj extends (Long => $tp)"""
       List(cc, imp)
     }
+
+    def cleanupBody(body: List[Tree]) = {
+      body filter { it =>
+        it match {
+          case Apply(Ident(func), List(Ident(field), Literal(dbType))) if func.decoded  == "colType" => false
+          case Apply(Ident(func), List(Ident(field), Literal(isUnique))) if func.decoded == "tableIndex" => false
+          case _ => true
+        }
+      }
+    }
+    
+    def customTypes(body: List[Tree]) = {
+      body collect {
+        case Apply(Ident(func), List(Ident(field), Literal(dbType))) if func.decoded == "colType" => (field.decoded, dbType)
+      }
+    }
+    def indexes(body: List[Tree]) = {
+      body collect {
+        case Apply(Ident(func), List(Ident(field), Literal(isUnique))) if func.decoded == "tableIndex" => (field.decoded, isUnique)
+      }
+    }
     /**
      * create the case class and foreign keys for 1,n relationships and the slick table description and the assoc table for n,m relationships
      * if augment is set to true timestamp & forInsert defs are generated too
      */
     def mkTable(caseClassesName: List[String], classdef: Tree, augment: Boolean = true): List[Tree] = {
       val ClassDef(mod, typeName, Nil, Template(parents, self, body)) = classdef
+      val customDBTypes = customTypes(body) toMap
+      val dbIndexes = indexes(body)
       val (listVals, simpleVals) = body.collect {
         case ValDef(mod, name, tpt, rhs) =>
           if (augment && reservedNames.exists(_ == name.decoded))
@@ -248,7 +291,10 @@ object ModelMacro { macro =>
       def dateCVal = c.parse("""def dateCreated = column[java.sql.Date]("dateCreated")""")
       def dateUVal = c.parse("""def dateUpdated = column[java.sql.Date]("dateUpdated")""")
       */
-      val defdefs = simpleVals.map(t => mkColumn(t._2, t._3))
+      val defdefs = simpleVals.map(t => mkColumn(t._2, t._3, customDBTypes.get(t._2.decoded)))
+      //              q"""def $name = column[$tpe](${name.decoded}, O.DBType(${it}))"""
+
+      val indexdefs: List[c.universe.Tree] = dbIndexes.map(it => q"""def ${newTermName(it._1 + "Index")} = index(${"IDX_" + typeName.decoded.toUpperCase + "_" + it._1.toUpperCase}, ${newTermName(it._1)}, ${it._2})""")
       val times = mkTimes(typeName, simpleVals.map(_._2), augment)
       val crud = mkCRUD(typeName, simpleVals.map(_._2))
       val ctor =
@@ -266,7 +312,7 @@ object ModelMacro { macro =>
           Template(
             AppliedTypeTree(Ident(newTypeName("Table")), Ident(newTypeName(typeName.decoded)) :: Nil) :: Nil,
             emptyValDef,
-            if (augment) ctor :: idCol /* :: dateCVal :: dateUVal */ :: times :: defdefs ++ crud ++ foreignKeys else ctor :: times :: defdefs ++ foreignKeys))
+            if (augment) ctor :: idCol /* :: dateCVal :: dateUVal */ :: times :: defdefs ++ indexdefs++ crud ++ foreignKeys else ctor :: times :: indexdefs ++ defdefs ++ foreignKeys))
       val objectDef = q"object ${newTermName(objectName(typeName.decoded))} extends ${newTypeName(tableName(typeName.decoded))}"
       List(mkCaseClass(typeName, simpleVals, listVals, parents, self, augment), tableDef, objectDef) ++ assocTables
     }
@@ -286,12 +332,11 @@ object ModelMacro { macro =>
           }
           //val idTypeMapper = q"implicit def IdTypeMapper[T <: { val rowId: Long }](implicit comap: Long => T): scala.slick.lifted.BaseTypeMapper[T] = MappedTypeMapper.base[T, Long](_.rowId, comap)"
 
-          val typeIds = List() //caseClassesName map (mkTypeId(_)) flatten
+          val typeIds = Nil //caseClassesName map (mkTypeId(_)) flatten
           val tables = caseClasses.flatMap(mkTable(caseClassesName, _))
           val mods = modules.collect {
             case ModuleDef(modifiers, name, tmpl) => mkModules(name.decoded)
           }
-          //List(typeMapper) ++ typeIds ++ modules ++ mods ++ tables
 
           //val flat = typeIds.flatten
           ModuleDef(Modifiers(), moduleName, Template(parents, self, modules /* ++ List(idTypeMapper) */ ++ typeIds ++ mods ++ tables))
