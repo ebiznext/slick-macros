@@ -1,0 +1,18 @@
+<classpath>
+  <classpathentry output="target/scala-2.10/classes" path="src/main/scala" kind="src"></classpathentry>
+  <classpathentry output="target/scala-2.10/classes" path="src/main/java" kind="src"></classpathentry>
+  <classpathentry output="target/scala-2.10/test-classes" path="src/test/scala" kind="src"></classpathentry>
+  <classpathentry output="target/scala-2.10/test-classes" path="src/test/java" kind="src"></classpathentry>
+  <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"></classpathentry>
+  <classpathentry path="/Users/hayssams/.ivy2/local/com.typesafe.slick/slick_2.10/2.0.0-M2/jars/slick_2.10.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/hayssams/.ivy2/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.6.4.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/hayssams/.ivy2/cache/postgresql/postgresql/jars/postgresql-9.1-901.jdbc4.jar" kind="lib"></classpathentry>
+  <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_COMPILER_CONTAINER"></classpathentry>
+  <classpathentry path="/Users/hayssams/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.10.2.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/hayssams/.ivy2/cache/org.eclipse.emf/ecore/jars/ecore-2.1.0.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/hayssams/.ivy2/cache/org.eclipse.emf/common/jars/common-2.1.0.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/hayssams/.ivy2/cache/org.eclipse.emf/ecore-xmi/jars/ecore-xmi-2.1.0.jar" kind="lib"></classpathentry>
+  <classpathentry exported="true" path="/macros" kind="src" combineaccessrules="false"></classpathentry>
+  <classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"></classpathentry>
+  <classpathentry path="bin" kind="output"></classpathentry>
+</classpath>
