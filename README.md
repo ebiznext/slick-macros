@@ -1,3 +1,8 @@
+Roadmap
+=======
+03/SEP/2014 : Stable Version for Slick 1
+16/SEP/2014 : Stable Version for Slick 2 
+
 slick-macros
 ============
 
@@ -14,7 +19,10 @@ package model
       val GUEST = Value(2)
     }
     import UserRights._
-    case class Company(name: String, website: String)
+    case class Company(name: String, website: String) {
+      colType(name, "VARCHAR2(50)") // experimental : please use with caution
+      coldIndex(name, unique = true) // convenient way to create an index. Could be done by subclassing the Table
+    }
     case class Member(login: String, rights: UserRights, company: Company, manager:Option[Member])
     case class Project(name: String, company: Company, members: List[Member])
   }
