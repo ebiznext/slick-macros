@@ -1,8 +1,11 @@
 Roadmap
 =======
-03/SEP/2014 : Stable Version for Slick 1
 
-16/SEP/2014 : Stable Version for Slick 2 
+16/SEP/2014 : Support for dynamic accessors
+
+04/SEP/2014 : Initial Version for Slick 2
+
+03/SEP/2014 : Stable Version for Slick 1. Development stopped
 
 slick-macros
 ============
