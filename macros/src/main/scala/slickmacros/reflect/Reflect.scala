@@ -24,10 +24,7 @@ class ObjectRef(any: AnyRef) {
     val instanceMirror = typeMirror.reflect(any)
     val members = instanceMirror.symbol.typeSignature.members
     def fieldMirror(symbol: Symbol) = instanceMirror.reflectField(symbol.asTerm)
-
     //def tables = members.filter(_.typeSignature <:< typeOf[Table[_]])
-    //members.foreach(println)
-    //tables.foreach(println)
 
     members.collect {
       case s if s.isClass && (s.asClass.isCaseClass || s.asClass.baseClasses.exists(_.name.decoded == "Table")) =>

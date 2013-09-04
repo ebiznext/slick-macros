@@ -29,8 +29,8 @@ object TheBuild extends Build {
     file("macros"),
     settings = buildSettings ++ Seq(
       libraryDependencies ++= Seq(
-//	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
-  "com.typesafe.slick" %% "slick" % "1.0.1",
+	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
+//  "com.typesafe.slick" %% "slick" % "1.0.1",
  "postgresql" % "postgresql" % "9.1-901.jdbc4",
  "org.scala-lang" % "scala-compiler" % "2.10.2",
  "org.scala-lang" % "scala-reflect" % "2.10.2")
@@ -51,9 +51,10 @@ object TheBuild extends Build {
     "database",
     file("database"),
     settings = buildSettings ++ Seq(
-	libraryDependencies ++= Seq(
-//	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
-		 "com.typesafe.slick" %% "slick" % "1.0.1",
+//    scalacOptions ++= Seq("-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
+    	libraryDependencies ++= Seq(
+	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
+//		 "com.typesafe.slick" %% "slick" % "1.0.1",
 		 "postgresql" % "postgresql" % "9.1-901.jdbc4")
 	  )) dependsOn(macros)
 
@@ -62,8 +63,8 @@ object TheBuild extends Build {
     file("sample"),
     settings = buildSettings ++ Seq(
 	libraryDependencies ++= Seq(
-//	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
-	 "com.typesafe.slick" %% "slick" % "1.0.1",
+	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
+//	 "com.typesafe.slick" %% "slick" % "1.0.1",
 	 "com.ebiznext" %% "database" % "0.0.1-SNAPSHOT",
 	 "com.ebiznext" %% "emfexport" % "0.0.1-SNAPSHOT",
 	 "postgresql" % "postgresql" % "9.1-901.jdbc4")

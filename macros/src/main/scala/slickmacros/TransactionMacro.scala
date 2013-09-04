@@ -30,9 +30,18 @@ object TransactionMacro {
     impl(c, "withTransaction")(annottees: _*)
   }
 
+  def implNewTransaction(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
+    impl(c, "withDynTransaction")(annottees: _*)
+  }
+
   def implSession(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     impl(c, "withSession")(annottees: _*)
   }
+  
+  def implNewSession(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
+    impl(c, "withDynSession")(annottees: _*)
+  }
+  
   def impl(c: Context, sessionType: String)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
     import Flag._
@@ -59,7 +68,7 @@ object TransactionMacro {
           }
           val implicitValName = newTermName(implictParam._1)
 
-          val newvparams = implictParam._2 map(vparamss ++ _) getOrElse(vparamss)
+          val newvparams = implictParam._2 map (vparamss ++ _) getOrElse (vparamss)
 
           val defdef = q"""$mods def $name[..$tparams](...$newvparams): $tpt = { 
 		    val _db =
@@ -73,7 +82,8 @@ object TransactionMacro {
 		        Database.forURL($implicitValName.url, $implicitValName.user, $implicitValName.password, $implicitValName.properties, $implicitValName.driverClassName)
 		        else
 		          throw new SlickException("One of jndiName / dataSource / driver / driverClassName must be set")
-              	_db withTransaction { 
+              	_db ${newTermName(sessionType)} { 
+		        	implicit session =>
               		$body 
               	}
               }"""
@@ -87,11 +97,19 @@ object TransactionMacro {
 
 }
 
-class Transactional extends StaticAnnotation {
+class DBTransaction extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro TransactionMacro.implTransaction
 }
 
-class SessionOnly extends StaticAnnotation {
+class DBNewTransaction extends StaticAnnotation {
+  def macroTransform(annottees: Any*) = macro TransactionMacro.implNewTransaction
+}
+
+class DBSession extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro TransactionMacro.implSession
+}
+
+class DBNewSession extends StaticAnnotation {
+  def macroTransform(annottees: Any*) = macro TransactionMacro.implNewSession
 }
 
