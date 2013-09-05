@@ -14,7 +14,7 @@ import scala.reflect.ClassTag
 import scala.reflect.NameTransformer
 import scala.reflect.macros.Context
 import scala.reflect.runtime.{ universe => u }
-import slickmacros._
+import slickmacros.annotations._
 import slickmacros.Utils._
 import TupleMethods._
 
@@ -23,7 +23,7 @@ import TupleMethods._
 import scala.slick.profile.BasicDriver
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.profile._
-import slickmacros.ModelMacro._
+import slickmacros.annotations.ModelMacro._
 
 @Model object XDb {
   object UserRights extends Enumeration {

@@ -17,7 +17,9 @@ import slickmacros.reflect._
 
 //import slickemf.export._
 import slickmacros._
-import slickmacros.ModelMacro._
+import slickmacros.annotations._
+import slickmacros.dao.Crud._
+import  slickemf.export._
 
 object SampleApp extends App {
   import model.XDb._
@@ -59,5 +61,7 @@ object SampleApp extends App {
   populate
   queryDB
   val descs = new ObjectRef(model.XDb).reflect
+  println(descs)
+  new Export().export2EMF(descs, "database/slickemf.ecore")
 
 }

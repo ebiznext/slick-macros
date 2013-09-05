@@ -1,4 +1,5 @@
-package slickmacros
+package slickmacros.annotations
+
 
 import java.sql.Driver
 

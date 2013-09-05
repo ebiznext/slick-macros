@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ecore:EPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="SlickMacrosPackage" nsURI="SlickMacrosPackage" nsPrefix="SlickMacrosPackage">
+  <eClassifiers xsi:type="ecore:EClass" name="Project2Member">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="member" lowerBound="1" eType="//Member"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="project" lowerBound="1" eType="//Project"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="memberId ">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="projectId ">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Project">
+    <eOperations name="addMember">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eParameters name="memberId">
+        <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+      </eParameters>
+      <eParameters name="session" eType="//SessionDef"/>
+    </eOperations>
+    <eOperations name="members" eType="//Query[MemberTable,Member]"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="company" lowerBound="1" eType="//Company"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated " eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated " eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="companyId ">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name ">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id " eType="//Option[Long]"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="xid">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Member">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="manager" eType="//Member"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="company" lowerBound="1" eType="//Company"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated " eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated " eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="managerId " eType="//Option[Long]"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="companyId ">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="rights " eType="//UserRights"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="login ">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id " eType="//Option[Long]"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="xid">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Company">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated " eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated " eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="website ">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name ">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id " eType="//Option[Long]"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="xid">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Project2MemberTable">
+    <eOperations name="*" eType="//ProvenShape"/>
+    <eOperations name="TableElementType" eType="//T"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="memberFK" eType="//MemberTable"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="projectFK" eType="//ProjectTable"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="memberId">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="projectId">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ProjectTable">
+    <eOperations name="forInsert" eType="//MappedProjection[Project,Tuple4]"/>
+    <eOperations name="*" eType="//ProvenShape"/>
+    <eOperations name="TableElementType" eType="//T"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="companyFK" eType="//CompanyTable"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="companyId">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated" eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated" eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MemberTable">
+    <eOperations name="forInsert" eType="//MappedProjection[Member,Tuple6]"/>
+    <eOperations name="*" eType="//ProvenShape"/>
+    <eOperations name="TableElementType" eType="//T"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="memberFK" eType="//MemberTable"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="companyFK" eType="//CompanyTable"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="managerId" eType="//Option"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="companyId">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="rights" eType="//Value"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="login">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated" eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated" eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CompanyTable">
+    <eOperations name="forInsert" eType="//MappedProjection[Company,Tuple4]"/>
+    <eOperations name="*" eType="//ProvenShape"/>
+    <eOperations name="TableElementType" eType="//T"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="website">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated" eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated" eType="//Timestamp"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SessionDef"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Query[MemberTable,Member]"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Timestamp"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Option[Long]"/>
+  <eClassifiers xsi:type="ecore:EClass" name="UserRights"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ProvenShape"/>
+  <eClassifiers xsi:type="ecore:EClass" name="T"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MappedProjection[Project,Tuple4]"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MappedProjection[Member,Tuple6]"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Option"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Value"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MappedProjection[Company,Tuple4]"/>
+</ecore:EPackage>

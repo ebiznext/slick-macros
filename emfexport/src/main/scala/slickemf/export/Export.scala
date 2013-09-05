@@ -44,12 +44,12 @@ class Export {
       val eClass = (eClasses.find(_.asInstanceOf[EClass].getName() == c.name)).getOrElse(null).asInstanceOf[EClass]
       c.members.foreach { m =>
         m match {
-          case MemberDesc(mname, TypeDesc("Option", tparams), Nil) if classeNames.contains(tparams.head) =>
+          case MemberDesc(mname, TypeDesc("Option", tparams), _) if classeNames.contains(tparams.head) =>
             //option
             val eDataType = eClasses.find(_.getName() == tparams.head).getOrElse(null)
             EmfUtils.addOptionalOne2OneEReferenceToEClass(mname, eDataType, eClass)
 
-          case MemberDesc(mname, TypeDesc("List", tparams), Nil) if classeNames.contains(tparams.head) =>
+          case MemberDesc(mname, TypeDesc("List", tparams), _) if classeNames.contains(tparams.head) =>
             //list one to many
             val eDataType = eClasses.find(_.getName() == tparams.head).getOrElse(null)
             EmfUtils.addOne2ManyEReferenceToEClass(mname, eDataType, eClass)
@@ -59,7 +59,7 @@ class Export {
             val eDataType = eClasses.find(_.getName() == tname).getOrElse(null)
             EmfUtils.addOne2OneEReferenceToEClass(mname, eDataType, eClass)
 
-          case MemberDesc(mname, TypeDesc("Option", tparams), Nil) =>
+          case MemberDesc(mname, TypeDesc("Option", tparams), _) =>
             //create optional attribute
             val existingDataType = getDataType("Option[" + tparams.head + "]", eCustomTypes)
 
@@ -77,6 +77,11 @@ class Export {
             //create attribute
             val existingDataType = getDataType(tname, eCustomTypes)
             EmfUtils.addEAttributeToEClass(mname, existingDataType, eClass)
+
+          case MemberDesc(mname, TypeDesc("TableElementType",Nil), _) if classeNames.contains(mname.capitalize) =>
+            //create one to one reference
+            val eDataType = eClasses.find(_.getName() == mname.capitalize).getOrElse(null)
+            EmfUtils.addOne2OneEReferenceToEClass(mname, eDataType, eClass)
 
           case MemberDesc(mname, TypeDesc(tname, tparams), mparams) =>
             //create method
