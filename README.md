@@ -7,7 +7,7 @@ Roadmap
 
 03/SEP/2014 : Stable Version for Slick 1. Development stopped
 
-slick-macros
+slick-macros for [Slick](http://slick.typesafe.com) 1.0
 ============
 
 - The @Model  macro provide an easy way to create Slick table objects. The code below will produce all the slick 
