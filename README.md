@@ -11,7 +11,7 @@ slick-macros for [Slick](http://slick.typesafe.com) 2.0
 ============
 
 - The @Model  macro provide an easy way to create Slick table objects. The code below will produce all the slick 
-  boilerplate code including the table object, the foreign keys, the indexes, the custom type mappings, the association table for many to many relationships and 
+  boilerplate code including the table object, the foreign keys, the indexes, the custom type mappings, the association table for many to many relationships, 
   the Enumeration Type Mapper and embed the "parts" into the enclosing table object (useful for tables with more than 22 columns).
 
     ```scala
