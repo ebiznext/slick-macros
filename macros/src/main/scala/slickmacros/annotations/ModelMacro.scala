@@ -26,7 +26,6 @@ class Index(unique: Boolean = false) extends StaticAnnotation
 class Type(dbType: String) extends StaticAnnotation
 class OnDelete(action: ForeignKeyAction) extends StaticAnnotation
 
-
 object ModelMacro { macro =>
 
   object DefType extends Enumeration {
@@ -110,10 +109,10 @@ object ModelMacro { macro =>
           if (it.part)
             it.cls.get.fields toList
           else
-            it::Nil
+            it :: Nil
         } flatten
       }
-      
+
       def indexes: List[FldDesc] = {
         allFields.filter { it =>
           it.flags.exists(_ == FieldFlag.INDEX)
@@ -162,11 +161,21 @@ object ModelMacro { macro =>
               if (it.children.length >= 2) colType = it.children(1).toString
             }
           }
-          var typeName: String = null
+          def buildTypeName(tree: Tree): String = {
+            tree match {
+              case Select(subtree, name) =>
+                buildTypeName(subtree) + "." + name.decoded
+              case AppliedTypeTree(subtree, args) =>
+                buildTypeName(subtree) + "[" + args.map(it => buildTypeName(it)).mkString(",") + "]"
+              case Ident(x) =>
+                x.decoded
+              case other => other.toString
+            }
+          }
+          var typeName: String = buildTypeName(tpt)
           val clsDesc: Option[ClsDesc] = tpt match {
             case Ident(tpe) =>
-              typeName = tpe.decoded
-              val clsDesc = allClasses.find(_.name == tpe.decoded)
+              val clsDesc = allClasses.find(_.name == typeName)
               clsDesc.foreach { it =>
                 if (it.classType == ENTITYDEF) {
                   flags += FieldFlag.CASE
@@ -174,17 +183,19 @@ object ModelMacro { macro =>
                   flags += FieldFlag.PART
               }
               clsDesc
-            case AppliedTypeTree(Ident(option), List(Ident(tpe))) if option.decoded == "Option" =>
-              typeName = tpe.decoded
-              val clsDesc = allClasses.find(_.name == tpe.decoded)
+            case AppliedTypeTree(Ident(option), tpe :: Nil) if option.decoded == "Option" =>
+              typeName = buildTypeName(tpe)
+              println("^^^^^^^^^^^" + typeName + "%%%%%%%%%%%%%%%%%%" + name.toString)
+              flags += FieldFlag.OPTION
+              val clsDesc = allClasses.find(_.name == typeName)
               clsDesc.foreach { it =>
                 if (it.classType == ENTITYDEF)
-                  flags ++= Set(FieldFlag.CASE, FieldFlag.OPTION)
+                  flags += FieldFlag.CASE
               }
               clsDesc
-            case AppliedTypeTree(Ident(list), List(Ident(tpe))) if list.decoded == "List" =>
-              typeName = tpe.decoded
-              val ClsDesc = allClasses.find(_.name == tpe.decoded).getOrElse(c.abort(c.enclosingPosition, s"List not allowed here ${name.decoded} not allowed"))
+            case AppliedTypeTree(Ident(list), tpe :: Nil) if list.decoded == "List" =>
+              typeName = buildTypeName(tpe)
+              val ClsDesc = allClasses.find(_.name == typeName).getOrElse(c.abort(c.enclosingPosition, s"List not allowed here ${name.decoded} not allowed"))
               if (ClsDesc.classType == ENTITYDEF)
                 flags ++= Set(FieldFlag.CASE, FieldFlag.LIST)
               else
@@ -294,6 +305,7 @@ object ModelMacro { macro =>
     //        class FldDesc(val name: String, val flags: Set[FieldFlag], val dbType: String, val cls: Option[ClsDesc], val tree: Tree)
 
     def mkColumn(desc: FldDesc): Tree = {
+      val q"$mods val $nme:$tpt = $initial" = desc.tree
       if (desc.cse) {
         if (desc.option) {
           q"""def ${newTermName(colIdName(desc.name))} = column[Option[${typeId(desc.typeName)}]](${colIdName(desc.name)})"""
@@ -301,11 +313,42 @@ object ModelMacro { macro =>
           q"""def ${newTermName(colIdName(desc.name))} = column[${typeId(desc.typeName)}](${colIdName(desc.name)})"""
         }
       } else {
-        val tpe = newTypeName(desc.typeName)
-        desc.dbType map { it =>
-          q"""def ${newTermName(desc.name)} = column[$tpe](${desc.name}, O.DBType(${it}))"""
-        } getOrElse (q"""def ${newTermName(desc.name)} = column[$tpe](${desc.name})""")
+        println(desc.name + ":" + desc.typeName + "//" + desc.option)
+
+        val tpe = desc.typeName
+        val expr = desc.dbType map { it =>
+          q"""def $nme = column[$tpt](${nme.decoded}, O.DBType(${it}))"""
+        } getOrElse {
+          q"""def $nme = column[$tpt](${nme.decoded})"""
+        }
+        expr
+        //c.parse(expr)
       }
+      /*
+      if (desc.cse) {
+        if (desc.option) {
+          q"""def ${newTermName(colIdName(desc.name))} = column[Option[${typeId(desc.typeName)}]](${colIdName(desc.name)})"""
+        } else {
+          q"""def ${newTermName(colIdName(desc.name))} = column[${typeId(desc.typeName)}](${colIdName(desc.name)})"""
+        }
+      } else {
+        println(desc.name + ":" + desc.typeName + "//" + desc.option)
+
+        val tpe = desc.typeName
+        val expr = desc.dbType map { it =>
+          if (desc.option) {
+            s"""def ${desc.name} = column[Option[$tpe]]("${desc.name}", O.DBType(${it}))"""
+          } else
+            s"""def ${desc.name} = column[$tpe]("${desc.name}", O.DBType(${it}))"""
+        } getOrElse {
+          if (desc.option)
+            s"""def ${desc.name} = column[Option[$tpe]]("${desc.name}")"""
+          else
+            s"""def ${desc.name} = column[$tpe]("${desc.name}")"""
+        }
+        c.parse(expr)
+      }
+      */
     }
 
     def colIdName(caseClassName: String) = {
@@ -496,7 +539,6 @@ object ModelMacro { macro =>
         val simpleVals = desc.simpleValDefs
         val listVals = desc.listValDefs
         val indexes = desc.indexes
-        println("indexes ===>"+indexes)
         val foreignKeys = desc.foreignKeys.map { it =>
           //val fkAction = if (colInfo.isDefined && colInfo.get.onDelete != null) colInfo.get.onDelete else "ForeignKeyAction.NoAction"
           c.parse(s"""def ${it.name}FK = foreignKey("${desc.name.toLowerCase}2${it.typeName.toLowerCase}", ${colIdName(it.name)}, ${objectName(it.typeName)})(_.id) """) // onDelete
