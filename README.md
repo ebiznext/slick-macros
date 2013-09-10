@@ -30,16 +30,13 @@ slick-macros for [Slick](http://slick.typesafe.com) 2.0
 
   case class Member(@Index(false) login: String, rights: UserRights, add: Address, company: Company, manager: Option[Member])
   case class Project(name: String, company: Company, members: List[Member])
-
 }
-
-
-
+    ```
+    
 documentation below is out of date
 
 
 
-    ```
     A sample app look like this :
 
     ```scala
