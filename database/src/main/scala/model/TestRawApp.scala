@@ -18,15 +18,13 @@ import slickmacros.annotations.ModelMacro._
 import slickmacros.dao.Crud._
 
 object TestRawApp extends App {
-  
+
   object UserRights extends Enumeration {
     type UserRights = Value
     val ADMIN = Value(1)
     val GUEST = Value(2)
   }
   import UserRights._
-  def xxxx(i:Int)(implicit y:JdbcBackend#SessionDef) = ???
-  
   implicit def UserRightsTypeMapper = MappedColumnType.base[UserRights.Value, Int](
     {
       it => it.id
@@ -34,7 +32,7 @@ object TestRawApp extends App {
     {
       id => UserRights(id)
     })
-  case class Company(id: Option[Long], name: String, website: String, large:Array[Byte], var dateCreated: java.sql.Timestamp = null, var lastUpdated: java.sql.Timestamp = null) {
+  case class Company(id: Option[Long], name: String, website: String, large: Array[Byte], var dateCreated: java.sql.Timestamp = null, var lastUpdated: java.sql.Timestamp = null) {
     def xid = id.getOrElse(throw new Exception("Object has no id yet"))
   }
 
@@ -45,28 +43,47 @@ object TestRawApp extends App {
     def large = column[Array[Byte]]("large")
     def dateCreated = column[java.sql.Timestamp]("dateCreated");
     def lastUpdated = column[java.sql.Timestamp]("lastUpdated");
-    def * = id.? ~ name ~ website ~ large ~ dateCreated ~ lastUpdated <> (Company.tupled, Company.unapply _)
+
+    def * = (id.$qmark, name, website, large, dateCreated, lastUpdated).shaped <> ({
+      case (id, name, website, large, dateCreated, lastUpdated) => Company(id, name, website, large, dateCreated, lastUpdated)
+    },
+      { x: Company => Some((x.id, x.name, x.website, x.large, x.dateCreated, x.lastUpdated)) })
+
+    // def * = (id.?, name, website, large, dateCreated, lastUpdated) <> (Company.tupled, Company.unapply _)
     def forInsert = (name ~ website ~ large ~ dateCreated ~ lastUpdated).shaped <> ({ t => Company(None, t._1, t._2, t._3, t._4, t._5) }, { (c: Company) => Some((c.name, c.website, c.large, c.dateCreated, c.lastUpdated)) })
-    def members = memberQuery.where(_.companyId === id)
+    //def members = memberQuery.where(_.companyId === id)
   }
   val companyQuery = TableQuery[CompanyTable]
 
-  case class Member(id: Option[Long], login: String, rights: UserRights, companyId: Long, managerId: Option[Long]) {
+  case class Address(num: Int, road: String, zip: String)
+
+  case class Member(id: Option[Long], login: String, rights: UserRights, add: Address, companyId: Long, managerId: Option[Long]) {
     val companyQ = companyQuery.findBy(_.id)
-    def company(implicit session: Session) = companyQuery.where(((x$1) => x$1.id.$eq$eq$eq(companyId))).first;//companyQ.first(companyId)
+    def company(implicit session: Session) = companyQuery.where(((x$1) => x$1.id.$eq$eq$eq(companyId))).first; //companyQ.first(companyId)
     def xid = id.getOrElse(throw new Exception("Object has no id yet"))
 
   }
 
   class MemberTable(tag: Tag) extends Table[Member](tag, "member") {
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc);
-    def * = id.? ~ login ~ rights ~ companyId ~ managerId <> (Member.tupled, Member.unapply _)
+    def * = (id.?, login, rights, (num, road, zip), companyId, managerId).shaped <> ({
+      case (id, login, rights, add, companyId, managerId) =>
+        Member(id, login, rights, Address.tupled.apply(add), companyId, managerId)
+    }, { x: Member => Some((x.id, x.login, x.rights, Address.unapply(x.add).get, x.companyId, x.managerId)) })
+
     def login = column[String]("login");
+    def num = column[Int]("num");
+    def road = column[String]("road");
+    def zip = column[String]("zip");
     def rights = column[UserRights]("rights");
     def managerId = column[Option[Long]]("managerId");
     def companyId = column[Long]("companyId");
     def company = foreignKey("member2company", companyId, companyQuery)(_.id)
-    def forInsert = (login ~ rights ~ companyId ~ managerId).shaped <> ({ t => Member(None, t._1, t._2, t._3, t._4) }, { (x: Member) => Some((x.login, x.rights, x.companyId, x.managerId)) });
+    // ({ t => Member(None, t._1, t._2, t._3, t._4) }, { (x: Member) => Some((x.login, x.rights, x.companyId, x.managerId)) });
+    def forInsert = (login, rights, (num, road, zip), companyId, managerId).shaped <> ({
+      case (login, rights, add, companyId, managerId) =>
+        Member(None, login, rights, Address.tupled.apply(add), companyId, managerId)
+    }, { x: Member => Some((x.login, x.rights, Address.unapply(x.add).get, x.companyId, x.managerId)) })
   }
   val memberQuery = TableQuery[MemberTable]
 
@@ -102,11 +119,9 @@ object TestRawApp extends App {
   }
   val Project2Members = TableQuery[Project2MemberTable]
   companyQuery.ddl.createStatements.foreach(println)
+  projectQuery.ddl.createStatements.foreach(println)
   memberQuery.ddl.createStatements.foreach(println)
 
-  val allTables = Seq(companyQuery, memberQuery, projectQuery)
-  
-  
 }
 
 
