@@ -1,36 +1,44 @@
 Roadmap
 =======
 
-16/SEP/2014 : Support for dynamic accessors
+16/SEP/2014 : Support for dynamic accessors and documentation update
 
 04/SEP/2014 : Initial Version for Slick 2
 
 03/SEP/2014 : Stable Version for Slick 1. Development stopped
 
-slick-macros for [Slick](http://slick.typesafe.com) 1.0
+slick-macros for [Slick](http://slick.typesafe.com) 2.0 
 ============
 
 - The @Model  macro provide an easy way to create Slick table objects. The code below will produce all the slick 
-  boilerplate code including the table object, the foreign keys, the association table for many to many relationships and 
-  the Enumeration Type Mapper
+  boilerplate code including the table object, the foreign keys, the indexes, the custom type mappings, the association table for many to many relationships and 
+  the Enumeration Type Mapper and embed the "parts" into the enclosing table object (useful for tables with more than 22 columns).
 
     ```scala
-package model
-  @Model object XDb {
-    object UserRights extends Enumeration {
-      type UserRights = Value
-      val ADMIN = Value(1)
-      val GUEST = Value(2)
-    }
-    import UserRights._
-    case class Company(name: String, website: String) {
-      colType(name, "VARCHAR2(50)") // experimental : please use with caution
-      coldIndex(name, unique = true) // convenient way to create an index. Could be done by subclassing the Table
-    }
-    case class Member(login: String, rights: UserRights, company: Company, manager:Option[Member])
-    case class Project(name: String, company: Company, members: List[Member])
+@Model object XDb {
+
+  object UserRights extends Enumeration {
+    type UserRights = Value
+    val ADMIN = Value(1)
+    val GUEST = Value(2)
   }
+  import UserRights._
+
+  case class Company(name: String, website: String)
+
+  @Part case class Address(num: Int, @Type("varchar(1024)") road: String, zip: String)
+
+  case class Member(@Index(false) login: String, rights: UserRights, add: Address, company: Company, manager: Option[Member])
+  case class Project(name: String, company: Company, members: List[Member])
+
 }
+
+
+
+documentation below is out of date
+
+
+
     ```
     A sample app look like this :
 
