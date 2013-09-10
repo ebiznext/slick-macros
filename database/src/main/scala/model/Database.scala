@@ -9,23 +9,15 @@ import scala.slick.jdbc.{ GetResult, StaticQuery => Q }
 import Q.interpolation
 import scala.language.dynamics
 import language.experimental.macros
-import scala.language.experimental.macros
-import scala.reflect.ClassTag
-import scala.reflect.NameTransformer
-import scala.reflect.macros.Context
-import scala.reflect.runtime.{ universe => u }
-import slickmacros.annotations._
-import slickmacros.Utils._
-import TupleMethods._
-
 import scala.slick.lifted.MappedProjection
 import TupleMethods._
 import scala.slick.profile.BasicDriver
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.profile._
-import slickmacros.annotations.ModelMacro._
+import slickmacros.annotations._
 
 @Model object XDb {
+
   object UserRights extends Enumeration {
     type UserRights = Value
     val ADMIN = Value(1)
@@ -33,14 +25,12 @@ import slickmacros.annotations.ModelMacro._
   }
   import UserRights._
 
-  case class Company(name: String, website: String) {
-    //colType(website, "CLOB")
-    colIndex(name, true)
-  }
-  case class Member(login: String, rights: UserRights, company: Company, manager: Option[Member])
+  case class Company(name: String, website: String)
+
+  @Part case class Address(num: Int, @Type("varchar(1024)") road: String, zip: String)
+
+  case class Member(@Index(false) login: String, rights: UserRights, add: Address, company: Company, manager: Option[Member])
   case class Project(name: String, company: Company, members: List[Member])
 
 }
-
-
 

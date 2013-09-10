@@ -10,7 +10,6 @@ import scala.reflect.runtime.universe._
 import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.jdbc.StaticQuery.interpolation
 import TupleMethods._
-import slickmacros.Utils._
 import scala.slick.lifted._
 import slickmacros.reflect._
 //import Database.dynamicSession
@@ -19,6 +18,7 @@ import slickmacros.reflect._
 import slickmacros._
 import slickmacros.annotations._
 import slickmacros.dao.Crud._
+
 import  slickemf.export._
 
 object SampleApp extends App {
@@ -38,8 +38,8 @@ object SampleApp extends App {
     val csize = companyQuery.list.size
     if (csize == 0) {
       val typesafeId = companyDAO.insert(Company(None, "typesafe", "http://www.typesafe.com"))
-      val martinId = memberDAO.insert(Member(None, "modersky", UserRights.ADMIN, typesafeId, None))
-      val szeigerId = memberDAO.insert(Member(None, "szeiger", UserRights.GUEST, typesafeId, Some(martinId)))
+      val martinId = memberDAO.insert(Member(None, "modersky", UserRights.ADMIN, Address(1,"ici", "10001"), typesafeId, None))
+      val szeigerId = memberDAO.insert(Member(None, "szeiger", UserRights.GUEST, Address(1,"ici", "10001"),typesafeId, Some(martinId)))
 
       val slickId = projectDAO.insert(Project(None, "Slick", typesafeId))
       project2MemberQuery.insert(Project2Member(slickId, martinId))

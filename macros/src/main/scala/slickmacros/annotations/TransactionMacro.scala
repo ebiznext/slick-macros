@@ -11,6 +11,23 @@ import scala.reflect.runtime.universe._
 import javax.sql.DataSource
 import java.util.Properties
 
+class DBTransaction extends StaticAnnotation {
+  def macroTransform(annottees: Any*) = macro TransactionMacro.implTransaction
+}
+
+class DBNewTransaction extends StaticAnnotation {
+  def macroTransform(annottees: Any*) = macro TransactionMacro.implNewTransaction
+}
+
+class DBSession extends StaticAnnotation {
+  def macroTransform(annottees: Any*) = macro TransactionMacro.implSession
+}
+
+class DBNewSession extends StaticAnnotation {
+  def macroTransform(annottees: Any*) = macro TransactionMacro.implNewSession
+}
+
+
 case class DbConnectionInfos(
   jndiName: String = null,
   dataSource: DataSource = null,
@@ -97,20 +114,3 @@ object TransactionMacro {
   }
 
 }
-
-class DBTransaction extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro TransactionMacro.implTransaction
-}
-
-class DBNewTransaction extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro TransactionMacro.implNewTransaction
-}
-
-class DBSession extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro TransactionMacro.implSession
-}
-
-class DBNewSession extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro TransactionMacro.implNewSession
-}
-

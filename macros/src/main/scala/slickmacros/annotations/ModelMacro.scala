@@ -3,26 +3,66 @@ package slickmacros.annotations
 import scala.reflect.macros.Context
 import scala.annotation.StaticAnnotation
 import scala.reflect.runtime.universe._
-import java.beans.Introspector;
+import java.beans.Introspector
 import scala.language.existentials
 import scala.slick.jdbc.{ GetResult, StaticQuery => Q }
 import Q.interpolation
 import language.experimental.macros
-
 import scala.slick.driver.JdbcDriver.simple._
 import scala.slick.profile.BasicDriver
 import scala.slick.lifted.MappedProjection
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.profile._
+import scala.slick.lifted._
+import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.Set
+
+class Model extends StaticAnnotation {
+  def macroTransform(annottees: Any*) = macro ModelMacro.impl
+}
+
+class Part extends StaticAnnotation
+class Index(unique: Boolean = false) extends StaticAnnotation
+class Type(dbType: String) extends StaticAnnotation
+class OnDelete(action: ForeignKeyAction) extends StaticAnnotation
+
 
 object ModelMacro { macro =>
+
+  object DefType extends Enumeration {
+    type DefType = Value
+    val CLASSDEF = Value
+    val DEFDEF = Value
+    val IMPORTDEF = Value
+    val ENUMDEF = Value
+    val EMBEDDEF = Value
+    val OTHER = Value
+  }
+  import DefType._
+
+  object ClassType extends Enumeration {
+    type ClassType = Value
+    val PARTDEF = Value
+    val ENTITYDEF = Value
+    val OTHER = Value
+  }
+  import ClassType._
+
+  object FieldFlag extends Enumeration {
+    type FieldFlag = Value
+    val OPTION = Value
+    val CASE = Value
+    val PART = Value
+    val LIST = Value
+    val INDEX = Value
+    val UNIQUE = Value
+    val DBTYPE = Value
+  }
+  import FieldFlag._
 
   def impl(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
     import Flag._
-
-    case class FieldDesc(name: String, isOption: Boolean, isCaseClass: Boolean, isList: Boolean, tpe: String)
-    type ColDesc = (Modifiers, TermName, Tree, _, Option[FieldDesc])
 
     val reservedNames = List("id", "dateCreated", "lastUpdated")
     val caseAccessor = scala.reflect.internal.Flags.CASEACCESSOR.asInstanceOf[Long].asInstanceOf[FlagSet]
@@ -41,35 +81,182 @@ object ModelMacro { macro =>
     def dateVal(name: String) = ValDef(Modifiers(mutable | caseAccessor | paramAccessor), newTermName(name), optionalDate, EmptyTree)
     def dateValInCtor(name: String) = ValDef(Modifiers(param | paramAccessor | paramDefault), newTermName(name), optionalDate, Literal(Constant(null))) // Ident(newTermName("None")))
 
-    def mkCaseClass(typeName: TypeName, columnVals: List[ColDesc], columnDefs: List[ColDesc], parents: List[Tree], self: ValDef, augment: Boolean = true) = {
-      val valdefs = columnVals.collect {
-        case (mods, name, tpt, _, _) => q"$mods val $name:$tpt"
+    class ClsDesc(val name: String, val classType: ClassType, val fields: ListBuffer[FldDesc], val timestamps: Boolean, val tree: Tree) {
+      def parseBody(allClasses: List[ClsDesc]) {
+        val ClassDef(mod, name, Nil, Template(parents, self, body)) = tree
+        body.foreach { it =>
+          it match {
+            case ValDef(_, _, _, _) => fields += FldDesc(it, allClasses)
+            //case q"val $mods $name:$tpe = $value" => fields += FldDesc(it, allClasses)
+            case _ =>
+          }
+
+        }
       }
-
-      val idTypeName = newTypeName(s"${typeId(typeName.decoded)}")
-      val newAttrs = if (augment) idVal(idTypeName) +: valdefs :+ dateVal("dateCreated") :+ dateVal("lastUpdated") else valdefs
-      val ctorParams1 = if (augment) idValInCtor(idTypeName) +: valdefs :+ dateValInCtor("dateCreated") :+ dateValInCtor("lastUpdated") else valdefs
-      val newCtor1 = DefDef(Modifiers(),
-        nme.CONSTRUCTOR, List(),
-        ctorParams1 :: Nil,
-        TypeTree(),
-        Block(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), Nil) :: Nil, Literal(Constant(()))))
-
-      val terms = columnVals.collect {
-        case (mods, name, tpt, _, _) => Ident(name)
+      def foreignKeys: List[FldDesc] = {
+        fields.filter { it => it.flags.exists(_ == FieldFlag.CASE) && !it.flags.exists(_ == FieldFlag.LIST) } toList
       }
-      val ctor3body = Ident(newTermName("None")) :: terms
+      def assocs: List[FldDesc] = {
+        fields.filter { it => it.flags.exists(_ == FieldFlag.CASE) && it.flags.exists(_ == FieldFlag.LIST) } toList
+      }
+      def simpleValDefs: List[FldDesc] = {
+        fields.filter { it => !it.flags.exists(_ == FieldFlag.LIST) } toList
+      }
+      def listValDefs: List[FldDesc] = {
+        fields.filter { it => it.flags.exists(_ == FieldFlag.LIST) } toList
+      }
+      def allFields = {
+        fields.toList.map { it =>
+          if (it.part)
+            it.cls.get.fields toList
+          else
+            it::Nil
+        } flatten
+      }
+      
+      def indexes: List[FldDesc] = {
+        allFields.filter { it =>
+          it.flags.exists(_ == FieldFlag.INDEX)
+        } toList
+      }
+    }
 
-      val newCtor3 = DefDef(Modifiers(),
-        nme.CONSTRUCTOR, List(),
-        valdefs :: Nil,
-        TypeTree(),
-        Block(List(Apply(Ident(nme.CONSTRUCTOR), ctor3body)), Literal(Constant(()))))
+    object ClsDesc {
+      def apply(tree: Tree) = {
+        val ClassDef(mod, name, Nil, _) = tree
+        if (!mod.hasFlag(CASE))
+          c.abort(c.enclosingPosition, s"Only case classes allwoed here ${name.decoded}")
+        val annotation = mod.annotations.headOption.map(_.children.head.toString)
+        val isPart = annotation.map(_ == "new Part").getOrElse(false)
+        val classType = if (isPart) PARTDEF else ENTITYDEF
+        new ClsDesc(name.decoded, classType, ListBuffer(), true, tree)
+      }
+    }
+    class FldDesc(val name: String, val typeName: String, val flags: Set[FieldFlag], val dbType: Option[String], val cls: Option[ClsDesc], val tree: Tree) {
+      def unique: Boolean = flags.exists(_ == FieldFlag.UNIQUE)
+      def part: Boolean = flags.exists(_ == FieldFlag.PART)
+      def option: Boolean = flags.exists(_ == FieldFlag.OPTION)
+      def cse: Boolean = flags.exists(_ == FieldFlag.CASE)
+    }
 
-      val xid = q"""def xid = id.getOrElse(throw new Exception("Object has no id yet"))"""
+    object FldDesc {
+      def apply(fieldTree: Tree, allClasses: List[ClsDesc]) = {
+        val ValDef(mod, name, tpt, rhs) = fieldTree
+        if (reservedNames.exists(_ == name.decoded))
+          c.abort(c.enclosingPosition, s"Column with name ${name.decoded} not allowed")
+        else {
+          val flags = Set[FieldFlag]()
+          val annotation = mod.annotations.headOption.map(_.children.head.toString)
+          var colType: String = null
+          val isIndex = annotation.map(_ == "new Index").getOrElse(false)
+          if (isIndex) {
+            flags += FieldFlag.INDEX
+            mod.annotations.headOption.foreach { it =>
+              if (it.children.length >= 2 && it.children(1).toString.equals("true")) flags += FieldFlag.UNIQUE
+            }
+          }
+          val isdbType = annotation.map(_ == "new Type").getOrElse(false)
+          if (isdbType) {
+            flags += FieldFlag.DBTYPE
+            mod.annotations.headOption.foreach { it =>
+              if (it.children.length >= 2) colType = it.children(1).toString
+            }
+          }
+          var typeName: String = null
+          val clsDesc: Option[ClsDesc] = tpt match {
+            case Ident(tpe) =>
+              typeName = tpe.decoded
+              val clsDesc = allClasses.find(_.name == tpe.decoded)
+              clsDesc.foreach { it =>
+                if (it.classType == ENTITYDEF) {
+                  flags += FieldFlag.CASE
+                } else if (it.classType == PARTDEF)
+                  flags += FieldFlag.PART
+              }
+              clsDesc
+            case AppliedTypeTree(Ident(option), List(Ident(tpe))) if option.decoded == "Option" =>
+              typeName = tpe.decoded
+              val clsDesc = allClasses.find(_.name == tpe.decoded)
+              clsDesc.foreach { it =>
+                if (it.classType == ENTITYDEF)
+                  flags ++= Set(FieldFlag.CASE, FieldFlag.OPTION)
+              }
+              clsDesc
+            case AppliedTypeTree(Ident(list), List(Ident(tpe))) if list.decoded == "List" =>
+              typeName = tpe.decoded
+              val ClsDesc = allClasses.find(_.name == tpe.decoded).getOrElse(c.abort(c.enclosingPosition, s"List not allowed here ${name.decoded} not allowed"))
+              if (ClsDesc.classType == ENTITYDEF)
+                flags ++= Set(FieldFlag.CASE, FieldFlag.LIST)
+              else
+                c.abort(c.enclosingPosition, s"only entity allowed here ${name.decoded}")
+              Some(ClsDesc)
+            case _ => None
+          }
+          val tree = mod.annotations.headOption
+          tree.foreach { it =>
+            it match {
+              case Apply(Select(New(Ident(index)), _), List(Literal(Constant(unique)))) =>
+                if (index.decoded == "Index") flags += FieldFlag.INDEX
+                if (unique == true) flags += FieldFlag.UNIQUE
+              case Apply(Select(New(Ident(dbType)), _), List(Literal(Constant(dbTypeValue)))) =>
+                if (dbType.decoded == "Type") flags += FieldFlag.DBTYPE
+                colType = dbTypeValue.asInstanceOf[String]
+            }
+          }
+          new FldDesc(name.decoded, typeName, flags, Option(colType), clsDesc, fieldTree)
+        }
+      }
+    }
+    case class FieldDesc(name: String, isOption: Boolean, isCaseClass: Boolean, isList: Boolean, isEmbed: Boolean, tpe: String)
 
-      val defdefs = columnVals.collect {
-        case (_, _, _, _, Some(FieldDesc(name, false, true, false, tpe))) =>
+    type ColDesc = (Modifiers, TermName, Tree, _, Option[FieldDesc])
+
+    def mkCaseClass(desc: ClsDesc, augment: Boolean = true): ClassDef = {
+      if (desc.classType == PARTDEF) {
+        desc.tree.asInstanceOf[ClassDef]
+      } else {
+        val valdefs = desc.simpleValDefs.map { it =>
+          if (it.cse) {
+            val tpt = if (it.option) {
+              AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName(s"${typeId(it.typeName)}"))))
+            } else {
+              Ident(newTypeName(s"${typeId(it.typeName)}"))
+            }
+            val ValDef(mod, nme, _, _) = it.tree
+            val termName = newTermName(nme.decoded + "Id")
+            q"$mod val $termName:$tpt"
+          } else
+            it.tree.asInstanceOf[ValDef]
+        }
+
+        val idTypeName = newTypeName(s"${typeId(desc.name)}")
+        val newAttrs = if (augment) idVal(idTypeName) +: valdefs :+ dateVal("dateCreated") :+ dateVal("lastUpdated") else valdefs
+        val ctorParams1 = if (augment) idValInCtor(idTypeName) +: valdefs :+ dateValInCtor("dateCreated") :+ dateValInCtor("lastUpdated") else valdefs
+        val newCtor1 = DefDef(Modifiers(),
+          nme.CONSTRUCTOR, List(),
+          ctorParams1 :: Nil,
+          TypeTree(),
+          Block(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), Nil) :: Nil, Literal(Constant(()))))
+
+        val terms = desc.simpleValDefs.map { it =>
+          if (it.cse) {
+            Ident(newTermName(it.name + "Id"))
+          } else {
+            Ident(newTermName(it.name))
+          }
+
+        }
+        val ctor3body = Ident(newTermName("None")) :: terms
+
+        val newCtor3 = DefDef(Modifiers(),
+          nme.CONSTRUCTOR, List(),
+          valdefs :: Nil,
+          TypeTree(),
+          Block(List(Apply(Ident(nme.CONSTRUCTOR), ctor3body)), Literal(Constant(()))))
+
+        val xid = q"""def xid = id.getOrElse(throw new Exception("Object has no id yet"))"""
+
+        val defdefs = desc.foreignKeys.map { it =>
           /*DefDef(
               Modifiers(), 
               newTermName(name),
@@ -78,44 +265,56 @@ object ModelMacro { macro =>
               TypeTree(), 
 
               )*/
-          q"""def ${newTermName(name)}(implicit session : JdbcBackend#SessionDef) = ${newTermName(objectName(tpe))}.where(_.id === ${newTermName(colIdName(name))}).first"""
-        case (_, _, _, _, Some(FieldDesc(name, true, true, false, tpe))) =>
-          q"""def ${newTermName(name)}(implicit session : JdbcBackend#SessionDef) = ${newTermName(objectName(tpe))}.where(_.id === ${newTermName(colIdName(name))}).firstOption"""
-      }
-      val one2manyDefs = columnDefs.collect {
-        case (_, _, _, _, Some(FieldDesc(name, false, true, true, tpe))) =>
+          if (it.option)
+            q"""def ${newTermName(it.name)}(implicit session : JdbcBackend#SessionDef) = ${newTermName(objectName(it.typeName))}.where(_.id === ${newTermName(colIdName(it.name))}).firstOption"""
+          else
+            q"""def ${newTermName(it.name)}(implicit session : JdbcBackend#SessionDef) = ${newTermName(objectName(it.typeName))}.where(_.id === ${newTermName(colIdName(it.name))}).first"""
+        }
+        val one2manyDefs = desc.assocs.map { it =>
           q"""
-            def ${newTermName(name)} = for {
-        	  	x <- ${newTermName(objectName(assocTableName(typeName.decoded, tpe)))} if x.${newTermName(colIdName(typeName.decoded))} === id
-        		y <- ${newTermName(objectName(tpe))} if x.${newTermName(colIdName(tpe))} === y.id
+            def ${newTermName(it.name)} = for {
+        	  	x <- ${newTermName(objectName(assocTableName(desc.name, it.typeName)))} if x.${newTermName(colIdName(desc.name))} === id
+        		y <- ${newTermName(objectName(it.typeName))} if x.${newTermName(colIdName(it.typeName))} === y.id
         	} yield(y)
             """
-      }
-      val one2manyDefAdds = columnDefs.collect {
-        case (_, _, _, _, Some(FieldDesc(name, false, true, true, tpe))) =>
-          q"""def ${newTermName("add" + tpe)}(${newTermName(colIdName(tpe))} : ${newTypeName("Long")})(implicit session : JdbcBackend#SessionDef) = ${newTermName(objectName(assocTableName(typeName.decoded, tpe)))}.insert(${newTermName(assocTableName(typeName.decoded, tpe))}(xid, ${newTermName(colIdName(tpe))}))"""
-      }
-      val lst = if (augment) newCtor1 :: xid :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds else newCtor1 :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds
+        }
+        val one2manyDefAdds = desc.assocs.map { it =>
+          q"""def ${newTermName("add" + it.typeName)}(${newTermName(colIdName(it.typeName))} : ${newTypeName("Long")})(implicit session : JdbcBackend#SessionDef) = ${newTermName(objectName(assocTableName(desc.name, it.typeName)))}.insert(${newTermName(assocTableName(desc.name, it.typeName))}(xid, ${newTermName(colIdName(it.typeName))}))"""
+        }
+        val lst = if (augment) newCtor1 :: xid :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds else newCtor1 :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds
 
-      ClassDef(Modifiers(CASE), typeName, List(), Template(parents, self, lst))
+        //val lst = if (augment) newCtor1 :: xid :: newAttrs ++ defdefs else newCtor1 :: newAttrs ++ defdefs
+
+        ClassDef(Modifiers(CASE), desc.name, List(), Template(List(Select(Ident(newTermName("scala")), newTypeName("Product")), Select(Ident(newTermName("scala")), newTypeName("Serializable"))), emptyValDef, lst))
+      }
     }
-
     /**
      * given a fieldName and a type tree return "def fieldName = column[tpe]("fieldName")
      */
-    def mkColumn(name: TermName, tpe: Tree, customType: Option[Constant]) = {
-      customType map { it =>
-        q"""def $name = column[$tpe](${name.decoded}, O.DBType(${it}))"""
-      } getOrElse (q"""def $name = column[$tpe](${name.decoded})""")
+    //        class FldDesc(val name: String, val flags: Set[FieldFlag], val dbType: String, val cls: Option[ClsDesc], val tree: Tree)
+
+    def mkColumn(desc: FldDesc): Tree = {
+      if (desc.cse) {
+        if (desc.option) {
+          q"""def ${newTermName(colIdName(desc.name))} = column[Option[${typeId(desc.typeName)}]](${colIdName(desc.name)})"""
+        } else {
+          q"""def ${newTermName(colIdName(desc.name))} = column[${typeId(desc.typeName)}](${colIdName(desc.name)})"""
+        }
+      } else {
+        val tpe = newTypeName(desc.typeName)
+        desc.dbType map { it =>
+          q"""def ${newTermName(desc.name)} = column[$tpe](${desc.name}, O.DBType(${it}))"""
+        } getOrElse (q"""def ${newTermName(desc.name)} = column[$tpe](${desc.name})""")
+      }
     }
 
     def colIdName(caseClassName: String) = {
       s"${Introspector.decapitalize(caseClassName)}Id"
     }
 
-    def tableName(fieldName: String) = s"${fieldName}Table"
+    def tableName(typeName: String) = s"${typeName}Table"
 
-    def objectName(fieldName: String) = s"${Introspector.decapitalize(fieldName)}Query"
+    def objectName(typeName: String) = s"${Introspector.decapitalize(typeName)}Query"
 
     def assocTableName(table1: String, table2: String) = s"${table1}2${table2}"
 
@@ -123,46 +322,92 @@ object ModelMacro { macro =>
      * create the field1 ~ field2 ~ ... ~ fieldN string from case class column
      * does not handle correctly case classes with a single column (adding a dummy field would probably help)
      */
-    def mkTilde(columnNames: List[c.universe.TermName]): String = {
-      columnNames match {
+    def mkTilde(fields: List[FldDesc]): String = {
+      fields match {
         case Nil => c.abort(c.enclosingPosition, "Cannot create table with zero column")
-        case term :: Nil => term.decoded
-        case term :: tail => s"${term.decoded} ~ ${mkTilde(tail)}"
+        case field :: Nil =>
+          if (field.part)
+            "(" + mkTilde(field.cls.get.fields toList) + ")"
+          else if (field.cse)
+            colIdName(field.name)
+          else
+            field.name
+        case head :: tail => s"${mkTilde(head :: Nil)}, ${mkTilde(tail)}"
+      }
+    }
+
+    def mkCaseApply(fields: List[FldDesc]): String = {
+      fields match {
+        case Nil => c.abort(c.enclosingPosition, "Cannot create table with zero column")
+        case field :: Nil =>
+          if (field.part)
+            s"${field.typeName}.tupled.apply(${field.name})"
+          else if (field.cse)
+            colIdName(field.name)
+          else
+            field.name
+        case head :: tail => s"${mkCaseApply(head :: Nil)}, ${mkCaseApply(tail)}"
+      }
+    }
+
+    def mkCaseUnapply(fields: List[FldDesc]): String = {
+      fields match {
+        case Nil => c.abort(c.enclosingPosition, "Cannot create table with zero column")
+        case field :: Nil =>
+          if (field.part) {
+            s"${field.typeName}.unapply(x.${field.name}).get"
+          } else if (field.cse)
+            "x." + colIdName(field.name)
+          else
+            "x." + field.name
+        case head :: tail => s"${mkCaseUnapply(head :: Nil)}, ${mkCaseUnapply(tail)}"
+      }
+    }
+
+    def mkCase(fields: List[FldDesc]): String = {
+      fields match {
+        case Nil => c.abort(c.enclosingPosition, "Cannot create table with zero column")
+        case field :: Nil =>
+          if (field.part) {
+            field.name
+          } else if (field.cse)
+            colIdName(field.name)
+          else
+            field.name
+        case head :: tail => s"${mkCase(head :: Nil)}, ${mkCase(tail)}"
       }
     }
 
     /**
      * create the def * = ... from fields names and case class names
      */
-    def mkTimes(typeName: TypeName, columnNames: List[c.universe.TermName], augment: Boolean): Tree = {
+    def mkTimes(desc: ClsDesc, augment: Boolean = true): Tree = {
       val expr = {
         if (augment)
-          s"def * = id.? ~ ${mkTilde(columnNames)} ~ dateCreated ~ lastUpdated <> (${typeName.decoded}.tupled, ${typeName.decoded}.unapply _)"
+          s"""def * = (id.?, ${mkTilde(desc.simpleValDefs)}, dateCreated, lastUpdated).shaped <> ({
+        case (id, ${mkCase(desc.simpleValDefs)}, dateCreated, lastUpdated) => ${desc.name}(id, ${mkCaseApply(desc.simpleValDefs)}, dateCreated, lastUpdated)
+      }, { x : ${desc.name} => Some((x.id, ${mkCaseUnapply(desc.simpleValDefs)}, x.dateCreated, x.lastUpdated))
+      })"""
         else
-          s"def * = ${mkTilde(columnNames)} <> (${typeName.decoded}.tupled, ${typeName.decoded}.unapply _)"
+          s"def * = (${mkTilde(desc.fields toList)}).shaped <> (${desc.name}.tupled, ${desc.name}.unapply _)"
+      }
+      c.parse(expr)
+    }
+
+    def mkForInsert(desc: ClsDesc): Tree = {
+      val expr = {
+        s"""def forInsert = (${mkTilde(desc.simpleValDefs)}, dateCreated, lastUpdated).shaped <> ({
+        case (${mkCase(desc.simpleValDefs)}, dateCreated, lastUpdated) => ${desc.name}(None, ${mkCaseApply(desc.simpleValDefs)}, dateCreated, lastUpdated)
+      }, { x : ${desc.name} => Some((${mkCaseUnapply(desc.simpleValDefs)}, x.dateCreated, x.lastUpdated))
+      })"""
       }
       c.parse(expr)
     }
 
     /**
-     * create the def forInsert = ...
-     */
-    def mkCRUD(typeName: TypeName, columnNames: List[c.universe.TermName]): List[Tree] = {
-      val tuple = List.tabulate(columnNames.size + 2)(n => ("t._" + (n + 1).toString)).reduce(_ + ", " + _)
-      val apply = s"""{ t => ${typeName.decoded}(None, $tuple) }"""
-      val fields = columnNames.map("x." + _.decoded).reduce(_ + "," + _)
-      val unapply = s"""{(x: ${typeName.decoded}) => Some(($fields, x.dateCreated, x.lastUpdated))}"""
-      val expr = s"def forInsert = (${mkTilde(columnNames)} ~ dateCreated ~ lastUpdated).shaped <> ($apply,$unapply)"
-
-      List(
-        c.parse(expr))
-
-    }
-
-    /**
      * Create the Enumeration Type Mapper
      */
-    def mkModules(name: String) = {
+    def mkEnumMapper(name: String): Tree = {
       val mapper = s"""implicit val ${name}TypeMapper = MappedColumnType.base[${name}.Value, Int](
             {
               it => it.id
@@ -172,7 +417,9 @@ object ModelMacro { macro =>
             })"""
       c.parse(mapper)
     }
+
     def typeId(tpeName: String) = newTypeName("Long")
+
     def mkTypeId(tpeName: String): List[Tree] = {
       val tp = typeId(tpeName)
       val obj = newTermName(s"${tpeName}Id")
@@ -181,119 +428,161 @@ object ModelMacro { macro =>
       List(cc, imp)
     }
 
-    def cleanupBody(body: List[Tree]) = {
+    def cleanupBody(body: List[Tree]): List[Tree] = {
+      val cleanDefs = List("embed", "onDelete", "index", "timestamps", "dbType")
       body filter { it =>
         it match {
-          case Apply(Ident(func), List(Ident(field), Literal(dbType))) if func.decoded == "colType" => false
-          case Apply(Ident(func), List(Ident(field), Literal(isUnique))) if func.decoded == "tableIndex" => false
+          case Apply(Ident(func), List(Ident(field), Literal(dbType))) if cleanDefs.contains(func.decoded) => false
           case _ => true
         }
       }
     }
 
-    def customTypes(body: List[Tree]) = {
-      body collect {
-        case Apply(Ident(func), List(Ident(field), Literal(dbType))) if func.decoded == "colType" => (field.decoded, dbType)
-      }
+    object ColInfo extends Enumeration {
+      type ColInfo = Value
+      val DBTYPE = Value
+      val TIMESTAMPS = Value
+      val INDEX = Value
+      val ONDELETE = Value
     }
-    def indexes(body: List[Tree]) = {
+    import ColInfo._
+
+    def caseInfos(body: List[Tree]): Map[ColInfo, List[(ColInfo, (String, Tree))]] = {
       body collect {
-        case Apply(Ident(func), List(Ident(field), Literal(isUnique))) if func.decoded == "tableIndex" => (field.decoded, isUnique)
-      }
+        case Apply(Ident(func), List(Ident(field), dbType)) if func.decoded == "dbType" => (DBTYPE, (field.decoded, dbType))
+        case Apply(Ident(func), List(literal)) if func.decoded == "timestamps" => (TIMESTAMPS, (null, literal))
+        //case Apply(Ident(func), Nil) if func.decoded == "timestamps" => (TIMESTAMPS, (null, newTermName("true")))
+        case Apply(Ident(func), List(Ident(field), isUnique)) if func.decoded == "index" => (INDEX, (field.decoded, isUnique))
+        case Apply(Ident(func), List(Ident(field), action)) if func.decoded == "onDelete" => (ONDELETE, (field.decoded, action))
+      } groupBy (_._1)
     }
-    /**
-     * create the case class and foreign keys for 1,n relationships and the slick table description and the assoc table for n,m relationships
-     * if augment is set to true timestamp & forInsert defs are generated too
-     */
-    def mkTable(caseClassesName: List[String], classdef: Tree, augment: Boolean = true): List[Tree] = {
-      val ClassDef(mod, typeName, Nil, Template(parents, self, body)) = classdef
-      val customDBTypes = customTypes(body) toMap
-      val dbIndexes = indexes(body)
-      val (listVals, simpleVals) = body.collect {
+
+    def extractBody(caseClassesName: List[String], embeds: List[String], body: List[Tree]) = {
+      body.collect {
         case ValDef(mod, name, tpt, rhs) =>
-          if (augment && reservedNames.exists(_ == name.decoded))
+          if (reservedNames.exists(_ == name.decoded))
             c.abort(c.enclosingPosition, s"Column with name ${name.decoded} not allowed")
           else {
             tpt match {
+              case Ident(tpe) if embeds.exists(_ == tpe.decoded) =>
+                (mod, newTermName(name.decoded), Ident(newTypeName(s"${tpe}")), rhs, Some(FieldDesc(name.decoded, false, true, false, true, tpe.decoded)))
+
               case Ident(tpe) if caseClassesName.exists(_ == tpe.decoded) =>
-                (mod, newTermName(name.decoded + "Id"), Ident(newTypeName(s"${typeId(tpe.decoded)}")), rhs, Some(FieldDesc(name.decoded, false, true, false, tpe.decoded)))
+                (mod, newTermName(name.decoded + "Id"), Ident(newTypeName(s"${typeId(tpe.decoded)}")), rhs, Some(FieldDesc(name.decoded, false, true, false, false, tpe.decoded)))
               case AppliedTypeTree(Ident(option), List(Ident(tpe))) if option.decoded == "Option" && caseClassesName.exists(_ == tpe.decoded) =>
-                (mod, newTermName(name.decoded + "Id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName(s"${typeId(tpe.decoded)}")))), rhs, Some(FieldDesc(name.decoded, true, true, false, tpe.decoded)))
+                (mod, newTermName(name.decoded + "Id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName(s"${typeId(tpe.decoded)}")))), rhs, Some(FieldDesc(name.decoded, true, true, false, false, tpe.decoded)))
 
               case AppliedTypeTree(Ident(list), List(Ident(tpe))) if list.decoded == "List" && caseClassesName.exists(_ == tpe.decoded) =>
-                (mod, newTermName(name.decoded + "Id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName(s"${typeId(tpe.decoded)}")))), rhs, Some(FieldDesc(name.decoded, false, true, true, tpe.decoded)))
+                (mod, newTermName(name.decoded + "Id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName(s"${typeId(tpe.decoded)}")))), rhs, Some(FieldDesc(name.decoded, false, true, true, false, tpe.decoded)))
               case _ =>
                 (mod, name, tpt, rhs, None)
             }
           }
       } partition {
-        case (mods, name, self, _, Some(FieldDesc(_, _, _, true, _))) => true
+        case (mods, name, self, _, Some(FieldDesc(_, _, _, true, _, _))) => true
         case _ => false
       }
+    }
 
-      val foreignKeys = simpleVals.collect { it =>
-        it match {
-          case (_, name, _, rhs, Some(FieldDesc(_, _, true, _, tpe))) =>
-            c.parse(s"""def ${tpe.toLowerCase}FK = foreignKey("${typeName.decoded.toLowerCase}2${tpe.toLowerCase}", $name, ${objectName(tpe)})(_.id)""")
+    /**
+     * create the case class and foreign keys for 1,n relationships and the slick table description and the assoc table for n,m relationships
+     * if augment is set to true timestamp & forInsert defs are generated too
+     */
+
+    def mkTable(desc: ClsDesc, augment: Boolean = true): List[Tree] = {
+      if (desc.classType == PARTDEF)
+        List(desc.tree.asInstanceOf[ClassDef])
+      else {
+        val simpleVals = desc.simpleValDefs
+        val listVals = desc.listValDefs
+        val indexes = desc.indexes
+        println("indexes ===>"+indexes)
+        val foreignKeys = desc.foreignKeys.map { it =>
+          //val fkAction = if (colInfo.isDefined && colInfo.get.onDelete != null) colInfo.get.onDelete else "ForeignKeyAction.NoAction"
+          c.parse(s"""def ${it.name}FK = foreignKey("${desc.name.toLowerCase}2${it.typeName.toLowerCase}", ${colIdName(it.name)}, ${objectName(it.typeName)})(_.id) """) // onDelete
         }
+        val assocs = desc.assocs.map { it =>
+          new ClsDesc(assocTableName(desc.name, it.typeName), ENTITYDEF,
+            ListBuffer(
+              new FldDesc(Introspector.decapitalize(desc.name), desc.name, Set(FieldFlag.CASE), None, Some(desc), ValDef(caseparam, Introspector.decapitalize(desc.name), null, null)),
+              new FldDesc(Introspector.decapitalize(it.typeName), it.typeName, Set(FieldFlag.CASE), None, it.cls, ValDef(caseparam, Introspector.decapitalize(it.typeName), null, null))),
+            true, null)
+
+        }
+        val assocTables = assocs.flatMap { it => mkTable(it, false) }
+        val idCol = q"""def id = column[${typeId(desc.name)}]("id", O.PrimaryKey, O.AutoInc);"""
+
+        def dateCVal = c.parse("""def dateCreated = column[java.sql.Timestamp]("dateCreated")""")
+        def dateUVal = c.parse("""def lastUpdated = column[java.sql.Timestamp]("lastUpdated")""")
+
+        val defdefs = simpleVals.flatMap { it =>
+          if (it.part) {
+            it.cls.get.fields.map { fld =>
+              mkColumn(fld)
+            }
+          } else {
+            List(mkColumn(it))
+          }
+        }
+
+        val indexdefs: List[c.universe.Tree] = indexes.map { it =>
+          q"""def ${newTermName(it.name + "Index")} = index(${"idx_" + desc.name.toLowerCase + "_" + it.name.toLowerCase}, ${newTermName(it.name)}, ${it.unique})"""
+        }
+        val times = mkTimes(desc, augment)
+        val forInsert = mkForInsert(desc)
+        val tagDef = ValDef(Modifiers(prvate | local | paramAccessor), newTermName("tag"), Ident(newTypeName("Tag")), EmptyTree)
+        val ctor =
+          DefDef(
+            Modifiers(),
+            nme.CONSTRUCTOR,
+            Nil,
+            (ValDef(Modifiers(param | paramAccessor), newTermName("tag"), Ident(newTypeName("Tag")), EmptyTree) :: Nil) :: Nil,
+            TypeTree(),
+            Block(List(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), List(Ident(newTermName("tag")), Literal(Constant(desc.name.toLowerCase()))))), Literal(Constant(()))))
+
+        val tableDef =
+          ClassDef(Modifiers(),
+            newTypeName(tableName(desc.name)), Nil,
+            Template(
+              AppliedTypeTree(Ident(newTypeName("Table")), Ident(newTypeName(desc.name)) :: Nil) :: Nil,
+              emptyValDef,
+              if (augment) ctor :: idCol :: dateCVal :: dateUVal :: times :: forInsert :: defdefs ++ indexdefs ++ foreignKeys else ctor :: times :: indexdefs ++ defdefs ++ foreignKeys))
+        val objectDef = q"val ${newTermName(objectName(desc.name))} = TableQuery[${newTypeName(tableName(desc.name))}]"
+        //      List(mkCaseClass(desc, augment), tableDef, objectDef) ++ assocTables
+        List(mkCaseClass(desc, augment), tableDef, objectDef) ++ assocTables
       }
-      val assocs = listVals.map { it =>
-        val (_, name, _, rhs, Some(FieldDesc(_, _, true, true, tpe))) = it
-        val assocType = newTypeName(assocTableName(typeName.decoded, tpe))
-        q"""case class ${assocType}(${newTermName(Introspector.decapitalize(typeName.decoded))}:$typeName, ${newTermName(Introspector.decapitalize(tpe))}:${newTypeName(tpe)})"""
-      }
-      val assocTables = assocs.flatMap { mkTable(caseClassesName, _, false) }
-      val idCol = q"""def id = column[${typeId(typeName.decoded)}]("id", O.PrimaryKey, O.AutoInc);"""
-
-      def dateCVal = c.parse("""def dateCreated = column[java.sql.Timestamp]("dateCreated")""")
-      def dateUVal = c.parse("""def lastUpdated = column[java.sql.Timestamp]("lastUpdated")""")
-
-      val defdefs = simpleVals.map(t => mkColumn(t._2, t._3, customDBTypes.get(t._2.decoded)))
-
-      val indexdefs: List[c.universe.Tree] = dbIndexes.map(it => q"""def ${newTermName(it._1 + "Index")} = index(${"IDX_" + typeName.decoded.toUpperCase + "_" + it._1.toUpperCase}, ${newTermName(it._1)}, ${it._2})""")
-      val times = mkTimes(typeName, simpleVals.map(_._2), augment)
-      val crud = mkCRUD(typeName, simpleVals.map(_._2))
-      val tagDef = ValDef(Modifiers(prvate | local | paramAccessor), newTermName("tag"), Ident(newTypeName("Tag")), EmptyTree)
-      val ctor =
-        DefDef(
-          Modifiers(),
-          nme.CONSTRUCTOR,
-          Nil,
-          (ValDef(Modifiers(param | paramAccessor), newTermName("tag"), Ident(newTypeName("Tag")), EmptyTree) :: Nil) :: Nil,
-          TypeTree(),
-          Block(List(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), List(Ident(newTermName("tag")), Literal(Constant(typeName.decoded.toLowerCase()))))), Literal(Constant(()))))
-
-      val tableDef =
-        ClassDef(Modifiers(),
-          newTypeName(tableName(typeName.decoded)), Nil,
-          Template(
-            AppliedTypeTree(Ident(newTypeName("Table")), Ident(newTypeName(typeName.decoded)) :: Nil) :: Nil,
-            emptyValDef,
-            if (augment) ctor :: idCol :: dateCVal :: dateUVal :: times :: defdefs ++ indexdefs ++ crud ++ foreignKeys else ctor :: times :: indexdefs ++ defdefs ++ foreignKeys))
-      val objectDef = q"val ${newTermName(objectName(typeName.decoded))} = TableQuery[${newTypeName(tableName(typeName.decoded))}]"
-      List(mkCaseClass(typeName, simpleVals, listVals, parents, self, augment), tableDef, objectDef) ++ assocTables
+    }
+    def defMap(body: List[c.universe.Tree]): Map[DefType, List[(DefType, c.universe.Tree)]] = {
+      body.flatMap { it =>
+        it match {
+          case ModuleDef(mod, name, Template(List(Ident(t)), _, _)) if t.isTypeName && t.decoded == "Enumeration" => List((ENUMDEF, it))
+          case ClassDef(mod, name, Nil, body) if mod.hasFlag(CASE) => List((CLASSDEF, it))
+          case DefDef(_, _, _, _, _, _) => List((DEFDEF, it))
+          case Import(_, _) => List((IMPORTDEF, it))
+          case _ =>
+            println(it)
+            c.abort(c.enclosingPosition, "Only moduledef && classdef && defdef allowed here")
+        }
+      } groupBy (_._1)
     }
     val result = {
       annottees.map(_.tree).toList match {
         case ModuleDef(_, moduleName, Template(parents, self, body)) :: Nil =>
-          val (caseClasses, modules) = body.partition {
-            case ModuleDef(_, _, Template(List(Ident(t)), _, _)) if t.isTypeName && t.decoded == "Enumeration" => false
-            case ClassDef(mod, _, Nil, _) if mod == Modifiers(CASE) => true
-            case DefDef(_, _, _, _, _, _) => false
-            case Import(_, _) => false
-            case _ =>
-              c.abort(c.enclosingPosition, "Only moduledef && classdef && defdef allowed here")
-          }
-          val caseClassesName = caseClasses.collect {
-            case ClassDef(mod, typeName, Nil, tmpl) => typeName.decoded
-          }
+          val allDefs = defMap(body)
+          val caseDefs = allDefs.getOrElse(CLASSDEF, Nil).map(it => ClsDesc(it._2))
+          caseDefs.foreach(_.parseBody(caseDefs))
+          val tableDefList = caseDefs.flatMap(mkTable(_))
 
-          val tables = caseClasses.flatMap(mkTable(caseClassesName, _))
-          val mods = modules.collect {
-            case ModuleDef(modifiers, name, tmpl) => mkModules(name.decoded)
-          }
+          val enumDefList = allDefs.getOrElse(ENUMDEF, Nil).map(_._2)
+          val defdefList = allDefs.getOrElse(DEFDEF, Nil).map(_._2)
+          val importdefList = allDefs.getOrElse(IMPORTDEF, Nil).map(_._2)
+          val enumMapperList = allDefs.get(ENUMDEF).map(_.map { it =>
+            val ModuleDef(_, name, _) = it._2
+            mkEnumMapper(name.decoded)
+          }) getOrElse (Nil)
+          val embedDefList = allDefs.getOrElse(EMBEDDEF, Nil).map(_._2)
 
-          ModuleDef(Modifiers(), moduleName, Template(parents, self, modules ++ mods ++ tables))
+          ModuleDef(Modifiers(), moduleName, Template(parents, self, enumDefList ++ importdefList ++ enumMapperList ++ embedDefList ++ tableDefList ++ defdefList))
         case _ =>
           c.abort(c.enclosingPosition, s"Only module defs allowed here")
       }
@@ -301,9 +590,5 @@ object ModelMacro { macro =>
     println(result)
     c.Expr[Any](result)
   }
-}
-
-class Model extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro ModelMacro.impl
 }
 
