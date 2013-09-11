@@ -1,20 +1,8 @@
 package model
 
-import scala.slick.driver.PostgresDriver.simple._
-import scala.language.existentials
-import java.lang.reflect.Method
-import scala.slick.SlickException
-import scala.reflect.ClassTag
-import scala.slick.jdbc.{ GetResult, StaticQuery => Q }
-import Q.interpolation
-import scala.language.dynamics
-import language.experimental.macros
-import scala.slick.lifted.MappedProjection
-import TupleMethods._
-import scala.slick.profile.BasicDriver
-import scala.slick.jdbc.JdbcBackend
-import scala.slick.profile._
 import slickmacros.annotations._
+import scala.slick.driver.PostgresDriver.simple._
+//import scala.slick.driver.JdbcDriver.simple._
 
 @Model object XDb {
 
@@ -29,7 +17,7 @@ import slickmacros.annotations._
 
   @Part case class Address(num: Int, @Type("varchar(1024)") road: String, zip: String)
 
-  case class Member(@Index(false) login: String, rights: UserRights, add: Address, company: Company, manager: Option[Member])
+  case class Member(@Index(true) login: String, rights: UserRights, add: Address, company: Company, manager: Option[Member])
   case class Project(name: String, company: Company, members: List[Member])
 
 }

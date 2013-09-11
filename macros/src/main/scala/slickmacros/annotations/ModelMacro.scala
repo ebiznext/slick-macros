@@ -86,7 +86,6 @@ object ModelMacro { macro =>
         body.foreach { it =>
           it match {
             case ValDef(_, _, _, _) => fields += FldDesc(it, allClasses)
-            //case q"val $mods $name:$tpe = $value" => fields += FldDesc(it, allClasses)
             case _ =>
           }
 
@@ -185,7 +184,6 @@ object ModelMacro { macro =>
               clsDesc
             case AppliedTypeTree(Ident(option), tpe :: Nil) if option.decoded == "Option" =>
               typeName = buildTypeName(tpe)
-              println("^^^^^^^^^^^" + typeName + "%%%%%%%%%%%%%%%%%%" + name.toString)
               flags += FieldFlag.OPTION
               val clsDesc = allClasses.find(_.name == typeName)
               clsDesc.foreach { it =>
@@ -313,42 +311,13 @@ object ModelMacro { macro =>
           q"""def ${newTermName(colIdName(desc.name))} = column[${typeId(desc.typeName)}](${colIdName(desc.name)})"""
         }
       } else {
-        println(desc.name + ":" + desc.typeName + "//" + desc.option)
-
         val tpe = desc.typeName
-        val expr = desc.dbType map { it =>
+        desc.dbType map { it =>
           q"""def $nme = column[$tpt](${nme.decoded}, O.DBType(${it}))"""
         } getOrElse {
           q"""def $nme = column[$tpt](${nme.decoded})"""
         }
-        expr
-        //c.parse(expr)
       }
-      /*
-      if (desc.cse) {
-        if (desc.option) {
-          q"""def ${newTermName(colIdName(desc.name))} = column[Option[${typeId(desc.typeName)}]](${colIdName(desc.name)})"""
-        } else {
-          q"""def ${newTermName(colIdName(desc.name))} = column[${typeId(desc.typeName)}](${colIdName(desc.name)})"""
-        }
-      } else {
-        println(desc.name + ":" + desc.typeName + "//" + desc.option)
-
-        val tpe = desc.typeName
-        val expr = desc.dbType map { it =>
-          if (desc.option) {
-            s"""def ${desc.name} = column[Option[$tpe]]("${desc.name}", O.DBType(${it}))"""
-          } else
-            s"""def ${desc.name} = column[$tpe]("${desc.name}", O.DBType(${it}))"""
-        } getOrElse {
-          if (desc.option)
-            s"""def ${desc.name} = column[Option[$tpe]]("${desc.name}")"""
-          else
-            s"""def ${desc.name} = column[$tpe]("${desc.name}")"""
-        }
-        c.parse(expr)
-      }
-      */
     }
 
     def colIdName(caseClassName: String) = {
@@ -624,7 +593,11 @@ object ModelMacro { macro =>
           }) getOrElse (Nil)
           val embedDefList = allDefs.getOrElse(EMBEDDEF, Nil).map(_._2)
 
-          ModuleDef(Modifiers(), moduleName, Template(parents, self, enumDefList ++ importdefList ++ enumMapperList ++ embedDefList ++ tableDefList ++ defdefList))
+          val extraImports = List(
+            Import(Select(Select(Select(Ident(newTermName("scala")), newTermName("slick")), newTermName("util")), newTermName("TupleMethods")), List(ImportSelector(nme.WILDCARD, -1, null, -1))),
+            Import(Select(Select(Ident(newTermName("scala")), newTermName("slick")), newTermName("jdbc")), List(ImportSelector(newTermName("JdbcBackend"), -1, newTermName("JdbcBackend"), -1))))
+
+          ModuleDef(Modifiers(), moduleName, Template(parents, self, enumDefList ++ extraImports ++ importdefList ++ enumMapperList ++ embedDefList ++ tableDefList ++ defdefList))
         case _ =>
           c.abort(c.enclosingPosition, s"Only module defs allowed here")
       }

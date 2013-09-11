@@ -1,34 +1,18 @@
-import scala.language.dynamics
-import scala.language.existentials
-import scala.language.experimental.macros
-import scala.language.experimental.macros
-import scala.reflect.ClassTag
-import scala.reflect.ClassTag
-import scala.reflect.macros.Context
-import scala.reflect.runtime.{ universe => u }
-import scala.reflect.runtime.universe._
-import scala.slick.driver.PostgresDriver.simple._
-import scala.slick.jdbc.StaticQuery.interpolation
-import TupleMethods._
-import scala.slick.lifted._
 import slickmacros.reflect._
-//import Database.dynamicSession
-
-//import slickemf.export._
-import slickmacros._
 import slickmacros.annotations._
 import slickmacros.dao.Crud._
+import scala.slick.driver.PostgresDriver.simple._
 
 import  slickemf.export._
 
 object SampleApp extends App {
   import model.XDb._
-
+  implicit val dbConnectionInfo = DbConnectionInfos(url = "jdbc:postgresql:SampleApp", user = "postgres", password = "e-z12B24", driverClassName = "org.postgresql.Driver")
+  
   val ddls = companyQuery.ddl ++ memberQuery.ddl ++ projectQuery.ddl ++ project2MemberQuery.ddl
   val stmts = ddls.createStatements ++ ddls.dropStatements
   stmts.foreach(println)
   
-  implicit val dbConnectionInfo = DbConnectionInfos(url = "jdbc:postgresql:SampleApp", user = "postgres", password = "e-z12B24", driverClassName = "org.postgresql.Driver")
 
   object companyDAO extends Crud[Company, CompanyTable](companyQuery) {}
   object memberDAO extends Crud[Member, MemberTable](memberQuery) {}
@@ -61,7 +45,6 @@ object SampleApp extends App {
   populate
   queryDB
   val descs = new ObjectRef(model.XDb).reflect
-  println(descs)
   new Export().export2EMF(descs, "database/slickemf.ecore")
 
 }

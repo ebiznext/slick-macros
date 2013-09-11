@@ -31,11 +31,13 @@ object Crud {
   
   def rowValidate[T <: RowEx](obj : T) { }
   
-  abstract class Crud[C <: RowEx, +T <: RelationalProfile#Table[C] with TableEx[C]](val query: TableQuery[T, T#TableElementType]) {
+  abstract class Crud[C <: RowEx, +T <: RelationalTableComponent#Table[C] with TableEx[C]](val query: TableQuery[T, T#TableElementType]) {
 
     def delById(objId: Long)(implicit session: JdbcBackend#SessionDef) = query.where(_.id === objId)
 
     def findById(objId: Long)(implicit session: JdbcBackend#SessionDef): Option[C] = query.where(_.id === objId).firstOption
+    
+    def load(objId: Long)(implicit session: JdbcBackend#SessionDef): C = query.where(_.id === objId).first
 
     def update(obj: C)(implicit session: JdbcBackend#SessionDef): Int = {
       rowValidate(obj)

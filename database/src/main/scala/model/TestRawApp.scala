@@ -1,6 +1,6 @@
 package model
 
-import scala.slick.driver.PostgresDriver.simple._
+import scala.slick.driver.H2Driver.simple._
 import scala.language.existentials
 import java.lang.reflect.Method
 import scala.slick.SlickException
