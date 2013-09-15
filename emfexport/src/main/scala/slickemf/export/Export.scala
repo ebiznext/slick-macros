@@ -39,8 +39,6 @@ class Export {
     val eClasses = classes.filter(!_.isTable).map(it => EmfUtils.createEClass(it.name)) //create all classes
 
     classes.filter(!_.isTable).foreach { c =>
-      println("Class: " + c.name)
-
       val eClass = (eClasses.find(_.asInstanceOf[EClass].getName() == c.name)).getOrElse(null).asInstanceOf[EClass]
       c.members.foreach { m =>
         m match {
@@ -103,14 +101,12 @@ class Export {
     val eClasses = classes.filter(_.isTable).map(it => EmfUtils.createEClass(it.name)) //create all classes
 
     classes.filter(_.isTable).foreach { c =>
-      println("Class: " + c.name)
 
       val eClass = (eClasses.find(_.asInstanceOf[EClass].getName() == c.name)).getOrElse(null).asInstanceOf[EClass]
       c.members.foreach { m =>
         m match {
           case MemberDesc(mname, TypeDesc("ForeignKeyQuery", tparams), Nil) if classeNames.contains(tparams.last + "Table") =>
             //create one to one reference
-            println("* " + mname + ": " + tparams.last + "Table")
             val eDataType = eClasses.find(_.asInstanceOf[EClass].getName() == tparams.last + "Table").getOrElse(null).asInstanceOf[EClass]
             EmfUtils.addOptionalOne2OneEReferenceToEClass(mname, eDataType, eClass)
 
