@@ -1,6 +1,5 @@
 package slickmacros.dao
 
-
 import scala.reflect.macros.Context
 import scala.annotation.StaticAnnotation
 import scala.reflect.runtime.universe._
@@ -10,7 +9,6 @@ import scala.slick.jdbc.{ GetResult, StaticQuery => Q }
 import Q.interpolation
 import language.experimental.macros
 
-
 import scala.slick.driver.JdbcDriver.simple._
 import scala.slick.profile.BasicDriver
 import scala.slick.lifted.MappedProjection
@@ -18,38 +16,53 @@ import scala.slick.jdbc.JdbcBackend
 import scala.slick.profile._
 
 object Crud {
+
   type TableEx[C] = {
     def id: Column[Long]
     def forInsert: MappedProjection[C, _]
   }
 
-  type RowEx = {
+  type RowId = {
+    def id: Option[Long]
+  }
+
+  type RowIdEx = {
     def id: Option[Long]
     var dateCreated: java.sql.Timestamp
     var lastUpdated: java.sql.Timestamp
   }
-  
-  def rowValidate[T <: RowEx](obj : T) { }
-  
-  abstract class Crud[C <: RowEx, +T <: RelationalTableComponent#Table[C] with TableEx[C]](val query: TableQuery[T, T#TableElementType]) {
 
-    def delById(objId: Long)(implicit session: JdbcBackend#SessionDef) = query.where(_.id === objId)
+  def rowValidate[T <: RowId](obj: T) {}
 
-    def findById(objId: Long)(implicit session: JdbcBackend#SessionDef): Option[C] = query.where(_.id === objId).firstOption
-    
-    def load(objId: Long)(implicit session: JdbcBackend#SessionDef): C = query.where(_.id === objId).first
+  abstract class Crud[C <: RowId, +T <: RelationalTableComponent#Table[C] with TableEx[C]](val query: TableQuery[T, T#TableElementType]) {
+
+    def del(objId: Long)(implicit session: JdbcBackend#SessionDef) = query.where(_.id === objId)
+
+    def find(objId: Long)(implicit session: JdbcBackend#SessionDef): Option[C] = query.where(_.id === objId).firstOption
 
     def update(obj: C)(implicit session: JdbcBackend#SessionDef): Int = {
       rowValidate(obj)
-      obj.lastUpdated = new java.sql.Timestamp(new java.util.Date().getTime)
       (for { row <- query if row.id === obj.id.get } yield row) update (obj)
     }
 
     def insert(obj: C)(implicit session: JdbcBackend#SessionDef) = {
       rowValidate(obj)
+      // because x.copy(dateCreated = , lastUpdated = ) is not available :(
+      query map (_.forInsert) returning (query.map(_.id)) insert (obj)
+    }
+  }
+  
+  abstract class CrudEx[C <: RowIdEx, +T <: RelationalTableComponent#Table[C] with TableEx[C]](query: TableQuery[T, T#TableElementType]) extends Crud[C,T](query){
+
+    override def update(obj: C)(implicit session: JdbcBackend#SessionDef): Int = {
+      obj.lastUpdated = new java.sql.Timestamp(new java.util.Date().getTime)
+      super.update(obj)
+    }
+
+    override def insert(obj: C)(implicit session: JdbcBackend#SessionDef) = {
       obj.dateCreated = new java.sql.Timestamp(new java.util.Date().getTime)
       obj.lastUpdated = obj.dateCreated
-      query map (_.forInsert) returning (query.map(_.id)) insert (obj)
+      super.insert(obj)
     }
   }
 }

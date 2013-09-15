@@ -17,10 +17,12 @@ import scala.slick.lifted._
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Set
 
-class Model extends StaticAnnotation {
+class Model(timestamps: Boolean = false) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro ModelMacro.impl
 }
 
+class Entity(timestamps: Boolean = false) extends StaticAnnotation
+class PK(position: Int = -1) extends StaticAnnotation
 class Part extends StaticAnnotation
 class Index(unique: Boolean = false) extends StaticAnnotation
 class Type(dbType: String) extends StaticAnnotation
@@ -39,13 +41,14 @@ object ModelMacro { macro =>
   }
   import DefType._
 
-  object ClassType extends Enumeration {
-    type ClassType = Value
+  object ClassFlag extends Enumeration {
+    type ClassFlag = Value
     val PARTDEF = Value
     val ENTITYDEF = Value
+    val TIMESTAMPSDEF = Value
     val OTHER = Value
   }
-  import ClassType._
+  import ClassFlag._
 
   object FieldFlag extends Enumeration {
     type FieldFlag = Value
@@ -54,6 +57,7 @@ object ModelMacro { macro =>
     val PART = Value
     val LIST = Value
     val INDEX = Value
+    val PK = Value
     val UNIQUE = Value
     val DBTYPE = Value
   }
@@ -80,7 +84,7 @@ object ModelMacro { macro =>
     def dateVal(name: String) = ValDef(Modifiers(mutable | caseAccessor | paramAccessor), newTermName(name), optionalDate, EmptyTree)
     def dateValInCtor(name: String) = ValDef(Modifiers(param | paramAccessor | paramDefault), newTermName(name), optionalDate, Literal(Constant(null))) // Ident(newTermName("None")))
 
-    class ClsDesc(val name: String, val classType: ClassType, val fields: ListBuffer[FldDesc], val timestamps: Boolean, val tree: Tree) {
+    class ClsDesc(val name: String, val flags: Set[ClassFlag], val fields: ListBuffer[FldDesc], val tree: Tree) {
       def parseBody(allClasses: List[ClsDesc]) {
         val ClassDef(mod, name, Nil, Template(parents, self, body)) = tree
         body.foreach { it =>
@@ -91,6 +95,19 @@ object ModelMacro { macro =>
 
         }
       }
+      def part: Boolean = flags.exists(_ == PARTDEF)
+      def entity: Boolean = flags.exists(_ == ENTITYDEF)
+      def timestamps: Boolean = flags.exists(_ == TIMESTAMPSDEF)
+
+      def dateVals: List[ValDef] = if (timestamps) dateVal("dateCreated") :: dateVal("lastUpdated") :: Nil else Nil
+
+      def dateValsInCtor: List[ValDef] = if (timestamps) dateValInCtor("dateCreated") :: dateValInCtor("lastUpdated") :: Nil else Nil
+
+      def dateDefs =
+        if (timestamps)
+          c.parse("""def dateCreated = column[java.sql.Timestamp]("dateCreated")""") :: c.parse("""def lastUpdated = column[java.sql.Timestamp]("lastUpdated")""") :: Nil
+        else
+          Nil
       def foreignKeys: List[FldDesc] = {
         fields.filter { it => it.flags.exists(_ == FieldFlag.CASE) && !it.flags.exists(_ == FieldFlag.LIST) } toList
       }
@@ -120,14 +137,20 @@ object ModelMacro { macro =>
     }
 
     object ClsDesc {
-      def apply(tree: Tree) = {
+      def apply(tree: Tree, timestampAll: Boolean) = {
         val ClassDef(mod, name, Nil, _) = tree
         if (!mod.hasFlag(CASE))
-          c.abort(c.enclosingPosition, s"Only case classes allwoed here ${name.decoded}")
-        val annotation = mod.annotations.headOption.map(_.children.head.toString)
-        val isPart = annotation.map(_ == "new Part").getOrElse(false)
-        val classType = if (isPart) PARTDEF else ENTITYDEF
-        new ClsDesc(name.decoded, classType, ListBuffer(), true, tree)
+          c.abort(c.enclosingPosition, s"Only case classes allowed here ${name.decoded}")
+        val annotations = mod.annotations.map(_.children.head.toString)
+        val isPart = annotations.exists(_ == "new Part")
+        val flags = Set[ClassFlag]()
+        if (isPart)
+          flags += PARTDEF
+        else
+          flags += ENTITYDEF
+        val timestamps = mod.annotations.exists(_.toString.indexOf("timestamps = true") >= 0) // quick & dirty
+        if (timestampAll || timestamps) flags += TIMESTAMPSDEF
+        new ClsDesc(name.decoded, flags, ListBuffer(), tree)
       }
     }
     class FldDesc(val name: String, val typeName: String, val flags: Set[FieldFlag], val dbType: Option[String], val cls: Option[ClsDesc], val tree: Tree) {
@@ -176,9 +199,9 @@ object ModelMacro { macro =>
             case Ident(tpe) =>
               val clsDesc = allClasses.find(_.name == typeName)
               clsDesc.foreach { it =>
-                if (it.classType == ENTITYDEF) {
+                if (it.entity) {
                   flags += FieldFlag.CASE
-                } else if (it.classType == PARTDEF)
+                } else if (it.part)
                   flags += FieldFlag.PART
               }
               clsDesc
@@ -187,18 +210,19 @@ object ModelMacro { macro =>
               flags += FieldFlag.OPTION
               val clsDesc = allClasses.find(_.name == typeName)
               clsDesc.foreach { it =>
-                if (it.classType == ENTITYDEF)
+                if (it.entity)
                   flags += FieldFlag.CASE
               }
               clsDesc
             case AppliedTypeTree(Ident(list), tpe :: Nil) if list.decoded == "List" =>
               typeName = buildTypeName(tpe)
-              val ClsDesc = allClasses.find(_.name == typeName).getOrElse(c.abort(c.enclosingPosition, s"List not allowed here ${name.decoded} not allowed"))
-              if (ClsDesc.classType == ENTITYDEF)
+              val clsDesc = allClasses.find(_.name == typeName).getOrElse(c.abort(c.enclosingPosition, s"List not allowed here ${name.decoded} not allowed"))
+
+              if (clsDesc.entity)
                 flags ++= Set(FieldFlag.CASE, FieldFlag.LIST)
               else
-                c.abort(c.enclosingPosition, s"only entity allowed here ${name.decoded}")
-              Some(ClsDesc)
+                c.abort(c.enclosingPosition, s"only entity allowed here ${name.decoded}:${clsDesc.name}")
+              Some(clsDesc)
             case _ => None
           }
           val tree = mod.annotations.headOption
@@ -216,12 +240,9 @@ object ModelMacro { macro =>
         }
       }
     }
-    case class FieldDesc(name: String, isOption: Boolean, isCaseClass: Boolean, isList: Boolean, isEmbed: Boolean, tpe: String)
-
-    type ColDesc = (Modifiers, TermName, Tree, _, Option[FieldDesc])
 
     def mkCaseClass(desc: ClsDesc, augment: Boolean = true): ClassDef = {
-      if (desc.classType == PARTDEF) {
+      if (desc.part) {
         desc.tree.asInstanceOf[ClassDef]
       } else {
         val valdefs = desc.simpleValDefs.map { it =>
@@ -239,8 +260,8 @@ object ModelMacro { macro =>
         }
 
         val idTypeName = newTypeName(s"${typeId(desc.name)}")
-        val newAttrs = if (augment) idVal(idTypeName) +: valdefs :+ dateVal("dateCreated") :+ dateVal("lastUpdated") else valdefs
-        val ctorParams1 = if (augment) idValInCtor(idTypeName) +: valdefs :+ dateValInCtor("dateCreated") :+ dateValInCtor("lastUpdated") else valdefs
+        val newAttrs = if (augment) idVal(idTypeName) :: valdefs ++ desc.dateVals else valdefs
+        val ctorParams1 = if (augment) idValInCtor(idTypeName) :: valdefs ++ desc.dateValsInCtor else valdefs
         val newCtor1 = DefDef(Modifiers(),
           nme.CONSTRUCTOR, List(),
           ctorParams1 :: Nil,
@@ -396,10 +417,16 @@ object ModelMacro { macro =>
     def mkTimes(desc: ClsDesc, augment: Boolean = true): Tree = {
       val expr = {
         if (augment)
-          s"""def * = (id.?, ${mkTilde(desc.simpleValDefs)}, dateCreated, lastUpdated).shaped <> ({
-        case (id, ${mkCase(desc.simpleValDefs)}, dateCreated, lastUpdated) => ${desc.name}(id, ${mkCaseApply(desc.simpleValDefs)}, dateCreated, lastUpdated)
-      }, { x : ${desc.name} => Some((x.id, ${mkCaseUnapply(desc.simpleValDefs)}, x.dateCreated, x.lastUpdated))
-      })"""
+          if (desc.timestamps)
+            s"""def * = (id.?, ${mkTilde(desc.simpleValDefs)}, dateCreated, lastUpdated).shaped <> ({
+		        case (id, ${mkCase(desc.simpleValDefs)}, dateCreated, lastUpdated) => ${desc.name}(id, ${mkCaseApply(desc.simpleValDefs)}, dateCreated, lastUpdated)
+		      }, { x : ${desc.name} => Some((x.id, ${mkCaseUnapply(desc.simpleValDefs)}, x.dateCreated, x.lastUpdated))
+		      })"""
+          else
+            s"""def * = (id.?, ${mkTilde(desc.simpleValDefs)}).shaped <> ({
+		        case (id, ${mkCase(desc.simpleValDefs)}) => ${desc.name}(id, ${mkCaseApply(desc.simpleValDefs)})
+		      }, { x : ${desc.name} => Some((x.id, ${mkCaseUnapply(desc.simpleValDefs)}))
+		      })"""
         else
           s"def * = (${mkTilde(desc.fields toList)}).shaped <> (${desc.name}.tupled, ${desc.name}.unapply _)"
       }
@@ -408,10 +435,17 @@ object ModelMacro { macro =>
 
     def mkForInsert(desc: ClsDesc): Tree = {
       val expr = {
-        s"""def forInsert = (${mkTilde(desc.simpleValDefs)}, dateCreated, lastUpdated).shaped <> ({
-        case (${mkCase(desc.simpleValDefs)}, dateCreated, lastUpdated) => ${desc.name}(None, ${mkCaseApply(desc.simpleValDefs)}, dateCreated, lastUpdated)
-      }, { x : ${desc.name} => Some((${mkCaseUnapply(desc.simpleValDefs)}, x.dateCreated, x.lastUpdated))
-      })"""
+        if (desc.timestamps)
+          s"""def forInsert = (${mkTilde(desc.simpleValDefs)}, dateCreated, lastUpdated).shaped <> ({
+		        case (${mkCase(desc.simpleValDefs)}, dateCreated, lastUpdated) => ${desc.name}(None, ${mkCaseApply(desc.simpleValDefs)}, dateCreated, lastUpdated)
+		      }, { x : ${desc.name} => Some((${mkCaseUnapply(desc.simpleValDefs)}, x.dateCreated, x.lastUpdated))
+		      })"""
+        else
+          s"""def forInsert = (${mkTilde(desc.simpleValDefs)}).shaped <> ({
+		        case (${mkCase(desc.simpleValDefs)}) => ${desc.name}(None, ${mkCaseApply(desc.simpleValDefs)})
+		      }, { x : ${desc.name} => Some((${mkCaseUnapply(desc.simpleValDefs)}))
+		      })"""
+
       }
       c.parse(expr)
     }
@@ -469,40 +503,13 @@ object ModelMacro { macro =>
       } groupBy (_._1)
     }
 
-    def extractBody(caseClassesName: List[String], embeds: List[String], body: List[Tree]) = {
-      body.collect {
-        case ValDef(mod, name, tpt, rhs) =>
-          if (reservedNames.exists(_ == name.decoded))
-            c.abort(c.enclosingPosition, s"Column with name ${name.decoded} not allowed")
-          else {
-            tpt match {
-              case Ident(tpe) if embeds.exists(_ == tpe.decoded) =>
-                (mod, newTermName(name.decoded), Ident(newTypeName(s"${tpe}")), rhs, Some(FieldDesc(name.decoded, false, true, false, true, tpe.decoded)))
-
-              case Ident(tpe) if caseClassesName.exists(_ == tpe.decoded) =>
-                (mod, newTermName(name.decoded + "Id"), Ident(newTypeName(s"${typeId(tpe.decoded)}")), rhs, Some(FieldDesc(name.decoded, false, true, false, false, tpe.decoded)))
-              case AppliedTypeTree(Ident(option), List(Ident(tpe))) if option.decoded == "Option" && caseClassesName.exists(_ == tpe.decoded) =>
-                (mod, newTermName(name.decoded + "Id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName(s"${typeId(tpe.decoded)}")))), rhs, Some(FieldDesc(name.decoded, true, true, false, false, tpe.decoded)))
-
-              case AppliedTypeTree(Ident(list), List(Ident(tpe))) if list.decoded == "List" && caseClassesName.exists(_ == tpe.decoded) =>
-                (mod, newTermName(name.decoded + "Id"), AppliedTypeTree(Ident(newTypeName("Option")), List(Ident(newTypeName(s"${typeId(tpe.decoded)}")))), rhs, Some(FieldDesc(name.decoded, false, true, true, false, tpe.decoded)))
-              case _ =>
-                (mod, name, tpt, rhs, None)
-            }
-          }
-      } partition {
-        case (mods, name, self, _, Some(FieldDesc(_, _, _, true, _, _))) => true
-        case _ => false
-      }
-    }
-
     /**
      * create the case class and foreign keys for 1,n relationships and the slick table description and the assoc table for n,m relationships
      * if augment is set to true timestamp & forInsert defs are generated too
      */
 
     def mkTable(desc: ClsDesc, augment: Boolean = true): List[Tree] = {
-      if (desc.classType == PARTDEF)
+      if (desc.part)
         List(desc.tree.asInstanceOf[ClassDef])
       else {
         val simpleVals = desc.simpleValDefs
@@ -513,18 +520,15 @@ object ModelMacro { macro =>
           c.parse(s"""def ${it.name}FK = foreignKey("${desc.name.toLowerCase}2${it.typeName.toLowerCase}", ${colIdName(it.name)}, ${objectName(it.typeName)})(_.id) """) // onDelete
         }
         val assocs = desc.assocs.map { it =>
-          new ClsDesc(assocTableName(desc.name, it.typeName), ENTITYDEF,
+          new ClsDesc(assocTableName(desc.name, it.typeName), Set(ENTITYDEF),
             ListBuffer(
               new FldDesc(Introspector.decapitalize(desc.name), desc.name, Set(FieldFlag.CASE), None, Some(desc), ValDef(caseparam, Introspector.decapitalize(desc.name), null, null)),
               new FldDesc(Introspector.decapitalize(it.typeName), it.typeName, Set(FieldFlag.CASE), None, it.cls, ValDef(caseparam, Introspector.decapitalize(it.typeName), null, null))),
-            true, null)
+            null)
 
         }
         val assocTables = assocs.flatMap { it => mkTable(it, false) }
         val idCol = q"""def id = column[${typeId(desc.name)}]("id", O.PrimaryKey, O.AutoInc);"""
-
-        def dateCVal = c.parse("""def dateCreated = column[java.sql.Timestamp]("dateCreated")""")
-        def dateUVal = c.parse("""def lastUpdated = column[java.sql.Timestamp]("lastUpdated")""")
 
         val defdefs = simpleVals.flatMap { it =>
           if (it.part) {
@@ -557,7 +561,7 @@ object ModelMacro { macro =>
             Template(
               AppliedTypeTree(Ident(newTypeName("Table")), Ident(newTypeName(desc.name)) :: Nil) :: Nil,
               emptyValDef,
-              if (augment) ctor :: idCol :: dateCVal :: dateUVal :: times :: forInsert :: defdefs ++ indexdefs ++ foreignKeys else ctor :: times :: indexdefs ++ defdefs ++ foreignKeys))
+              if (augment) ctor :: idCol :: times :: forInsert :: desc.dateDefs ++ defdefs ++ indexdefs ++ foreignKeys else ctor :: times :: indexdefs ++ defdefs ++ foreignKeys))
         val objectDef = q"val ${newTermName(objectName(desc.name))} = TableQuery[${newTypeName(tableName(desc.name))}]"
         //      List(mkCaseClass(desc, augment), tableDef, objectDef) ++ assocTables
         List(mkCaseClass(desc, augment), tableDef, objectDef) ++ assocTables
@@ -578,9 +582,11 @@ object ModelMacro { macro =>
     }
     val result = {
       annottees.map(_.tree).toList match {
-        case ModuleDef(_, moduleName, Template(parents, self, body)) :: Nil =>
+        case ModuleDef(mod, moduleName, Template(parents, self, body)) :: Nil =>
+          val annotations = mod.annotations.map(_.children.head.toString)
+          val timestampsAll = c.prefix.tree.toString.indexOf("timestamps = true") > 0 // Q&D
           val allDefs = defMap(body)
-          val caseDefs = allDefs.getOrElse(CLASSDEF, Nil).map(it => ClsDesc(it._2))
+          val caseDefs = allDefs.getOrElse(CLASSDEF, Nil).map(it => ClsDesc(it._2, timestampsAll))
           caseDefs.foreach(_.parseBody(caseDefs))
           val tableDefList = caseDefs.flatMap(mkTable(_))
 
@@ -597,7 +603,7 @@ object ModelMacro { macro =>
             Import(Select(Select(Select(Ident(newTermName("scala")), newTermName("slick")), newTermName("util")), newTermName("TupleMethods")), List(ImportSelector(nme.WILDCARD, -1, null, -1))),
             Import(Select(Select(Ident(newTermName("scala")), newTermName("slick")), newTermName("jdbc")), List(ImportSelector(newTermName("JdbcBackend"), -1, newTermName("JdbcBackend"), -1))))
 
-          ModuleDef(Modifiers(), moduleName, Template(parents, self, enumDefList ++ extraImports ++ importdefList ++ enumMapperList ++ embedDefList ++ tableDefList ++ defdefList))
+          ModuleDef(mod, moduleName, Template(parents, self, enumDefList ++ extraImports ++ importdefList ++ enumMapperList ++ embedDefList ++ tableDefList ++ defdefList))
         case _ =>
           c.abort(c.enclosingPosition, s"Only module defs allowed here")
       }
