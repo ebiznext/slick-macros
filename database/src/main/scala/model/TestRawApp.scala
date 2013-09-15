@@ -51,7 +51,7 @@ object TestRawApp extends App {
 
     // def * = (id.?, name, website, large, dateCreated, lastUpdated) <> (Company.tupled, Company.unapply _)
     def forInsert = (name ~ website ~ large ~ dateCreated ~ lastUpdated).shaped <> ({ t => Company(None, t._1, t._2, t._3, t._4, t._5) }, { (c: Company) => Some((c.name, c.website, c.large, c.dateCreated, c.lastUpdated)) })
-    //def members = memberQuery.where(_.companyId === id)
+    def members = memberQuery.where(_.companyId === id)
   }
   val companyQuery = TableQuery[CompanyTable]
 
