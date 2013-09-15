@@ -13,7 +13,7 @@ import scala.slick.driver.PostgresDriver.simple._
   }
   import UserRights._
 
-  case class Company(name: String, website: String)
+ @Entity(timestamps=true) case class Company(name: String, website: String)
 
   @Part case class Address(num: Int, @Type("varchar(1024)") road: String, zip: String)
 
