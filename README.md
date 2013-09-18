@@ -1,1 +1,1 @@
-Documentation is available in the wiki section
+Documentation is available in the [wiki–(/ebiznext/slick-macros/wiki) section
