@@ -16,7 +16,6 @@ import scala.slick.driver.PostgresDriver.simple._
  @Entity(timestamps=true) case class Company(name: String, website: String)
 
   @Part case class Address(num: Int, @Type("varchar(1024)") road: String, zip: String)
-
   case class Member(@Index(true) login: String, rights: UserRights, add: Address, company: Company, manager: Option[Member])
   case class Project(name: String, company: Company, members: List[Member])
 
