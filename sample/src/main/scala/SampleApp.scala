@@ -23,9 +23,9 @@ object SampleApp extends App {
   val stmts = ddls.createStatements ++ ddls.dropStatements
   stmts.foreach(println)
 
-  object companyDAO extends Crud[Company, CompanyTable](companyQuery) {}
-  object memberDAO extends Crud[Member, MemberTable](memberQuery) {}
-  object projectDAO extends Crud[Project, ProjectTable](projectQuery) {}
+  object companyDAO extends CrudEx[Company, CompanyTable](companyQuery) {}
+  object memberDAO extends CrudEx[Member, MemberTable](memberQuery) {}
+  object projectDAO extends CrudEx[Project, ProjectTable](projectQuery) {}
 
   @DBTransaction def populate() {
     val csize = companyQuery.list.size
