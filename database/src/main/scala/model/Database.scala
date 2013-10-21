@@ -20,10 +20,9 @@ import scala.slick.lifted.ForeignKeyAction._
   case class Address(num: Int, road: String, zip: String) extends Part
   case class Member(login: String, rights: UserRights, addr: Address, company: Company, manager: Option[Member]) {
     constraints {
-      login is unique
-      (login, company) withType "varchar(100)"
+      login is unique withType "varchar(100)"
       manager onDelete Cascade
-    }
+     }
   }
   case class Project(name: String, company: Company, members: List[Member])
 }
