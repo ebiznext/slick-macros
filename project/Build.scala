@@ -96,8 +96,6 @@ object TheBuild extends Build {
 	libraryDependencies ++= Seq(
 	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
 //	 "com.typesafe.slick" %% "slick" % "1.0.1",
-	 "com.ebiznext" %% "database" % "0.0.1-SNAPSHOT",
-	 "com.ebiznext" %% "emfexport" % "0.0.1-SNAPSHOT",
 	 "postgresql" % "postgresql" % "9.1-901.jdbc4")
 	  )) dependsOn(database,emfexport )
 }
