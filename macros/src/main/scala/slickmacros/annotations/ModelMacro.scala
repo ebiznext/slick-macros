@@ -20,15 +20,41 @@ import scala.collection.mutable.Set
 class Model(timestamps: Boolean = false) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro ModelMacro.impl
 }
+class Entity(name: String = null, timestamps: Boolean = false) extends StaticAnnotation
+class Col(name: String = null, tpe: String = null, index: Boolean = false, unique: Boolean = false, pk: Boolean = false, onDelete: ForeignKeyAction = ForeignKeyAction.NoAction, onUpdate: ForeignKeyAction = ForeignKeyAction.NoAction, oldName: String = null) extends StaticAnnotation
+//class Part extends StaticAnnotation
 
-class Entity(timestamps: Boolean = false) extends StaticAnnotation
-class PK(position: Int = -1) extends StaticAnnotation
-class Part extends StaticAnnotation
-class Index(unique: Boolean = false) extends StaticAnnotation
-class Type(dbType: String) extends StaticAnnotation
-class OnDelete(action: ForeignKeyAction) extends StaticAnnotation
+trait Timestamps
+trait Part
 
 object ModelMacro { macro =>
+
+  trait AnyRow
+  object FieldIndex extends Enumeration {
+    type FieldIndex = Value
+    val unique = Value(1)
+    val indexed = Value(2)
+  }
+  implicit def anyToFieldOps(x: Any): FieldOps = null
+  implicit def tuple2ToOps(x: (Any, Any)): FieldOps = null
+  implicit def tuple3ToOps(x: (Any, Any, Any)): FieldOps = null
+  implicit def tuple4ToOps(x: (Any, Any, Any, Any)): FieldOps = null
+  implicit def tuple5ToOps(x: (Any, Any, Any, Any, Any)): FieldOps = null
+  implicit def tuple6ToOps(x: (Any, Any, Any, Any, Any, Any)): FieldOps = null
+  implicit def tuple7ToOps(x: (Any, Any, Any, Any, Any, Any, Any)): FieldOps = null
+  implicit def tuple8ToOps(x: (Any, Any, Any, Any, Any, Any, Any, Any)): FieldOps = null
+
+  import FieldIndex._
+  trait FieldOps {
+    def is(x: FieldIndex): FieldOps = null
+    def renamed(x: Any): FieldOps = null
+    def are(x: FieldIndex): FieldOps = null
+    def withType(x: String): FieldOps = null
+    def onUpdate(x: ForeignKeyAction): FieldOps = null
+    def onDelete(x: ForeignKeyAction): FieldOps = null
+    def to(x: Any): FieldOps = null
+  }
+  def constraints(f: => Unit) {}
 
   object DefType extends Enumeration {
     type DefType = Value
@@ -86,13 +112,13 @@ object ModelMacro { macro =>
 
     class ClsDesc(val name: String, val flags: Set[ClassFlag], val fields: ListBuffer[FldDesc], val tree: Tree) {
       def parseBody(allClasses: List[ClsDesc]) {
+        val constraintsTerm = newTermName("constraints")
         val ClassDef(mod, name, Nil, Template(parents, self, body)) = tree
         body.foreach { it =>
           it match {
-            case ValDef(_, _, _, _) => fields += FldDesc(it, allClasses)
+            case ValDef(_, _, _, _) => fields += FldDesc(it, tree, allClasses)
             case _ =>
           }
-
         }
       }
       def part: Boolean = flags.exists(_ == PARTDEF)
@@ -120,6 +146,9 @@ object ModelMacro { macro =>
       def listValDefs: List[FldDesc] = {
         fields.filter { it => it.flags.exists(_ == FieldFlag.LIST) } toList
       }
+      def listPKs: List[FldDesc] = {
+        fields.filter { it => it.flags.exists(_ == FieldFlag.PK) } toList
+      }
       def allFields = {
         fields.toList.map { it =>
           if (it.part)
@@ -138,30 +167,56 @@ object ModelMacro { macro =>
 
     object ClsDesc {
       def apply(tree: Tree, timestampAll: Boolean) = {
-        val ClassDef(mod, name, Nil, _) = tree
+        val ClassDef(mod, name, Nil, Template(parents, _, body)) = tree
         if (!mod.hasFlag(CASE))
           c.abort(c.enclosingPosition, s"Only case classes allowed here ${name.decoded}")
+
+        body.foreach { it =>
+          it match {
+            case Apply(Ident(constraintsTerm), List(Block(stats, expr))) =>
+            case _ =>
+          }
+        }
+
         val annotations = mod.annotations.map(_.children.head.toString)
-        val isPart = annotations.exists(_ == "new Part")
+        val isPart = annotations.exists(_ == "new Part") || parents.exists(_.toString.contains("Part"))
         val flags = Set[ClassFlag]()
         if (isPart)
           flags += PARTDEF
         else
           flags += ENTITYDEF
-        val timestamps = mod.annotations.exists(_.toString.indexOf("timestamps = true") >= 0) // quick & dirty
+        val timestamps = mod.annotations.exists(_.toString.contains("true")) || parents.exists(_.toString.contains("Timestamps")) // quick & dirty
         if (timestampAll || timestamps) flags += TIMESTAMPSDEF
         new ClsDesc(name.decoded, flags, ListBuffer(), tree)
       }
     }
-    class FldDesc(val name: String, val typeName: String, val flags: Set[FieldFlag], val dbType: Option[String], val cls: Option[ClsDesc], val tree: Tree) {
+    class FldDesc(val name: String, val colName: String, val typeName: String, val flags: Set[FieldFlag], val dbType: Option[String], val onDelete: String, val onUpdate: String, val cls: Option[ClsDesc], val tree: Tree) {
       def unique: Boolean = flags.exists(_ == FieldFlag.UNIQUE)
       def part: Boolean = flags.exists(_ == FieldFlag.PART)
       def option: Boolean = flags.exists(_ == FieldFlag.OPTION)
       def cse: Boolean = flags.exists(_ == FieldFlag.CASE)
+      def pk: Boolean = flags.exists(_ == FieldFlag.PK)
+      def onDeleteAction = s"scala.slick.lifted.ForeignKeyAction.$onDelete"
+      def onUpdateAction = s"scala.slick.lifted.ForeignKeyAction.$onUpdate"
     }
+    class ScalaAnnotation(val name: String, fields: List[(String, String)])
+    object ScalaAnnotation {
+      def apply(expr: Tree) = {
+        val sexpr = expr.toString
+        if (!sexpr.startsWith("new "))
+          c.abort(c.enclosingPosition, s"Invalid annotation $sexpr")
+        else {
+          val name = sexpr.substring("new ".length, sexpr.indexOf('('))
+          val params = sexpr.substring(sexpr.indexOf('('), sexpr.lastIndexOf(')')).split(',').map { x =>
 
+          }
+
+        }
+        new ScalaAnnotation("", List())
+      }
+    }
     object FldDesc {
-      def apply(fieldTree: Tree, allClasses: List[ClsDesc]) = {
+      def apply(fieldTree: Tree, clsTree: Tree, allClasses: List[ClsDesc]) = {
         val ValDef(mod, name, tpt, rhs) = fieldTree
         if (reservedNames.exists(_ == name.decoded))
           c.abort(c.enclosingPosition, s"Column with name ${name.decoded} not allowed")
@@ -169,19 +224,41 @@ object ModelMacro { macro =>
           val flags = Set[FieldFlag]()
           val annotation = mod.annotations.headOption.map(_.children.head.toString)
           var colType: String = null
-          val isIndex = annotation.map(_ == "new Index").getOrElse(false)
-          if (isIndex) {
-            flags += FieldFlag.INDEX
-            mod.annotations.headOption.foreach { it =>
-              if (it.children.length >= 2 && it.children(1).toString.equals("true")) flags += FieldFlag.UNIQUE
-            }
-          }
-          val isdbType = annotation.map(_ == "new Type").getOrElse(false)
-          if (isdbType) {
-            flags += FieldFlag.DBTYPE
-            mod.annotations.headOption.foreach { it =>
-              if (it.children.length >= 2) colType = it.children(1).toString
-            }
+          var colName: String = name.decoded
+          var onDelete: String = "NoAction"
+          var onUpdate: String = "NoAction"
+
+          mod.annotations.map(x => x.toString).foreach { annotation =>
+            val params = annotation.substring(annotation.indexOf('(') + 1, annotation.lastIndexOf(')')).split(',').map(_.split("="))
+            if (annotation startsWith "new Col(") {
+              val paramsMap = Map((0 -> "name"), (1 -> "tpe"), (2 -> "index"), (3 -> "unique"), (4 -> "pk"), (4 -> "onDelete"), (5 -> "onUpdate"))
+              val named = params.view.zipWithIndex.map {
+                case (param, i) =>
+                  if (param.length == 1)
+                    (paramsMap(i), param(0).trim)
+                  else {
+                    (param(0).trim, param(1).trim)
+                  }
+              }
+              named.foreach { param =>
+
+                param._1 match {
+                  case "onDelete" => onDelete = param._2.replaceAll("^.*\\.", "")
+                  case "onUpdate" => onUpdate = param._2.replaceAll("^.*\\.", "")
+                  case "name" => colName = param._2.replaceAll("""^"|"$""", "")
+                  case "tpe" =>
+                    flags += FieldFlag.DBTYPE
+                    colType = param._2.replaceAll("""^"|"$""", "")
+                  case "index" if param._2.contains("true") => flags += FieldFlag.INDEX
+                  case "unique" if param._2.contains("true") =>
+                    flags += FieldFlag.INDEX
+                    flags += FieldFlag.UNIQUE
+                  case "pk" if param._2.contains("true") =>
+                    flags += FieldFlag.PK
+                }
+              }
+            } else
+              c.abort(c.enclosingPosition, s"Invalid $annotation on column ${name.decoded}")
           }
           def buildTypeName(tree: Tree): String = {
             tree match {
@@ -225,18 +302,64 @@ object ModelMacro { macro =>
               Some(clsDesc)
             case _ => None
           }
-          val tree = mod.annotations.headOption
+          val tree = mod.annotations
           tree.foreach { it =>
             it match {
               case Apply(Select(New(Ident(index)), _), List(Literal(Constant(unique)))) =>
-                if (index.decoded == "Index") flags += FieldFlag.INDEX
-                if (unique == true) flags += FieldFlag.UNIQUE
+                if (index.decoded == "Index") {
+                  flags += FieldFlag.INDEX
+                  if (unique == true) flags += FieldFlag.UNIQUE
+                }
+
+              case Apply(Select(New(Ident(pk)), _), _) =>
+                if (pk.decoded == "PK") {
+                  flags += FieldFlag.PK
+                }
+
               case Apply(Select(New(Ident(dbType)), _), List(Literal(Constant(dbTypeValue)))) =>
-                if (dbType.decoded == "Type") flags += FieldFlag.DBTYPE
-                colType = dbTypeValue.asInstanceOf[String]
+                if (dbType.decoded == "Type") {
+                  flags += FieldFlag.DBTYPE
+                  colType = dbTypeValue.asInstanceOf[String]
+                }
             }
           }
-          new FldDesc(name.decoded, typeName, flags, Option(colType), clsDesc, fieldTree)
+
+          val ClassDef(_, _, _, Template(_, _, body)) = clsTree
+          body.foreach { it =>
+            it match {
+              case Apply(Ident(constraintsTerm), List(Block(stats, expr))) =>
+                // Should use parsers combinator here. will do it someday
+                (stats :+ expr).foreach { s =>
+                  val st = s.toString.replace("scala.Tuple", "Tuple").split('.').map(_.trim)
+                  if (st.length >= 2) {
+                    val fieldNames = {
+                      if (st(0).endsWith(")")) {
+                        st(0).substring(st(0).indexOf('(') + 1, st(0).lastIndexOf(')')).split(',').map(_.trim)
+                      } else {
+                        Array(st(0).trim)
+                      }
+                    }
+                    if (fieldNames.contains(name.decoded)) {
+                      st.drop(1).foreach { s =>
+                        val method = s.substring(0, s.indexOf('(')).trim
+                        val arg = s.substring(s.indexOf('(') + 1, s.lastIndexOf(')'))
+                        method match {
+                          case "is" | "are" =>
+                            flags += FieldFlag.INDEX
+                            if (arg == "unique") flags += FieldFlag.UNIQUE
+                          case "withType" =>
+                            flags += FieldFlag.DBTYPE; colType = arg.substring(1, arg.length - 1)
+                          case "onUpdate" => onUpdate = arg
+                          case "onDelete" => onDelete = arg
+                        }
+                      }
+                    }
+                  }
+                }
+              case _ =>
+            }
+          }
+          new FldDesc(name.decoded, colName, typeName, flags, Option(colType), onDelete, onUpdate, clsDesc, fieldTree)
         }
       }
     }
@@ -277,10 +400,13 @@ object ModelMacro { macro =>
 
         }
         val ctor3body = Ident(newTermName("None")) :: terms
-
+        val paramsdef = valdefs map { it =>
+          val ValDef(mod, nme, tpt, rhs) = it
+          ValDef(Modifiers(param), nme, tpt, rhs)
+        }
         val newCtor3 = DefDef(Modifiers(),
           nme.CONSTRUCTOR, List(),
-          valdefs :: Nil,
+          paramsdef :: Nil,
           TypeTree(),
           Block(List(Apply(Ident(nme.CONSTRUCTOR), ctor3body)), Literal(Constant(()))))
 
@@ -308,14 +434,19 @@ object ModelMacro { macro =>
         	} yield(y)
             """
         }
+
         val one2manyDefAdds = desc.assocs.map { it =>
           q"""def ${newTermName("add" + it.typeName)}(${newTermName(colIdName(it.typeName))} : ${newTypeName("Long")})(implicit session : JdbcBackend#SessionDef) = ${newTermName(objectName(assocTableName(desc.name, it.typeName)))}.insert(${newTermName(assocTableName(desc.name, it.typeName))}(xid, ${newTermName(colIdName(it.typeName))}))"""
         }
-        val lst = if (augment) newCtor1 :: xid :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds else newCtor1 :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds
+        val lst = if (augment) newCtor1 :: /* newCtor3 :: */ xid :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds else newCtor1 :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds
 
         //val lst = if (augment) newCtor1 :: xid :: newAttrs ++ defdefs else newCtor1 :: newAttrs ++ defdefs
 
-        ClassDef(Modifiers(CASE), desc.name, List(), Template(List(Select(Ident(newTermName("scala")), newTypeName("Product")), Select(Ident(newTermName("scala")), newTypeName("Serializable"))), emptyValDef, lst))
+        ClassDef(Modifiers(CASE), desc.name, List(), Template(List(
+          // Select(Select(Ident(newTermName("slickmacros")), newTermName("annotations")), newTypeName("AnyRow")), 
+          Select(Ident(newTermName("scala")), newTypeName("Product")),
+          Select(Ident(newTermName("scala")), newTypeName("Serializable"))),
+          emptyValDef, lst))
       }
     }
     /**
@@ -334,9 +465,9 @@ object ModelMacro { macro =>
       } else {
         val tpe = desc.typeName
         desc.dbType map { it =>
-          q"""def $nme = column[$tpt](${nme.decoded}, O.DBType(${it}))"""
+          q"""def $nme = column[$tpt](${desc.colName}, O.DBType(${it}))"""
         } getOrElse {
-          q"""def $nme = column[$tpt](${nme.decoded})"""
+          q"""def $nme = column[$tpt](${desc.colName})"""
         }
       }
     }
@@ -490,6 +621,7 @@ object ModelMacro { macro =>
       val TIMESTAMPS = Value
       val INDEX = Value
       val ONDELETE = Value
+      val PK = Value
     }
     import ColInfo._
 
@@ -497,7 +629,6 @@ object ModelMacro { macro =>
       body collect {
         case Apply(Ident(func), List(Ident(field), dbType)) if func.decoded == "dbType" => (DBTYPE, (field.decoded, dbType))
         case Apply(Ident(func), List(literal)) if func.decoded == "timestamps" => (TIMESTAMPS, (null, literal))
-        //case Apply(Ident(func), Nil) if func.decoded == "timestamps" => (TIMESTAMPS, (null, newTermName("true")))
         case Apply(Ident(func), List(Ident(field), isUnique)) if func.decoded == "index" => (INDEX, (field.decoded, isUnique))
         case Apply(Ident(func), List(Ident(field), action)) if func.decoded == "onDelete" => (ONDELETE, (field.decoded, action))
       } groupBy (_._1)
@@ -517,13 +648,13 @@ object ModelMacro { macro =>
         val indexes = desc.indexes
         val foreignKeys = desc.foreignKeys.map { it =>
           //val fkAction = if (colInfo.isDefined && colInfo.get.onDelete != null) colInfo.get.onDelete else "ForeignKeyAction.NoAction"
-          c.parse(s"""def ${it.name}FK = foreignKey("${desc.name.toLowerCase}2${it.typeName.toLowerCase}", ${colIdName(it.name)}, ${objectName(it.typeName)})(_.id) """) // onDelete
+          c.parse(s"""def ${it.name}FK = foreignKey("${desc.name.toLowerCase}2${it.typeName.toLowerCase}", ${colIdName(it.name)}, ${objectName(it.typeName)})(_.id, ${it.onUpdateAction}, ${it.onDeleteAction}) """) // onDelete
         }
         val assocs = desc.assocs.map { it =>
           new ClsDesc(assocTableName(desc.name, it.typeName), Set(ENTITYDEF),
             ListBuffer(
-              new FldDesc(Introspector.decapitalize(desc.name), desc.name, Set(FieldFlag.CASE), None, Some(desc), ValDef(caseparam, Introspector.decapitalize(desc.name), null, null)),
-              new FldDesc(Introspector.decapitalize(it.typeName), it.typeName, Set(FieldFlag.CASE), None, it.cls, ValDef(caseparam, Introspector.decapitalize(it.typeName), null, null))),
+              new FldDesc(Introspector.decapitalize(desc.name), Introspector.decapitalize(desc.name), desc.name, Set(FieldFlag.CASE), None, "NoAction", "NoAction", Some(desc), ValDef(caseparam, Introspector.decapitalize(desc.name), null, null)),
+              new FldDesc(Introspector.decapitalize(it.typeName), Introspector.decapitalize(it.typeName), it.typeName, Set(FieldFlag.CASE), None, "NoAction", "NoAction", it.cls, ValDef(caseparam, Introspector.decapitalize(it.typeName), null, null))),
             null)
 
         }
@@ -584,7 +715,7 @@ object ModelMacro { macro =>
       annottees.map(_.tree).toList match {
         case ModuleDef(mod, moduleName, Template(parents, self, body)) :: Nil =>
           val annotations = mod.annotations.map(_.children.head.toString)
-          val timestampsAll = c.prefix.tree.toString.indexOf("timestamps = true") > 0 // Q&D
+          val timestampsAll = c.prefix.tree.toString.contains("true") || parents.exists(_.toString.contains("Timestamps")) // Q&D
           val allDefs = defMap(body)
           val caseDefs = allDefs.getOrElse(CLASSDEF, Nil).map(it => ClsDesc(it._2, timestampsAll))
           caseDefs.foreach(_.parseBody(caseDefs))

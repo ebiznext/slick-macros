@@ -1,10 +1,10 @@
-organization := "fr.sncf.tetra"
+organization := "com.ebiznext.sample"
 
 name := "sample"
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.10.3"
 
 libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _)
 
@@ -15,7 +15,6 @@ libraryDependencies ++= Seq(
  "org.apache.poi" % "poi" % "3.9",
  "org.apache.poi" % "poi-ooxml" % "3.9",
  "net.databinder.dispatch" %% "dispatch-core" % "0.11.0",
- "fr.sncf.tetra" %% "tetra-slick" % "0.2-SNAPSHOT",
  "com.ebiznext" %% "macros" % "0.0.1-SNAPSHOT",
  "com.ebiznext" %% "database" % "0.0.1-SNAPSHOT"
 )

@@ -1,8 +1,8 @@
 import slickmacros.reflect._
 import slickmacros.annotations._
 import slickmacros.dao.Crud._
+import slickmacros.Implicits._
 import scala.slick.driver.PostgresDriver.simple._
-
 import slickemf.export._
 import slickmacros._
 import scala.reflect.macros.Context
@@ -14,8 +14,6 @@ import scala.language.experimental.macros
 import scala.language.dynamics
 import scala.slick.lifted.{ Query => LQuery }
 import scala.slick.lifted.ColumnBase
-
-import slickmacros.Implicits._
 
 object SampleApp extends App {
   import model.XDb._
@@ -45,12 +43,12 @@ object SampleApp extends App {
 
   @DBSession def queryDB() {
     val query = companyQuery.where(_.id === 1L)
-
-    query.doUpdate(name = "TheName2", website = "TheSite2")
-    query.map(row => scala.Tuple2(row.name, row.website)).update(scala.Tuple2("typesafe", "http://www.typesafe.com"))
-
+    query.map(row => (row.name, row.website)).update(("TheName2", "http://TheSite2"))
+    query.doUpdate(name = "typesafe", website = "http://www.typesafe.com")
+    //(company, member).doWhere(_1.name === "")
     val company = companyQuery.where(_.name === "typesafe").first
     val project = projectQuery.where(_.name === "Slick").first
+
     val members = project.members.list
     members.foreach { m =>
       m.manager.map(println)

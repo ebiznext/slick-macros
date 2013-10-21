@@ -61,6 +61,14 @@ object DynamicAccessors {
   }
   //  def doInsert(r: DefMacroData) = DefMacroTable.forInsert returning DefMacroTable.id insert r
 }
+// (project, member, company) doWhere(_2.name = "modersky")
+/*
+	 for( 
+		 _1 <- project
+		 _2 <- member if m.projectId === p.id
+		 _3 <- company if c.memberId === id 
+	 ) yield (x) if (_2.name == "modersky")
+ */
 
 object Implicits {
   implicit def productQueryToDynamicUpdateInvoker[T](q: LQuery[_, T]) = new {
