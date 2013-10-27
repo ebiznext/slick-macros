@@ -25,6 +25,9 @@ object SampleApp extends App {
   stmts.foreach(println)
 
   @DBTransaction def populate() {
+    object CompanyDAO extends CompanyCrud(companies) {
+      
+    }
     val csize = companies.list.size
     if (csize == 0) {
       val typesafeId = companies.insert(Company(None, "typesafe", "http://www.typesafe.com"))
@@ -60,9 +63,9 @@ object SampleApp extends App {
 
     //val members = project.mymembers.list
     members.foreach { m =>
-      m.manager.map(println)
+      m.loadManager.map(println)
     }
-    project.mymembers.drop(1).take(1).list.foreach(println)
+    project.loadMembers.drop(1).take(1).list.foreach(println)
   }
 
   populate

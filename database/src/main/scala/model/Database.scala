@@ -18,14 +18,14 @@ import slickmacros.dao.Crud._
   case class Company(name: String, website: String)
   case class Address(num: Int, road: String, zip: String) extends Part
   case class Member(login: String, rights: UserRights, addr: Address, company: Company, manager: Option[Member]) {
-    constraints("members") {
-      login is unique withType "varchar(100)" withName ("LOGIN")
+    constraints {
+      login is unique withType "varchar(100)" //withName ("LOGIN")
       manager onDelete Cascade
     }
   }
   case class Project(name: String, company: Company, members: List[Member])
 
-/*  object Company {
+  /*  object Company {
     lazy val query = TableQuery[CompanyTable]
     def apply() = query
   }

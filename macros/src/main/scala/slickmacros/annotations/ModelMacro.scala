@@ -342,8 +342,9 @@ object ModelMacro { macro =>
               case _ => None
             }
             cns foreach { it =>
-              // Should use parsers combinator here. will do it someday
-              allClasses.find(_.name == clsName).map(_.plural = it._1)
+              allClasses.find(_.name == clsName.decoded).foreach { x =>
+                x.plural = it._1
+              }
               (it._2).foreach { s =>
                 val st = s.toString.replace("scala.Tuple", "Tuple").split('.').map(_.trim)
                 if (st.length >= 2) {
@@ -429,22 +430,14 @@ object ModelMacro { macro =>
         val xid = q"""def xid = id.getOrElse(throw new Exception("Object has no id yet"))"""
 
         val defdefs = desc.foreignKeys.map { it =>
-          /*DefDef(
-              Modifiers(), 
-              newTermName(name),
-              Nil,
-              List(ValDef(Modifiers(IMPLICIT | PARAM), newTermName("session"), SelectFromTypeTree(Ident(newTypeName("JdbcBackend")), newTypeName("SessionDef")), EmptyTree)::Nil),
-              TypeTree(), 
-
-              )*/
           if (it.option)
-            q"""def ${newTermName("load"+it.name.capitalize)}(implicit session : JdbcBackend#SessionDef) = ${newTermName(objectName(it.typeName))}.where(_.id === ${newTermName(colIdName(it.name))}).firstOption"""
+            q"""def ${newTermName("load" + it.name.capitalize)}(implicit session : JdbcBackend#SessionDef) = ${newTermName(objectName(it.typeName))}.where(_.id === ${newTermName(colIdName(it.name))}).firstOption"""
           else
-            q"""def ${newTermName("load"+it.name.capitalize)}(implicit session : JdbcBackend#SessionDef) = ${newTermName(objectName(it.typeName))}.where(_.id === ${newTermName(colIdName(it.name))}).first"""
+            q"""def ${newTermName("load" + it.name.capitalize)}(implicit session : JdbcBackend#SessionDef) = ${newTermName(objectName(it.typeName))}.where(_.id === ${newTermName(colIdName(it.name))}).first"""
         }
         val one2manyDefs = desc.assocs.map { it =>
           q"""
-            def ${newTermName("load"+it.name.capitalize)} = for {
+            def ${newTermName("load" + it.name.capitalize)} = for {
         	  	x <- self.${newTermName(objectName(assocTableName(desc.name, it.typeName)))} if x.${newTermName(colIdName(desc.name))} === id
         		y <- self.${newTermName(objectName(it.typeName))} if x.${newTermName(colIdName(it.typeName))} === y.id
         	} yield(y)
@@ -456,10 +449,7 @@ object ModelMacro { macro =>
         }
         val lst = if (augment) newCtor1 :: /* newCtor3 :: */ xid :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds else newCtor1 :: newAttrs ++ defdefs ++ one2manyDefs ++ one2manyDefAdds
 
-        //val lst = if (augment) newCtor1 :: xid :: newAttrs ++ defdefs else newCtor1 :: newAttrs ++ defdefs
-
         ClassDef(Modifiers(CASE), desc.name, List(), Template(List(
-          // Select(Select(Ident(newTermName("slickmacros")), newTermName("annotations")), newTypeName("AnyRow")), 
           Select(Ident(newTermName("scala")), newTypeName("Product")),
           Select(Ident(newTermName("scala")), newTypeName("Serializable"))),
           emptyValDef, lst))
@@ -468,7 +458,6 @@ object ModelMacro { macro =>
     /**
      * given a fieldName and a type tree return "def fieldName = column[tpe]("fieldName")
      */
-    //        class FldDesc(val name: String, val flags: Set[FieldFlag], val dbType: String, val cls: Option[ClsDesc], val tree: Tree)
 
     def mkColumn(desc: FldDesc): Tree = {
       val q"$mods val $nme:$tpt = $initial" = desc.tree
@@ -494,10 +483,8 @@ object ModelMacro { macro =>
 
     def tableName(typeName: String) = s"${typeName}Table"
 
-    //def objectName(typeName: String) = s"${Introspector.decapitalize(typeName)}Query"
-    //def objectName(typeName: String) = s"${Introspector.decapitalize(typeName)}.query"
     def objectName(typeName: String) = s"${plural(Introspector.decapitalize(typeName))}"
-
+    
     def assocTableName(table1: String, table2: String) = s"${table1}2${table2}"
 
     /**
@@ -716,36 +703,17 @@ object ModelMacro { macro =>
               AppliedTypeTree(Ident(newTypeName("Table")), Ident(newTypeName(desc.name)) :: Nil) :: Nil,
               emptyValDef,
               if (augment) ctor :: idCol :: times :: forInsert :: desc.dateDefs ++ defdefs ++ indexdefs ++ foreignKeys else ctor :: times :: indexdefs ++ defdefs ++ foreignKeys))
-        //        val objectDef = q"val ${newTermName(objectName(desc.name))} = TableQuery[${newTypeName(tableName(desc.name))}]"
-
-        //      List(mkCaseClass(desc, augment), tableDef, objectDef) ++ assocTables
         List(mkCaseClass(desc, augment), tableDef) ++ mkCompanion(desc) ++ assocTables
       }
     }
     def mkCompanion(desc: ClsDesc) = {
-      val crudType = if (desc.timestamps) "CrudEx" else "Crud"
-//      val query = c.parse(s"val ${newTermName(objectName(desc.name))} = TableQuery[${newTypeName(tableName(desc.name))}]")
       val query = c.parse(s"val ${newTermName(objectName(desc.name))} = TableQuery[${newTypeName(tableName(desc.name))}]")
-      /*
-      val dao = if (desc.assoc)
-        Nil
-      else
-        c.parse(s"val ${newTermName(objectName(desc.name)+"DAO")} = new $crudType[${desc.name}, ${tableName(desc.name)}](TableQuery[${newTypeName(tableName(desc.name))}])") :: Nil
-      query :: dao
-      * 
-      */
-      /*
       val crud = if (desc.timestamps) "CrudEx" else "Crud"
-      if (desc.part)
-        Nil
+      val crudType = c.parse(s"type ${desc.name}Crud = CrudEx[${desc.name}, ${desc.name}Table]")
+      if (desc.assoc)
+        query :: Nil
       else
-        ValDef(
-          Modifiers(),
-          newTermName(Introspector.decapitalize(desc.name)),
-          TypeTree(),
-          Apply(Select(New(AppliedTypeTree(Ident(newTypeName("CrudEx")), List(Ident(newTypeName(desc.name)), Ident(newTypeName(s"${desc.name}Table"))))), nme.CONSTRUCTOR),
-            List(TypeApply(Ident(newTermName("TableQuery")), List(Ident(newTypeName(s"${desc.name}Table"))))))) :: Nil
-*/
+        query :: crudType :: Nil
     }
     def defMap(body: List[c.universe.Tree]): Map[DefType, List[(DefType, c.universe.Tree)]] = {
       body.flatMap { it =>
@@ -755,8 +723,6 @@ object ModelMacro { macro =>
           case DefDef(_, _, _, _, _, _) => List((DEFDEF, it))
           case Import(_, _) => List((IMPORTDEF, it))
           case _ => List((OTHERDEF, it))
-          //println(it)
-          //c.abort(c.enclosingPosition, "Only moduledef && classdef && defdef allowed here")
         }
       } groupBy (_._1)
     }
@@ -769,7 +735,12 @@ object ModelMacro { macro =>
           val caseDefs = allDefs.getOrElse(CLASSDEF, Nil).map(it => ClsDesc(it._2, timestampsAll))
           caseDefs.foreach(_.parseBody(caseDefs))
           val tableDefList = caseDefs.flatMap(mkTable(_))
-
+          println("--> Generated queries :")
+          caseDefs.foreach { x =>
+            println(plural(Introspector.decapitalize(x.name)))
+          }
+          println("--> End of generated queries.")
+          
           val enumDefList = allDefs.getOrElse(ENUMDEF, Nil).map(_._2)
           val defdefList = allDefs.getOrElse(DEFDEF, Nil).map(_._2)
           val importdefList = allDefs.getOrElse(IMPORTDEF, Nil).map(_._2)
@@ -792,7 +763,7 @@ object ModelMacro { macro =>
           c.abort(c.enclosingPosition, s"Only module defs allowed here")
       }
     }
-    println(result)
+    //println(result)
     c.Expr[Any](result)
   }
   /*

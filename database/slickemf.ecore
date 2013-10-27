@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="ASCII"?>
 <ecore:EPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="SlickMacrosPackage" nsURI="SlickMacrosPackage" nsPrefix="SlickMacrosPackage">
   <eClassifiers xsi:type="ecore:EClass" name="Project2Member">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="member" lowerBound="1" eType="//Member"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="project" lowerBound="1" eType="//Project"/>
+    <eOperations name="loadMember" eType="//TableElementType">
+      <eParameters name="session" eType="//SessionDef"/>
+    </eOperations>
+    <eOperations name="loadProject" eType="//TableElementType">
+      <eParameters name="session" eType="//SessionDef"/>
+    </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="memberId ">
       <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
     </eStructuralFeatures>
@@ -18,8 +22,10 @@
       </eParameters>
       <eParameters name="session" eType="//SessionDef"/>
     </eOperations>
-    <eOperations name="members" eType="//Query[MemberTable,Member]"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="company" lowerBound="1" eType="//Company"/>
+    <eOperations name="loadMembers" eType="//Query[MemberTable,Member]"/>
+    <eOperations name="loadCompany" eType="//TableElementType">
+      <eParameters name="session" eType="//SessionDef"/>
+    </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated " eType="//Timestamp"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated " eType="//Timestamp"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="companyId ">
@@ -34,8 +40,10 @@
     </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Member">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="manager" eType="//Member"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="company" lowerBound="1" eType="//Company"/>
+    <eOperations name="loadCompany" eType="//TableElementType">
+      <eParameters name="session" eType="//SessionDef"/>
+    </eOperations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="loadManager" eType="//Member"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated " eType="//Timestamp"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated " eType="//Timestamp"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="managerId " eType="//Option[Long]"/>
@@ -152,6 +160,7 @@
       <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
     </eStructuralFeatures>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TableElementType"/>
   <eClassifiers xsi:type="ecore:EClass" name="SessionDef"/>
   <eClassifiers xsi:type="ecore:EClass" name="Query[MemberTable,Member]"/>
   <eClassifiers xsi:type="ecore:EClass" name="Timestamp"/>
