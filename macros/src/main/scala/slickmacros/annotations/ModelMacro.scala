@@ -483,7 +483,8 @@ object ModelMacro { macro =>
 
     def tableName(typeName: String) = s"${typeName}Table"
 
-    def objectName(typeName: String) = s"${plural(Introspector.decapitalize(typeName))}"
+//    def objectName(typeName: String) = s"${plural(Introspector.decapitalize(typeName))}"
+    def objectName(typeName: String) = s"${Introspector.decapitalize(typeName)}Query"
     
     def assocTableName(table1: String, table2: String) = s"${table1}2${table2}"
 
@@ -737,7 +738,7 @@ object ModelMacro { macro =>
           val tableDefList = caseDefs.flatMap(mkTable(_))
           println("--> Generated queries :")
           caseDefs.foreach { x =>
-            println(plural(Introspector.decapitalize(x.name)))
+            println(objectName(x.name))
           }
           println("--> End of generated queries.")
           
