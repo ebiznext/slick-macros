@@ -34,7 +34,7 @@ object Crud {
 
   def rowValidate[T <: RowId](obj: T) {}
 
-  abstract class Crud[C <: RowId, +T <: RelationalTableComponent#Table[C] with TableEx[C]](val query: TableQuery[T, T#TableElementType]) {
+  class Crud[C <: RowId, +T <: RelationalTableComponent#Table[C] with TableEx[C]](val query: TableQuery[T, T#TableElementType]) {
 
     def del(objId: Long)(implicit session: JdbcBackend#SessionDef) = query.where(_.id === objId)
 
@@ -47,22 +47,24 @@ object Crud {
 
     def insert(obj: C)(implicit session: JdbcBackend#SessionDef) = {
       rowValidate(obj)
-      // because x.copy(dateCreated = , lastUpdated = ) is not available :(
       query map (_.forInsert) returning (query.map(_.id)) insert (obj)
     }
   }
-  
-  abstract class CrudEx[C <: RowIdEx, +T <: RelationalTableComponent#Table[C] with TableEx[C]](query: TableQuery[T, T#TableElementType]) extends Crud[C,T](query){
 
+  class CrudEx[C <: RowIdEx, +T <: RelationalTableComponent#Table[C] with TableEx[C]](query: TableQuery[T, T#TableElementType]) extends Crud[C, T](query) {
     override def update(obj: C)(implicit session: JdbcBackend#SessionDef): Int = {
       obj.lastUpdated = new java.sql.Timestamp(new java.util.Date().getTime)
       super.update(obj)
     }
 
     override def insert(obj: C)(implicit session: JdbcBackend#SessionDef) = {
+      // because x.copy(dateCreated = , lastUpdated = ) is not available :(
       obj.dateCreated = new java.sql.Timestamp(new java.util.Date().getTime)
       obj.lastUpdated = obj.dateCreated
       super.insert(obj)
     }
   }
+  implicit def crudToQuery[C <: RowId, T <: RelationalTableComponent#Table[C] with TableEx[C]] (crud: Crud[C, T]) : TableQuery[T, T#TableElementType] = crud.query
 }
+
+

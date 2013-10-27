@@ -82,7 +82,7 @@ object TheBuild extends Build {
     "database",
     file("database"),
     settings = buildSettings ++ Seq(
-//    scalacOptions ++= Seq("-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
+//    scalacOptions ++= Seq(	"-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
     	libraryDependencies ++= Seq(
 	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
 //		 "com.typesafe.slick" %% "slick" % "1.0.1",
@@ -93,10 +93,12 @@ object TheBuild extends Build {
     "sample",
     file("sample"),
     settings = buildSettings ++ Seq(
+//    scalacOptions ++= Seq("-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
 	libraryDependencies ++= Seq(
 	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
 //	 "com.typesafe.slick" %% "slick" % "1.0.1",
 	 "postgresql" % "postgresql" % "9.1-901.jdbc4")
+//	 "com.ebiznext.slickmacros" %% "database" % "0.0.1-SNAPSHOT")
 	  )) dependsOn(database,emfexport )
 }
 
