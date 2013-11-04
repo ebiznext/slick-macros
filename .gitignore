@@ -10,3 +10,5 @@ macros/.cache
 *.prefs
 
 sample/.cache
+
+.history

@@ -311,25 +311,23 @@ object ModelMacro { macro =>
             case _ => None
           }
           val tree = mod.annotations
-          tree.foreach { it =>
-            it match {
-              case Apply(Select(New(Ident(index)), _), List(Literal(Constant(unique)))) =>
-                if (index.decoded == "Index") {
-                  flags += FieldFlag.INDEX
-                  if (unique == true) flags += FieldFlag.UNIQUE
-                }
+          tree.foreach {
+            case Apply(Select(New(Ident(index)), _), List(Literal(Constant(unique)))) =>
+              if (index.decoded == "Index") {
+                flags += FieldFlag.INDEX
+                if (unique == true) flags += FieldFlag.UNIQUE
+              }
 
-              case Apply(Select(New(Ident(pk)), _), _) =>
-                if (pk.decoded == "PK") {
-                  flags += FieldFlag.PK
-                }
+            case Apply(Select(New(Ident(pk)), _), _) =>
+              if (pk.decoded == "PK") {
+                flags += FieldFlag.PK
+              }
 
-              case Apply(Select(New(Ident(dbType)), _), List(Literal(Constant(dbTypeValue)))) =>
-                if (dbType.decoded == "Type") {
-                  flags += FieldFlag.DBTYPE
-                  colType = dbTypeValue.asInstanceOf[String]
-                }
-            }
+            case Apply(Select(New(Ident(dbType)), _), List(Literal(Constant(dbTypeValue)))) =>
+              if (dbType.decoded == "Type") {
+                flags += FieldFlag.DBTYPE
+                colType = dbTypeValue.asInstanceOf[String]
+              }
           }
 
           val ClassDef(_, clsName, _, Template(_, _, body)) = clsTree
@@ -381,7 +379,7 @@ object ModelMacro { macro =>
       }
     }
 
-    def mkCaseClass(desc: ClsDesc, augment: Boolean = true): ClassDef = {
+    def mkCaseClass(desc: ClsDesc, augment: Boolean = true)(implicit caseDefs: List[ClsDesc]): ClassDef = {
       if (desc.part) {
         desc.tree.asInstanceOf[ClassDef]
       } else {
@@ -483,13 +481,17 @@ object ModelMacro { macro =>
 
     def tableName(typeName: String) = s"${typeName}Table"
 
-//    def objectName(typeName: String) = s"${plural(Introspector.decapitalize(typeName))}"
-    def objectName(typeName: String) = s"${Introspector.decapitalize(typeName)}Query"
-    
+    def objectName(typeName: String)(implicit caseDefs: List[ClsDesc]) = {
+      val plur = caseDefs.find(typeName == _.name).map(_.plural).getOrElse(plural(Introspector.decapitalize(typeName)))
+      s"${plur}"
+    }
+    //def objectName(typeName: String) = s"${plural(Introspector.decapitalize(typeName))}"
+    //def objectName(typeName: String) = s"${Introspector.decapitalize(typeName)}Query"
+
     def assocTableName(table1: String, table2: String) = s"${table1}2${table2}"
 
     /**
-     * create the field1 ~ field2 ~ ... ~ fieldN string from case class column
+     * create the field1 ~��field2 ~ ... ~ fieldN string from case class column
      * does not handle correctly case classes with a single column (adding a dummy field would probably help)
      */
     def mkTilde(fields: List[FldDesc]): String = {
@@ -650,7 +652,7 @@ object ModelMacro { macro =>
      * if augment is set to true timestamp & forInsert defs are generated too
      */
 
-    def mkTable(desc: ClsDesc, augment: Boolean = true): List[Tree] = {
+    def mkTable(desc: ClsDesc, augment: Boolean = true)(implicit caseDefs: List[ClsDesc]): List[Tree] = {
       if (desc.part)
         List(desc.tree.asInstanceOf[ClassDef])
       else {
@@ -658,8 +660,9 @@ object ModelMacro { macro =>
         val listVals = desc.listValDefs
         val indexes = desc.indexes
         val foreignKeys = desc.foreignKeys.map { it =>
+          val cls = caseDefs.find(it.typeName == _.name).getOrElse(throw new Exception(s"Invalid foreign class ${it.name}:${it.typeName}"))
           //val fkAction = if (colInfo.isDefined && colInfo.get.onDelete != null) colInfo.get.onDelete else "ForeignKeyAction.NoAction"
-          c.parse(s"""def ${it.name}FK = foreignKey("${desc.name.toLowerCase}2${it.typeName.toLowerCase}", ${colIdName(it.name)}, ${objectName(it.typeName)})(_.id, ${it.onUpdateAction}, ${it.onDeleteAction}) """) // onDelete
+          c.parse(s"""def ${it.name} = foreignKey("${desc.name.toLowerCase}2${it.typeName.toLowerCase}", ${colIdName(it.name)}, ${objectName(it.typeName)})(_.id, ${it.onUpdateAction}, ${it.onDeleteAction}) """) // onDelete
         }
         val assocs = desc.assocs.map { it =>
           new ClsDesc(assocTableName(desc.name, it.typeName), Set(ENTITYDEF),
@@ -707,7 +710,7 @@ object ModelMacro { macro =>
         List(mkCaseClass(desc, augment), tableDef) ++ mkCompanion(desc) ++ assocTables
       }
     }
-    def mkCompanion(desc: ClsDesc) = {
+    def mkCompanion(desc: ClsDesc)(implicit caseDefs: List[ClsDesc]) = {
       val query = c.parse(s"val ${newTermName(objectName(desc.name))} = TableQuery[${newTypeName(tableName(desc.name))}]")
       val crud = if (desc.timestamps) "CrudEx" else "Crud"
       val crudType = c.parse(s"type ${desc.name}Crud = CrudEx[${desc.name}, ${desc.name}Table]")
@@ -733,7 +736,7 @@ object ModelMacro { macro =>
           val annotations = mod.annotations.map(_.children.head.toString)
           val timestampsAll = c.prefix.tree.toString.contains("true") || parents.exists(_.toString.contains("Timestamps")) // Q&D
           val allDefs = defMap(body)
-          val caseDefs = allDefs.getOrElse(CLASSDEF, Nil).map(it => ClsDesc(it._2, timestampsAll))
+          implicit val caseDefs = allDefs.getOrElse(CLASSDEF, Nil).map(it => ClsDesc(it._2, timestampsAll))
           caseDefs.foreach(_.parseBody(caseDefs))
           val tableDefList = caseDefs.flatMap(mkTable(_))
           println("--> Generated queries :")
@@ -741,7 +744,7 @@ object ModelMacro { macro =>
             println(objectName(x.name))
           }
           println("--> End of generated queries.")
-          
+
           val enumDefList = allDefs.getOrElse(ENUMDEF, Nil).map(_._2)
           val defdefList = allDefs.getOrElse(DEFDEF, Nil).map(_._2)
           val importdefList = allDefs.getOrElse(IMPORTDEF, Nil).map(_._2)
@@ -764,7 +767,7 @@ object ModelMacro { macro =>
           c.abort(c.enclosingPosition, s"Only module defs allowed here")
       }
     }
-    //println(result)
+    println(result)
     c.Expr[Any](result)
   }
   /*

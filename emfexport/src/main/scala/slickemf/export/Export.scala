@@ -76,9 +76,9 @@ class Export {
             val existingDataType = getDataType(tname, eCustomTypes)
             EmfUtils.addEAttributeToEClass(mname, existingDataType, eClass)
 
-          case MemberDesc(mname, TypeDesc("TableElementType",Nil), _) if classeNames.contains(mname.capitalize) =>
+          case MemberDesc(mname, TypeDesc("TableElementType",Nil), _) if mname.startsWith("load") && classeNames.contains(mname.substring(4)) =>
             //create one to one reference
-            val eDataType = eClasses.find(_.getName() == mname.capitalize).getOrElse(null)
+            val eDataType = eClasses.find("load"+_.getName() == mname).getOrElse(null)
             EmfUtils.addOne2OneEReferenceToEClass(mname, eDataType, eClass)
 
           case MemberDesc(mname, TypeDesc(tname, tparams), mparams) =>

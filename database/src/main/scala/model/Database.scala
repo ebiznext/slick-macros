@@ -1,6 +1,8 @@
 package model
 
 import slickmacros.annotations._
+import slickmacros.annotations.ModelMacro._
+import slickmacros.annotations.ModelMacro.FieldIndex._
 import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.lifted.ForeignKeyAction
 import scala.slick.lifted.ForeignKeyAction._
@@ -18,7 +20,7 @@ import slickmacros.dao.Crud._
   case class Company(name: String, website: String)
   case class Address(num: Int, road: String, zip: String) extends Part
   case class Member(login: String, rights: UserRights, addr: Address, company: Company, manager: Option[Member]) {
-    constraints {
+    constraints("members") {
       login is unique withType "varchar(100)" //withName ("LOGIN")
       manager onDelete Cascade
     }
