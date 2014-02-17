@@ -225,8 +225,8 @@ object ModelMacro { macro =>
       def option: Boolean = flags.exists(_ == FieldFlag.OPTION)
       def cse: Boolean = flags.exists(_ == FieldFlag.CASE)
       def pk: Boolean = flags.exists(_ == FieldFlag.PK)
-      def onDeleteAction = s"scala.slick.model.ForeignKeyAction.$onDelete"
-      def onUpdateAction = s"scala.slick.model.ForeignKeyAction.$onUpdate"
+      def onDeleteAction = s"scala.slick.lifted.ForeignKeyAction.$onDelete"
+      def onUpdateAction = s"scala.slick.lifted.ForeignKeyAction.$onUpdate"
     }
     class ScalaAnnotation(val name: String, fields: List[(String, String)])
     object ScalaAnnotation {
