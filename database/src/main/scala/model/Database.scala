@@ -17,7 +17,7 @@ import slickmacros.dao.Crud._
   }
   import UserRights._
 
-  case class Company(name: String, website: String, email:String)
+  case class Company(name: String, website: String)
   case class Address(num: Int, road: String, zip: String) extends Part
   case class Member(login: String, rights: UserRights, addr: Address, company: Company, manager: Option[Member]) {
     constraints("members") {
