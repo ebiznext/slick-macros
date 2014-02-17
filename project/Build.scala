@@ -63,6 +63,8 @@ object TheBuild extends Build {
 	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
 //  "com.typesafe.slick" %% "slick" % "1.0.1",
 // "postgresql" % "postgresql" % "9.1-901.jdbc4",
+ "joda-time" % "joda-time" % "2.3",
+ "org.joda" % "joda-convert" % "1.2",
  "org.scala-lang" % "scala-compiler" % "2.10.2",
  "org.scala-lang" % "scala-reflect" % "2.10.2")
   ))

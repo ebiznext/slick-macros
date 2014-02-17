@@ -12,12 +12,12 @@ import slickmacros.dao.Crud._
 @Model object XDb extends Timestamps {
   object UserRights extends Enumeration {
     type UserRights = Value
-    val ADMIN = Value(1)
-    val GUEST = Value(2)
+    val ADMIN = Value("ADMIN")
+    val GUEST = Value("GUEST")
   }
   import UserRights._
 
-  case class Company(name: String, website: String)
+  case class Company(name: String, website: String, email:String)
   case class Address(num: Int, road: String, zip: String) extends Part
   case class Member(login: String, rights: UserRights, addr: Address, company: Company, manager: Option[Member]) {
     constraints("members") {

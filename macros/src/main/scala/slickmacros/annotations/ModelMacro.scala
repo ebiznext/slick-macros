@@ -16,6 +16,7 @@ import scala.slick.profile._
 import scala.slick.lifted._
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Set
+import sys.process._
 
 class Model(timestamps: Boolean = false) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro ModelMacro.impl
@@ -33,6 +34,7 @@ object ModelMacro { macro =>
     type FieldIndex = Value
     val unique = Value(1)
     val indexed = Value(2)
+
   }
   implicit def anyToFieldOps(x: Any): FieldOps = null
   implicit def tuple2ToOps(x: (Any, Any)): FieldOps = null
@@ -57,6 +59,25 @@ object ModelMacro { macro =>
   implicit def tuple21ToOps(x: (Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any)): FieldOps = null
   implicit def tuple22ToOps(x: (Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any)): FieldOps = null
 
+  implicit val DateTimeTypeMapper =
+    MappedColumnType.base[org.joda.time.DateTime, java.sql.Timestamp](
+      {
+        dt => new java.sql.Timestamp(dt.getMillis)
+      },
+      {
+        ts => new org.joda.time.DateTime(ts.getTime)
+      })
+
+/*
+  implicit val ClobTypeMapper =
+    MappedColumnType.base[java.sql.Clob, String](
+      {
+        clob => val len = clob.length(); clob.getSubString(1, len.toInt)
+      },
+      {
+        str => new org.joda.time.DateTime(ts.getTime)
+      })
+*/
   import FieldIndex._
   trait FieldOps {
     def is(x: FieldIndex): FieldOps = null
@@ -115,7 +136,7 @@ object ModelMacro { macro =>
     val paramDefault = scala.reflect.internal.Flags.DEFAULTPARAM.asInstanceOf[Long].asInstanceOf[FlagSet]
     val param = scala.reflect.internal.Flags.PARAM.asInstanceOf[Long].asInstanceOf[FlagSet]
     val mutable = scala.reflect.internal.Flags.MUTABLE.asInstanceOf[Long].asInstanceOf[FlagSet]
-    val optionalDate = Select(Select(Ident(newTermName("java")), newTermName("sql")), newTypeName("Timestamp"))
+    val optionalDate = Select(Select(Select(Ident(newTermName("org")), newTermName("joda")), newTermName("time")), newTypeName("DateTime"))
     val caseparam = Modifiers(caseAccessor | paramAccessor)
     val paramparam = Modifiers(param | paramAccessor)
     def idVal(tpeName: TypeName) = q"$caseparam val id:Option[$tpeName]"
@@ -146,7 +167,7 @@ object ModelMacro { macro =>
 
       def dateDefs =
         if (timestamps)
-          c.parse("""def dateCreated = column[java.sql.Timestamp]("dateCreated")""") :: c.parse("""def lastUpdated = column[java.sql.Timestamp]("lastUpdated")""") :: Nil
+          c.parse("""def dateCreated = column[org.joda.time.DateTime]("date_created")""") :: c.parse("""def lastUpdated = column[org.joda.time.DateTime]("last_updated")""") :: Nil
         else
           Nil
       def foreignKeys: List[FldDesc] = {
@@ -195,7 +216,7 @@ object ModelMacro { macro =>
           flags += ENTITYDEF
         val timestamps = mod.annotations.exists(_.toString.contains("true")) || parents.exists(_.toString.contains("Timestamps")) // quick & dirty
         if (timestampAll || timestamps) flags += TIMESTAMPSDEF
-        new ClsDesc(name.decoded, flags, ListBuffer(), tree, plural(Introspector.decapitalize(name.decoded)))
+        new ClsDesc(name.decoded, flags, ListBuffer(), tree, plural(decapitalize(name.decoded)))
       }
     }
     class FldDesc(val name: String, val colName: String, val typeName: String, val flags: Set[FieldFlag], val dbType: Option[String], val onDelete: String, val onUpdate: String, val cls: Option[ClsDesc], val tree: Tree) {
@@ -204,8 +225,8 @@ object ModelMacro { macro =>
       def option: Boolean = flags.exists(_ == FieldFlag.OPTION)
       def cse: Boolean = flags.exists(_ == FieldFlag.CASE)
       def pk: Boolean = flags.exists(_ == FieldFlag.PK)
-      def onDeleteAction = s"scala.slick.lifted.ForeignKeyAction.$onDelete"
-      def onUpdateAction = s"scala.slick.lifted.ForeignKeyAction.$onUpdate"
+      def onDeleteAction = s"scala.slick.model.ForeignKeyAction.$onDelete"
+      def onUpdateAction = s"scala.slick.model.ForeignKeyAction.$onUpdate"
     }
     class ScalaAnnotation(val name: String, fields: List[(String, String)])
     object ScalaAnnotation {
@@ -232,7 +253,7 @@ object ModelMacro { macro =>
           val flags = Set[FieldFlag]()
           val annotation = mod.annotations.headOption.map(_.children.head.toString)
           var colType: String = null
-          var colName: String = name.decoded
+          var colName: String = asColName(name.decoded)
           var onDelete: String = "NoAction"
           var onUpdate: String = "NoAction"
 
@@ -334,7 +355,7 @@ object ModelMacro { macro =>
           body.foreach { it =>
             val cns = it match {
               case Apply(Ident(constraintsTerm), List(Block(stats, expr))) =>
-                Some(plural(Introspector.decapitalize(clsName.decoded)), stats :+ expr)
+                Some(plural(decapitalize(clsName.decoded)), stats :+ expr)
               case Apply(Apply(Ident(constraintsTerm), List(Literal(Constant(arg)))), List(Block(stats, expr))) =>
                 Some(arg.toString, stats :+ expr)
               case _ => None
@@ -457,13 +478,21 @@ object ModelMacro { macro =>
      * given a fieldName and a type tree return "def fieldName = column[tpe]("fieldName")
      */
 
+    def asColName(name: String): String = {
+      name.toCharArray().zipWithIndex map {
+        case (ch, i) if Character.isUpperCase(ch) && i > 0 =>
+          "_" + Character.toLowerCase(ch)
+        case (ch, _) => Character.toLowerCase(ch)
+      } mkString
+    }
+
     def mkColumn(desc: FldDesc): Tree = {
       val q"$mods val $nme:$tpt = $initial" = desc.tree
       if (desc.cse) {
         if (desc.option) {
-          q"""def ${newTermName(colIdName(desc.name))} = column[Option[${typeId(desc.typeName)}]](${colIdName(desc.name)})"""
+          q"""def ${newTermName(colIdName(desc.name))} = column[Option[${typeId(desc.typeName)}]](${asColName(colIdName(desc.name))})"""
         } else {
-          q"""def ${newTermName(colIdName(desc.name))} = column[${typeId(desc.typeName)}](${colIdName(desc.name)})"""
+          q"""def ${newTermName(colIdName(desc.name))} = column[${typeId(desc.typeName)}](${asColName(colIdName(desc.name))})"""
         }
       } else {
         val tpe = desc.typeName
@@ -476,17 +505,35 @@ object ModelMacro { macro =>
     }
 
     def colIdName(caseClassName: String) = {
-      s"${Introspector.decapitalize(caseClassName)}Id"
+      s"${decapitalize(caseClassName)}Id"
     }
 
     def tableName(typeName: String) = s"${typeName}Table"
 
+    def decapitalize(name: String): String = {
+      if (name == null || name.length == 0) {
+        name;
+      } else {
+        val chars = name.toCharArray();
+        var i = 0
+        while (i < chars.length && Character.isUpperCase(chars(i))) {
+          if (i > 0 && i < chars.length - 1 && Character.isLowerCase(chars(i + 1))) {
+
+          } else {
+            chars(i) = Character.toLowerCase(chars(i));
+          }
+          i = i + 1
+        }
+        new String(chars);
+      }
+    }
+
     def objectName(typeName: String)(implicit caseDefs: List[ClsDesc]) = {
-      val plur = caseDefs.find(typeName == _.name).map(_.plural).getOrElse(plural(Introspector.decapitalize(typeName)))
+      val plur = caseDefs.find(typeName == _.name).map(_.plural).getOrElse(plural(decapitalize(typeName)))
       s"${plur}"
     }
-    //def objectName(typeName: String) = s"${plural(Introspector.decapitalize(typeName))}"
-    //def objectName(typeName: String) = s"${Introspector.decapitalize(typeName)}Query"
+    //def objectName(typeName: String) = s"${plural(decapitalize(typeName))}"
+    //def objectName(typeName: String) = s"${decapitalize(typeName)}Query"
 
     def assocTableName(table1: String, table2: String) = s"${table1}2${table2}"
 
@@ -597,14 +644,38 @@ object ModelMacro { macro =>
     /**
      * Create the Enumeration Type Mapper
      */
-    def mkEnumMapper(name: String): Tree = {
-      val mapper = s"""implicit val ${name}TypeMapper = MappedColumnType.base[${name}.Value, Int](
+    def mkEnumMapper(moduleDef: c.universe.Tree): Tree = {
+      val ModuleDef(_, name, Template(_, _, defs)) = moduleDef
+      val res = defs.flatMap { it =>
+        it match {
+          case ValDef(_, _, _, Apply(Ident(valueKeyword), List(Literal(Constant(value: Int))))) => Some("Int")
+          case ValDef(_, _, _, Apply(Ident(valueKeyword), List(Literal(Constant(value: String))))) => Some("String")
+          case ValDef(_, _, _, Apply(Ident(valueKeyword), _)) => Some("Int")
+          case _ => None
+        }
+      } toSet
+
+      val valueType = res.headOption.getOrElse("Int")
+
+      val mapper = valueType match {
+        case "Int" =>
+          s"""implicit val ${name.decoded}TypeMapper = MappedColumnType.base[${name.decoded}.Value, $valueType](
             {
               it => it.id
             },
             {
               id => ${name}(id)
             })"""
+        case "String" =>
+          s"""implicit val ${name.decoded}TypeMapper = MappedColumnType.base[${name.decoded}.Value, $valueType](
+            {
+              it => it.toString
+            },
+            {
+              id => ${name.decoded}.withName(id)
+            })"""
+
+      }
       c.parse(mapper)
     }
 
@@ -667,9 +738,9 @@ object ModelMacro { macro =>
         val assocs = desc.assocs.map { it =>
           new ClsDesc(assocTableName(desc.name, it.typeName), Set(ENTITYDEF),
             ListBuffer(
-              new FldDesc(Introspector.decapitalize(desc.name), Introspector.decapitalize(desc.name), desc.name, Set(FieldFlag.CASE), None, "NoAction", "NoAction", Some(desc), ValDef(caseparam, Introspector.decapitalize(desc.name), null, null)),
-              new FldDesc(Introspector.decapitalize(it.typeName), Introspector.decapitalize(it.typeName), it.typeName, Set(FieldFlag.CASE), None, "NoAction", "NoAction", it.cls, ValDef(caseparam, Introspector.decapitalize(it.typeName), null, null))),
-            null, plural(Introspector.decapitalize(assocTableName(desc.name, it.typeName))))
+              new FldDesc(decapitalize(desc.name), decapitalize(desc.name), desc.name, Set(FieldFlag.CASE), None, "NoAction", "NoAction", Some(desc), ValDef(caseparam, decapitalize(desc.name), null, null)),
+              new FldDesc(decapitalize(it.typeName), decapitalize(it.typeName), it.typeName, Set(FieldFlag.CASE), None, "NoAction", "NoAction", it.cls, ValDef(caseparam, decapitalize(it.typeName), null, null))),
+            null, plural(decapitalize(assocTableName(desc.name, it.typeName))))
 
         }
         val assocTables = assocs.flatMap { it => mkTable(it, false) }
@@ -698,7 +769,7 @@ object ModelMacro { macro =>
             Nil,
             (ValDef(Modifiers(param | paramAccessor), newTermName("tag"), Ident(newTypeName("Tag")), EmptyTree) :: Nil) :: Nil,
             TypeTree(),
-            Block(List(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), List(Ident(newTermName("tag")), Literal(Constant(desc.name.toLowerCase()))))), Literal(Constant(()))))
+            Block(List(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), List(Ident(newTermName("tag")), Literal(Constant(asColName(desc.name)))))), Literal(Constant(()))))
 
         val tableDef =
           ClassDef(Modifiers(),
@@ -713,11 +784,12 @@ object ModelMacro { macro =>
     def mkCompanion(desc: ClsDesc)(implicit caseDefs: List[ClsDesc]) = {
       val query = c.parse(s"val ${newTermName(objectName(desc.name))} = TableQuery[${newTypeName(tableName(desc.name))}]")
       val crud = if (desc.timestamps) "CrudEx" else "Crud"
-      val crudType = c.parse(s"type ${desc.name}Crud = CrudEx[${desc.name}, ${desc.name}Table]")
+      val crudType = c.parse(s"type ${desc.name}Crud = $crud[${desc.name}, ${desc.name}Table]")
+      val crudObject = c.parse(s"val ${decapitalize(desc.name)}Crud = new ${desc.name}Crud(${newTermName(objectName(desc.name))})")
       if (desc.assoc)
         query :: Nil
       else
-        query :: crudType :: Nil
+        query :: crudType :: crudObject :: Nil
     }
     def defMap(body: List[c.universe.Tree]): Map[DefType, List[(DefType, c.universe.Tree)]] = {
       body.flatMap { it =>
@@ -749,12 +821,10 @@ object ModelMacro { macro =>
           val defdefList = allDefs.getOrElse(DEFDEF, Nil).map(_._2)
           val importdefList = allDefs.getOrElse(IMPORTDEF, Nil).map(_._2)
           val otherdefList = allDefs.getOrElse(OTHERDEF, Nil).map(_._2)
-          val enumMapperList = allDefs.get(ENUMDEF).map(_.map { it =>
-            val ModuleDef(_, name, _) = it._2
-            mkEnumMapper(name.decoded)
-          }) getOrElse (Nil)
+          val enumMapperList = (allDefs.get(ENUMDEF).map(_.map { it =>
+            mkEnumMapper(it._2)
+          }) getOrElse (Nil))
           val embedDefList = allDefs.getOrElse(EMBEDDEF, Nil).map(_._2)
-
           val extraImports = List(
             Import(Select(Select(Select(Ident(newTermName("scala")), newTermName("slick")), newTermName("util")), newTermName("TupleMethods")), List(ImportSelector(nme.WILDCARD, -1, null, -1))),
             Import(Select(Select(Ident(newTermName("scala")), newTermName("slick")), newTermName("jdbc")), List(ImportSelector(newTermName("JdbcBackend"), -1, newTermName("JdbcBackend"), -1))),
@@ -768,6 +838,10 @@ object ModelMacro { macro =>
       }
     }
     println(result)
+    val pw = new java.io.PrintWriter(new java.io.File("./slick-macros.log"))
+    pw.write(result.toString)
+    pw.close
+
     c.Expr[Any](result)
   }
   /*
