@@ -6,7 +6,7 @@ object BuildSettings {
     organization := "com.ebiznext.slickmacros",
     version := "0.0.1-SNAPSHOT",
     scalacOptions ++= Seq(),
-//    scalacOptions ++= Seq("-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
+    //scalacOptions ++= Seq("-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
     scalaVersion := "2.10.3",
     resolvers += Resolver.sonatypeRepo("snapshots"),
     addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise_2.10.3-RC3" % "2.0.0-SNAPSHOT")
@@ -60,7 +60,7 @@ object TheBuild extends Build {
   </developers>
 ),
       libraryDependencies ++= Seq(
-	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
+	 "com.typesafe.slick" %% "slick" % "2.0.0",
 //  "com.typesafe.slick" %% "slick" % "1.0.1",
 // "postgresql" % "postgresql" % "9.1-901.jdbc4",
  "joda-time" % "joda-time" % "2.3",
@@ -86,7 +86,7 @@ object TheBuild extends Build {
     settings = buildSettings ++ Seq(
 //    scalacOptions ++= Seq(	"-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
     	libraryDependencies ++= Seq(
-	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
+	 "com.typesafe.slick" %% "slick" % "2.0.0",
 //		 "com.typesafe.slick" %% "slick" % "1.0.1",
 		 "postgresql" % "postgresql" % "9.1-901.jdbc4")
 	  )) dependsOn(macros)
@@ -97,7 +97,7 @@ object TheBuild extends Build {
     settings = buildSettings ++ Seq(
 //    scalacOptions ++= Seq("-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
 	libraryDependencies ++= Seq(
-	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
+	 "com.typesafe.slick" %% "slick" % "2.0.0",
 //	 "com.typesafe.slick" %% "slick" % "1.0.1",
 	 "postgresql" % "postgresql" % "9.1-901.jdbc4")
 //	 "com.ebiznext.slickmacros" %% "database" % "0.0.1-SNAPSHOT")

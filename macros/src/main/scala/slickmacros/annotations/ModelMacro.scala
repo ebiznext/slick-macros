@@ -28,7 +28,7 @@ class Col(name: String = null, tpe: String = null, index: Boolean = false, uniqu
 trait Timestamps
 trait Part
 
-object ModelMacro { macro =>
+object ModelMacro { //macro =>
 
   object FieldIndex extends Enumeration {
     type FieldIndex = Value
@@ -538,7 +538,7 @@ object ModelMacro { macro =>
     def assocTableName(table1: String, table2: String) = s"${table1}2${table2}"
 
     /**
-     * create the field1 ~��field2 ~ ... ~ fieldN string from case class column
+     * create the field1 ~ field2 ~ ... ~ fieldN string from case class column
      * does not handle correctly case classes with a single column (adding a dummy field would probably help)
      */
     def mkTilde(fields: List[FldDesc]): String = {
@@ -777,7 +777,7 @@ object ModelMacro { macro =>
             Template(
               AppliedTypeTree(Ident(newTypeName("Table")), Ident(newTypeName(desc.name)) :: Nil) :: Nil,
               emptyValDef,
-              if (augment) ctor :: idCol :: times :: forInsert :: desc.dateDefs ++ defdefs ++ indexdefs ++ foreignKeys else ctor :: times :: indexdefs ++ defdefs ++ foreignKeys))
+              if (augment)  ctor :: idCol :: times :: forInsert :: desc.dateDefs ++ defdefs ++ indexdefs ++ foreignKeys else ctor :: times :: indexdefs ++ defdefs ++ foreignKeys))
         List(mkCaseClass(desc, augment), tableDef) ++ mkCompanion(desc) ++ assocTables
       }
     }
@@ -789,7 +789,7 @@ object ModelMacro { macro =>
       if (desc.assoc)
         query :: Nil
       else
-        query :: crudType :: crudObject :: Nil
+        query :: /*crudType :: crudObject ::*/ Nil
     }
     def defMap(body: List[c.universe.Tree]): Map[DefType, List[(DefType, c.universe.Tree)]] = {
       body.flatMap { it =>

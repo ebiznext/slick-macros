@@ -9,7 +9,9 @@ import scala.slick.lifted.ForeignKeyAction._
 //import scala.slick.driver.JdbcDriver.simple._
 import slickmacros.dao.Crud._
 
-@Model object XDb extends Timestamps {
+
+
+@Model object XDb  {
   object UserRights extends Enumeration {
     type UserRights = Value
     val ADMIN = Value("ADMIN")

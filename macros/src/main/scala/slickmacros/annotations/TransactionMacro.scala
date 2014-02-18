@@ -59,7 +59,8 @@ object TransactionMacro {
   def implNewSession(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     impl(c, "withDynSession")(annottees: _*)
   }
-  
+
+
   def impl(c: Context, sessionType: String)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
     import Flag._
@@ -88,7 +89,7 @@ object TransactionMacro {
 
           val newvparams = implictParam._2 map (vparamss ++ _) getOrElse (vparamss)
 
-          val defdef = q"""$mods def $name[..$tparams](...$newvparams): $tpt = { 
+          val defdef = q"""$mods def $name[..$tparams](...$newvparams): $tpt = {
 		    val _db =
 		      if ($implicitValName.jndiName ne null)
 		        Database.forName($implicitValName.jndiName)

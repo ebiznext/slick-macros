@@ -20,8 +20,6 @@
     </eOperations>
     <eOperations name="loadMembers" eType="//Query[MemberTable,Member]"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="loadCompany" lowerBound="1" eType="//Company"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated " eType="//Timestamp"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated " eType="//Timestamp"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="companyId ">
       <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
     </eStructuralFeatures>
@@ -36,8 +34,6 @@
   <eClassifiers xsi:type="ecore:EClass" name="Member">
     <eStructuralFeatures xsi:type="ecore:EReference" name="loadManager" eType="//Member"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="loadCompany" lowerBound="1" eType="//Company"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated " eType="//Timestamp"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated " eType="//Timestamp"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="managerId " eType="//Option[Long]"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="companyId ">
       <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
@@ -64,8 +60,6 @@
     </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Company">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated " eType="//Timestamp"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated " eType="//Timestamp"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="website ">
       <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eStructuralFeatures>
@@ -90,7 +84,7 @@
     </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ProjectTable">
-    <eOperations name="forInsert" eType="//MappedProjection[Project,Tuple4]"/>
+    <eOperations name="forInsert" eType="//MappedProjection[Project,Tuple2]"/>
     <eOperations name="*" eType="//ProvenShape"/>
     <eOperations name="TableElementType" eType="//T"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="company" eType="//CompanyTable"/>
@@ -100,15 +94,13 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name">
       <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated" eType="//Timestamp"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated" eType="//Timestamp"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="id">
       <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
     </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="MemberTable">
     <eOperations name="loginIndex" eType="//Index"/>
-    <eOperations name="forInsert" eType="//MappedProjection[Member,Tuple7]"/>
+    <eOperations name="forInsert" eType="//MappedProjection[Member,Tuple5]"/>
     <eOperations name="*" eType="//ProvenShape"/>
     <eOperations name="TableElementType" eType="//T"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="manager" eType="//MemberTable"/>
@@ -130,14 +122,12 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="login">
       <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated" eType="//Timestamp"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated" eType="//Timestamp"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="id">
       <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
     </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CompanyTable">
-    <eOperations name="forInsert" eType="//MappedProjection[Company,Tuple4]"/>
+    <eOperations name="forInsert" eType="//MappedProjection[Company,Tuple2]"/>
     <eOperations name="*" eType="//ProvenShape"/>
     <eOperations name="TableElementType" eType="//T"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="website">
@@ -146,23 +136,20 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name">
       <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastUpdated" eType="//Timestamp"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateCreated" eType="//Timestamp"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="id">
       <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
     </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="SessionDef"/>
   <eClassifiers xsi:type="ecore:EClass" name="Query[MemberTable,Member]"/>
-  <eClassifiers xsi:type="ecore:EClass" name="Timestamp"/>
   <eClassifiers xsi:type="ecore:EClass" name="Option[Long]"/>
   <eClassifiers xsi:type="ecore:EClass" name="UserRights"/>
   <eClassifiers xsi:type="ecore:EClass" name="ProvenShape"/>
   <eClassifiers xsi:type="ecore:EClass" name="T"/>
-  <eClassifiers xsi:type="ecore:EClass" name="MappedProjection[Project,Tuple4]"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MappedProjection[Project,Tuple2]"/>
   <eClassifiers xsi:type="ecore:EClass" name="Index"/>
   <eClassifiers xsi:type="ecore:EClass" name="Option"/>
   <eClassifiers xsi:type="ecore:EClass" name="Value"/>
-  <eClassifiers xsi:type="ecore:EClass" name="MappedProjection[Member,Tuple7]"/>
-  <eClassifiers xsi:type="ecore:EClass" name="MappedProjection[Company,Tuple4]"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MappedProjection[Member,Tuple5]"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MappedProjection[Company,Tuple2]"/>
 </ecore:EPackage>
