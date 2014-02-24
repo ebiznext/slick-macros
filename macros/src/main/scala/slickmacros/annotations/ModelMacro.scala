@@ -733,7 +733,7 @@ object ModelMacro { //macro =>
         val foreignKeys = desc.foreignKeys.map { it =>
           val cls = caseDefs.find(it.typeName == _.name).getOrElse(throw new Exception(s"Invalid foreign class ${it.name}:${it.typeName}"))
           //val fkAction = if (colInfo.isDefined && colInfo.get.onDelete != null) colInfo.get.onDelete else "ForeignKeyAction.NoAction"
-          c.parse(s"""def ${it.name} = foreignKey("${desc.name.toLowerCase}2${it.typeName.toLowerCase}", ${colIdName(it.name)}, ${objectName(it.typeName)})(_.id, ${it.onUpdateAction}, ${it.onDeleteAction}) """) // onDelete
+          c.parse(s"""def ${it.name} = foreignKey("${it.name.toLowerCase}_${desc.name.toLowerCase}2${it.typeName.toLowerCase}", ${colIdName(it.name)}, ${objectName(it.typeName)})(_.id, ${it.onUpdateAction}, ${it.onDeleteAction}) """) // onDelete
         }
         val assocs = desc.assocs.map { it =>
           new ClsDesc(assocTableName(desc.name, it.typeName), Set(ENTITYDEF),
