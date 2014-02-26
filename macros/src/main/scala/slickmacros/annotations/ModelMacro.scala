@@ -3,9 +3,7 @@ package slickmacros.annotations
 import scala.reflect.macros.Context
 import scala.annotation.StaticAnnotation
 import scala.language.existentials
-import scala.slick.jdbc.{StaticQuery => Q}
 import language.experimental.macros
-import scala.slick.driver.JdbcDriver.simple._
 import scala.slick.lifted._
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Set
@@ -78,14 +76,6 @@ object ModelMacro {
   implicit def tuple21ToOps(x: (Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any)): FieldOps = null
 
   implicit def tuple22ToOps(x: (Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any)): FieldOps = null
-
-  implicit val DateTimeTypeMapper =
-    MappedColumnType.base[org.joda.time.DateTime, java.sql.Timestamp](
-    {
-      dt => new java.sql.Timestamp(dt.getMillis)
-    }, {
-      ts => new org.joda.time.DateTime(ts.getTime)
-    })
 
   /*
     implicit val ClobTypeMapper =
@@ -174,10 +164,10 @@ object ModelMacro {
     def idVal(tpeName: TypeName) = q"$caseparam val id:Option[$tpeName]"
     def idValInCtor(tpeName: TypeName) = q"$paramparam val id:Option[$tpeName]"
 
-//    def dateVal(name: String) = ValDef(Modifiers(mutable | caseAccessor | paramAccessor), newTermName(name), optionalDate, EmptyTree)
-    def dateVal(name: String) = ValDef(Modifiers(mutable | caseAccessor | paramAccessor  | paramDefault), newTermName(name), optionalDate, Literal(Constant(null)))
+    //    def dateVal(name: String) = ValDef(Modifiers(mutable | caseAccessor | paramAccessor), newTermName(name), optionalDate, EmptyTree)
+    def dateVal(name: String) = ValDef(Modifiers(mutable | caseAccessor | paramAccessor | paramDefault), newTermName(name), optionalDate, Literal(Constant(null)))
     //def dateVal(name: String) = q"var ${newTermName(name)} : org.joda.time.DateTime = null"
-//    def dateValInCtor(name: String) = ValDef(Modifiers(param | paramAccessor | paramDefault), newTermName(name), optionalDate, Literal(Constant(null))) // Ident(newTermName("None")))
+    //    def dateValInCtor(name: String) = ValDef(Modifiers(param | paramAccessor | paramDefault), newTermName(name), optionalDate, Literal(Constant(null))) // Ident(newTermName("None")))
 
     class ClsDesc(val name: String, val flags: Set[ClassFlag], val fields: ListBuffer[FldDesc], val tree: Tree, var plural: String) {
       def parseBody(allClasses: List[ClsDesc]) {
@@ -831,19 +821,17 @@ object ModelMacro {
             Template(
               AppliedTypeTree(Ident(newTypeName("Table")), Ident(newTypeName(desc.name)) :: Nil) :: Nil,
               emptyValDef,
-              if (augment)  idCol :: times :: forInsert :: desc.dateDefs ++ defdefs ++ indexdefs ++ foreignKeys else times :: indexdefs ++ defdefs ++ foreignKeys))
+              if (augment) idCol :: times :: forInsert :: desc.dateDefs ++ defdefs ++ indexdefs ++ foreignKeys else times :: indexdefs ++ defdefs ++ foreignKeys))
         List(mkCaseClass(desc, augment), tableDef) ++ mkCompanion(desc) ++ assocTables
       }
     }
     def mkCompanion(desc: ClsDesc)(implicit caseDefs: List[ClsDesc]) = {
-      val query = c.parse(s"val ${newTermName(objectName(desc.name))} = TableQuery[${newTypeName(tableName(desc.name))}]")
-      val crud = if (desc.timestamps) "CrudEx" else "Crud"
-      val crudType = c.parse(s"type ${desc.name}Crud = $crud[${desc.name}, ${desc.name}Table]")
-      val crudObject = c.parse(s"val ${decapitalize(desc.name)}Crud = new ${desc.name}Crud(${newTermName(objectName(desc.name))})")
-      if (desc.assoc)
-        query :: Nil
-      else
-        query :: /*crudType :: crudObject ::*/ Nil
+      //      val xx = new TableQuery(tag => new CompanyTable(tag)) with CrudEx[Company, CompanyTable]
+      val ex = if (desc.timestamps) "Ex" else ""
+      val crud = if (!desc.assoc) s"with Crud$ex[${desc.name}, ${tableName(desc.name)}]" else ""
+
+      val query = c.parse(s"val ${newTermName(objectName(desc.name))} = new TableQuery(tag => new ${newTypeName(tableName(desc.name))}(tag)) $crud")
+      query :: Nil
     }
     def defMap(body: List[c.universe.Tree]): Map[DefType, List[(DefType, c.universe.Tree)]] = {
       body.flatMap {
