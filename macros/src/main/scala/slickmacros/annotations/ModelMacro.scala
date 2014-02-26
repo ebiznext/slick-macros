@@ -867,15 +867,8 @@ object ModelMacro {
     val result = {
       annottees.map(_.tree).toList match {
         case ModuleDef(mod, moduleName, Template(parents, emptyValDef, body)) :: Nil =>
-          println("*******************")
-          println("*******************")
-          println("*******************")
-          println("*******************")
-          println("*******************")
-          println("*******************")
           val ann = ScalaAnnotation(c.prefix.tree)
           val driverName = ann.field(0)
-          println("*******************")
           val timestampsAll = c.prefix.tree.toString.contains("true") || parents.exists(_.toString.contains("Timestamps")) // Q&D
         val allDefs = defMap(body)
           implicit val caseDefs = allDefs.getOrElse(CLASSDEF, Nil).map(it => ClsDesc(it._2, timestampsAll))

@@ -8,8 +8,8 @@ object BuildSettings {
     scalacOptions ++= Seq(),
     //scalacOptions ++= Seq("-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
     scalaVersion := "2.10.3",
-    resolvers += Resolver.sonatypeRepo("snapshots"),
-    addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise_2.10.3-RC3" % "2.0.0-SNAPSHOT")
+    resolvers += Resolver.sonatypeRepo("releases"),
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0-M3" cross CrossVersion.full)
   )
 }
 
@@ -63,10 +63,11 @@ object TheBuild extends Build {
 	 "com.typesafe.slick" %% "slick" % "2.0.0",
 //  "com.typesafe.slick" %% "slick" % "1.0.1",
 // "postgresql" % "postgresql" % "9.1-901.jdbc4",
+  "org.scalamacros" % "quasiquotes" % "2.0.0-M3" cross CrossVersion.full,
  "joda-time" % "joda-time" % "2.3",
  "org.joda" % "joda-convert" % "1.2",
- "org.scala-lang" % "scala-compiler" % "2.10.2",
- "org.scala-lang" % "scala-reflect" % "2.10.2")
+ "org.scala-lang" % "scala-compiler" % "2.10.3",
+ "org.scala-lang" % "scala-reflect" % "2.10.3")
   ))
 
   lazy val emfexport: Project = Project(
