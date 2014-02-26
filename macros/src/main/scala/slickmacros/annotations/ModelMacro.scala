@@ -8,7 +8,7 @@ import scala.slick.lifted._
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Set
 
-class Model(timestamps: Boolean = false) extends StaticAnnotation {
+class Model(driver: String = "PostgresDriver", timestamps: Boolean = false) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro ModelMacro.impl
 }
 
@@ -150,6 +150,16 @@ object ModelMacro {
     import c.universe._
     import Flag._
 
+    lazy val mapDateTime = c.parse( """
+            implicit val DateTimeTypeMapper =
+              MappedColumnType.base[org.joda.time.DateTime, java.sql.Timestamp](
+              {
+                dt => new java.sql.Timestamp(dt.getMillis)
+              }, {
+                ts => new org.joda.time.DateTime(ts.getTime)
+              })
+                                    """)
+
     val reservedNames = List("id", "dateCreated", "lastUpdated")
     val caseAccessor = scala.reflect.internal.Flags.CASEACCESSOR.asInstanceOf[Long].asInstanceOf[FlagSet]
     val paramAccessor = scala.reflect.internal.Flags.PARAMACCESSOR.asInstanceOf[Long].asInstanceOf[FlagSet]
@@ -281,7 +291,15 @@ object ModelMacro {
 
       def onUpdateAction = s"scala.slick.lifted.ForeignKeyAction.$onUpdate"
     }
-    class ScalaAnnotation(val name: String, fields: List[(String, String)])
+
+    case class ScalaAnnotation(val name: String, val fields: Array[String]) {
+      def field(i:Int): String = {
+        if (fields.size <= i)
+          c.abort(c.enclosingPosition, s"field at position $i is required in annotation $name")
+        val res = fields(i)
+        if (res.startsWith(""""""")) res.substring(1, res.length-1) else res
+      }
+    }
     object ScalaAnnotation {
       def apply(expr: Tree) = {
         val sexpr = expr.toString
@@ -289,13 +307,14 @@ object ModelMacro {
           c.abort(c.enclosingPosition, s"Invalid annotation $sexpr")
         else {
           val name = sexpr.substring("new ".length, sexpr.indexOf('('))
-          val params = sexpr.substring(sexpr.indexOf('('), sexpr.lastIndexOf(')')).split(',').map {
-            x =>
-
+          val params = sexpr.substring(sexpr.indexOf('(')+1, sexpr.lastIndexOf(')')).split(',').map {
+            case it if (it.contains("=")) =>
+              c.abort(c.enclosingPosition, s"Named parameters not uspported on  Slick-macros Annotations")
+            case other =>
+              other.toString
           }
-
+          new ScalaAnnotation(name, params)
         }
-        new ScalaAnnotation("", List())
       }
     }
     object FldDesc {
@@ -848,7 +867,15 @@ object ModelMacro {
     val result = {
       annottees.map(_.tree).toList match {
         case ModuleDef(mod, moduleName, Template(parents, emptyValDef, body)) :: Nil =>
-          val annotations = mod.annotations.map(_.children.head.toString)
+          println("*******************")
+          println("*******************")
+          println("*******************")
+          println("*******************")
+          println("*******************")
+          println("*******************")
+          val ann = ScalaAnnotation(c.prefix.tree)
+          val driverName = ann.field(0)
+          println("*******************")
           val timestampsAll = c.prefix.tree.toString.contains("true") || parents.exists(_.toString.contains("Timestamps")) // Q&D
         val allDefs = defMap(body)
           implicit val caseDefs = allDefs.getOrElse(CLASSDEF, Nil).map(it => ClsDesc(it._2, timestampsAll))
@@ -873,9 +900,10 @@ object ModelMacro {
           val extraImports = List(
             Import(Select(Select(Select(Ident(newTermName("scala")), newTermName("slick")), newTermName("util")), newTermName("TupleMethods")), List(ImportSelector(nme.WILDCARD, -1, null, -1))),
             Import(Select(Select(Ident(newTermName("scala")), newTermName("slick")), newTermName("jdbc")), List(ImportSelector(newTermName("JdbcBackend"), -1, newTermName("JdbcBackend"), -1))),
+            Import(Select(Select(Select(Select(Ident(newTermName("scala")), newTermName("slick")), newTermName("driver")), newTermName(driverName)), newTermName("simple")), List(ImportSelector(nme.WILDCARD, 245, null, -1))),
             Import(Select(Select(Ident(newTermName("slickmacros")), newTermName("dao")), newTermName("Crud")), List(ImportSelector(nme.WILDCARD, 90, null, -1))),
             Import(Select(Ident(newTermName("slickmacros")), newTermName("Implicits")), List(ImportSelector(nme.WILDCARD, 121, null, -1))))
-          val objectDefs = enumDefList ++ extraImports ++ importdefList ++ enumMapperList ++ embedDefList ++ tableDefList /* ++ defdefList*/
+          val objectDefs = extraImports ++ List(mapDateTime) ++ enumDefList ++ importdefList ++ enumMapperList ++ embedDefList ++ tableDefList /* ++ defdefList*/
           ModuleDef(mod, moduleName, Template(parents, ValDef(Modifiers(PRIVATE), newTermName("self"), TypeTree(), EmptyTree), objectDefs))
           q"""object $moduleName extends ..$parents { self => ..$objectDefs }
           """
