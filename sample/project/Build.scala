@@ -8,8 +8,8 @@ object BuildSettings {
     scalacOptions ++= Seq(),
     //    scalacOptions ++= Seq("-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
     scalaVersion := "2.10.3",
-    resolvers += Resolver.sonatypeRepo("snapshots"),
-    addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise_2.10.3-RC3" % "2.0.0-SNAPSHOT")
+    resolvers += Resolver.sonatypeRepo("releases"),
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0-M3" cross CrossVersion.full)
     )
 }
 
@@ -21,7 +21,7 @@ object SampleBuild extends Build {
     file("."),
     settings = buildSettings ++ Seq(
 	libraryDependencies ++= Seq(
-	 "com.typesafe.slick" %% "slick" % "2.0.0-M2",
+	 "com.typesafe.slick" %% "slick" % "2.0.0",
 	 "postgresql" % "postgresql" % "9.1-901.jdbc4",
 	"com.ebiznext.slickmacros" %% "emfexport" % "0.0.1-SNAPSHOT",
 	"com.ebiznext.slickmacros" %% "slickmacros" % "0.0.1-SNAPSHOT",

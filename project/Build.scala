@@ -86,9 +86,8 @@ object TheBuild extends Build {
     settings = buildSettings ++ Seq(
 //    scalacOptions ++= Seq(	"-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
     	libraryDependencies ++= Seq(
-	 "com.typesafe.slick" %% "slick" % "2.0.0",
-//		 "com.typesafe.slick" %% "slick" % "1.0.1",
-		 "postgresql" % "postgresql" % "9.1-901.jdbc4")
+	"com.typesafe.slick" %% "slick" % "2.0.0",
+	"postgresql" % "postgresql" % "9.1-901.jdbc4")
 	  )) dependsOn(macros)
 
   lazy val sample: Project = Project(

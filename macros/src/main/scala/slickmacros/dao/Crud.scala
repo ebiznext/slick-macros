@@ -16,36 +16,36 @@ import scala.slick.profile._
 import org.joda.time.DateTime
 
 object Crud {
-
-  type TableEx[C] = {
-    def id: Column[Long]
-    def forInsert: MappedProjection[C, _]
-  }
-
-  type RowId = {
-    def id: Option[Long]
-  }
-
-  type RowIdEx = {
-    def id: Option[Long]
-    var dateCreated: org.joda.time.DateTime
-    var lastUpdated: org.joda.time.DateTime
-  }
-
-  trait RowInterceptor[T] {
-    def beforeUpdate(obj: T) {}
-    def afterUpdate(obj: T) {}
-    def beforeInsert(obj: T) {}
-    def afterInsert(obj: T) {}
-    def beforeDelete(obj: Long) {}
-    def afterDelete(obj: Long) {}
-  }
-
+//
+//  type TableEx[C] = {
+//    def id: Column[Long]
+//    def forInsert: MappedProjection[C, _]
+//  }
+//
+//  type RowId = {
+//    def id: Option[Long]
+//  }
+//
+//  type RowIdEx = {
+//    def id: Option[Long]
+//    var dateCreated: org.joda.time.DateTime
+//    var lastUpdated: org.joda.time.DateTime
+//  }
+//
+//  trait RowInterceptor[T] {
+//    def beforeUpdate(obj: T) {}
+//    def afterUpdate(obj: T) {}
+//    def beforeInsert(obj: T) {}
+//    def afterInsert(obj: T) {}
+//    def beforeDelete(obj: Long) {}
+//    def afterDelete(obj: Long) {}
+//  }
+//
 //  object RowInterceptor {  }
 //
-//  class Crud[C <: RowId, +T <: RelationalTableComponent#Table[C] with TableEx[C]](val query: TableQuery[T, T#TableElementType]) {
+//  class Crud[C <: RowId, +T <: RelationalTableComponent#Table[C] with TableEx[C]](val query: TableQuery[T]) {
 //
-//    def del(objId: Long)(implicit session: JdbcBackend#SessionDef, ev: RowInterceptor[C]) = {
+//    def del(objId: Long)(implicit session: JdbcBackend#SessionDef, ev: RowInterceptor[C], query: TableQuery[T]) = {
 //      ev.beforeDelete(objId)
 //      query.where(_.id === objId)
 //      ev.afterDelete(objId)
@@ -67,7 +67,7 @@ object Crud {
 //      res
 //    }
 //  }
-//
+
 //  class CrudEx[C <: RowIdEx, +T <: RelationalTableComponent#Table[C] with TableEx[C]](query: TableQuery[T, T#TableElementType]) extends Crud[C, T](query) {
 //    override def update(obj: C)(implicit session: JdbcBackend#SessionDef, ev: RowInterceptor[C]): Int = {
 //      obj.lastUpdated = DateTime.now
@@ -81,7 +81,7 @@ object Crud {
 //      super.insert(obj)
 //    }
 //  }
-//  implicit def crudToQuery[C <: RowId, T <: RelationalTableComponent#Table[C] with TableEx[C]](crud: Crud[C, T]): TableQuery[T, T#TableElementType] = crud.query
+//  implicit def crudToQuery[C <: RowId, T <: RelationalTableComponent#Table[C] with TableEx[C]](crud: Crud[C, T]): TableQuery[T] = crud.query
 
 }
 

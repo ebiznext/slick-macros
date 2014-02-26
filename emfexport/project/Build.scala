@@ -7,8 +7,7 @@ object BuildSettings {
     version := "0.0.1-SNAPSHOT",
     scalacOptions ++= Seq(),
     //    scalacOptions ++= Seq("-Yshow-trees-stringified", "-Yshow-trees-compact", "-Xprint:parser",  "-Ystop-after:parser"),
-    scalaVersion := "2.10.3",
-    resolvers += Resolver.sonatypeRepo("snapshots"))
+    scalaVersion := "2.10.3")
 }
 
 object EmfBuild extends Build {

@@ -5,13 +5,14 @@ import slickmacros.annotations.ModelMacro._
 import slickmacros.annotations.ModelMacro.FieldIndex._
 import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.lifted.ForeignKeyAction
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction.Cascade
+
 //import scala.slick.driver.JdbcDriver.simple._
-import slickmacros.dao.Crud._
 
 
 
-@Model object XDb  {
+@Model
+object XDb  extends Timestamps {
   object UserRights extends Enumeration {
     type UserRights = Value
     val ADMIN = Value("ADMIN")
@@ -28,21 +29,5 @@ import slickmacros.dao.Crud._
     }
   }
   case class Project(name: String, company: Company, members: List[Member])
-
-  /*  object Company {
-    lazy val query = TableQuery[CompanyTable]
-    def apply() = query
-  }
-
-  object Member {
-    lazy val query = TableQuery[MemberTable]
-    def apply() = query
-  }
-
-  object Project {
-    lazy val query = TableQuery[ProjectTable]
-    def apply() = query
-  }
-*/
 }
 
