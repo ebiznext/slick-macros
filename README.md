@@ -1,3 +1,3 @@
 Documentation is available in the [wiki](https://github.com/ebiznext/slick-macros/wiki) section
 
-Currently updating macros to conform to Slick 2.0 release
+Updated to work with Slick 2.0. Documentation needs to be updated. Please look at the sample in the meantime
