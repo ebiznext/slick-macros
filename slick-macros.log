@@ -84,8 +84,8 @@ object XDb extends scala.AnyRef { self =>
     def companyId = column[Long]("company_id");
     def managerId = column[Option[Long]]("manager_id");
     def loginIndex = index("idx_member_login", login, true);
-    def company = foreignKey("member2company", companyId, companies)(((x$1) => x$1.id), scala.slick.lifted.ForeignKeyAction.NoAction, scala.slick.lifted.ForeignKeyAction.NoAction);
-    def manager = foreignKey("member2member", managerId, members)(((x$1) => x$1.id), scala.slick.lifted.ForeignKeyAction.NoAction, scala.slick.lifted.ForeignKeyAction.Cascade)
+    def company = foreignKey("company_member2company", companyId, companies)(((x$1) => x$1.id), scala.slick.lifted.ForeignKeyAction.NoAction, scala.slick.lifted.ForeignKeyAction.NoAction);
+    def manager = foreignKey("manager_member2member", managerId, members)(((x$1) => x$1.id), scala.slick.lifted.ForeignKeyAction.NoAction, scala.slick.lifted.ForeignKeyAction.Cascade)
   };
   val members = TableQuery[MemberTable];
   case class Project extends scala.Product with scala.Serializable {
@@ -115,7 +115,7 @@ object XDb extends scala.AnyRef { self =>
     }, ((x: Project) => Some(scala.Tuple2(x.name, x.companyId))));
     def name = column[String]("name");
     def companyId = column[Long]("company_id");
-    def company = foreignKey("project2company", companyId, companies)(((x$1) => x$1.id), scala.slick.lifted.ForeignKeyAction.NoAction, scala.slick.lifted.ForeignKeyAction.NoAction)
+    def company = foreignKey("company_project2company", companyId, companies)(((x$1) => x$1.id), scala.slick.lifted.ForeignKeyAction.NoAction, scala.slick.lifted.ForeignKeyAction.NoAction)
   };
   val projects = TableQuery[ProjectTable];
   case class Project2Member extends scala.Product with scala.Serializable {
@@ -138,8 +138,8 @@ object XDb extends scala.AnyRef { self =>
     }, ((x: Project2Member) => Some(scala.Tuple2(x.projectId, x.memberId))));
     def projectId = column[Long]("project_id");
     def memberId = column[Long]("member_id");
-    def project = foreignKey("project2member2project", projectId, projects)(((x$1) => x$1.id), scala.slick.lifted.ForeignKeyAction.NoAction, scala.slick.lifted.ForeignKeyAction.NoAction);
-    def member = foreignKey("project2member2member", memberId, members)(((x$1) => x$1.id), scala.slick.lifted.ForeignKeyAction.NoAction, scala.slick.lifted.ForeignKeyAction.NoAction)
+    def project = foreignKey("project_project2member2project", projectId, projects)(((x$1) => x$1.id), scala.slick.lifted.ForeignKeyAction.NoAction, scala.slick.lifted.ForeignKeyAction.NoAction);
+    def member = foreignKey("member_project2member2member", memberId, members)(((x$1) => x$1.id), scala.slick.lifted.ForeignKeyAction.NoAction, scala.slick.lifted.ForeignKeyAction.NoAction)
   };
   val project2Members = TableQuery[Project2MemberTable];
   def <init>() = {
