@@ -5,13 +5,14 @@ import scala.slick.driver.PostgresDriver.simple._
 
 
 object Services {
+  implicit val dbConnectionInfo = DbConnectionInfos(url = "jdbc:postgresql:SampleApp", user = "postgres", password = "e-z12B24", driverClassName = "org.postgresql.Driver")
 
 
   val ddls = companies.ddl ++ members.ddl ++ projects.ddl ++ project2Members.ddl
   val stmts = ddls.createStatements ++ ddls.dropStatements
   stmts.foreach(println)
 
-  @DBSession def populate()(implicit ev: DbConnectionInfos) {
+  @DBSession def populate(i:Int, c:Company) {
     val csize = companies.list.size
     val id = companies.insert(Company(None, "test", "test"))
     val comp = companies.byId(id)

@@ -4,8 +4,7 @@ import slickemf.export._
 
 
 object SampleApp extends App {
-  implicit val dbConnectionInfo = DbConnectionInfos(url = "jdbc:postgresql:SampleApp", user = "postgres", password = "e-z12B24", driverClassName = "org.postgresql.Driver")
-  Services.populate
+  Services.populate(0, null)
   //queryDB
   val descs = new ObjectRef(model.XDb).reflect
   new Export().export2EMF(descs, "database/slickemf.ecore")
