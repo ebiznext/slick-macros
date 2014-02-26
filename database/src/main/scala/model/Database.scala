@@ -4,12 +4,17 @@ import slickmacros.annotations._
 import slickmacros.annotations.ModelMacro._
 import slickmacros.annotations.ModelMacro.FieldIndex._
 import scala.slick.driver.PostgresDriver.simple._
-import scala.slick.lifted.ForeignKeyAction
 import scala.slick.model.ForeignKeyAction.Cascade
 
-//import scala.slick.driver.JdbcDriver.simple._
-
-
+object Implicits {
+  implicit val DateTimeTypeMapper =
+    MappedColumnType.base[org.joda.time.DateTime, java.sql.Timestamp](
+    {
+      dt => new java.sql.Timestamp(dt.getMillis)
+    }, {
+      ts => new org.joda.time.DateTime(ts.getTime)
+    })
+}
 
 @Model
 object XDb  extends Timestamps {
@@ -19,6 +24,7 @@ object XDb  extends Timestamps {
     val GUEST = Value("GUEST")
   }
   import UserRights._
+  import Implicits._
 
   case class Company(name: String, website: String)
   case class Address(num: Int, road: String, zip: String) extends Part
