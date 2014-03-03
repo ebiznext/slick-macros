@@ -293,13 +293,14 @@ object ModelMacro {
     }
 
     case class ScalaAnnotation(val name: String, val fields: Array[String]) {
-      def field(i:Int): String = {
+      def field(i: Int): String = {
         if (fields.size <= i)
           c.abort(c.enclosingPosition, s"field at position $i is required in annotation $name")
         val res = fields(i)
-        if (res.startsWith(""""""")) res.substring(1, res.length-1) else res
+        if (res.startsWith( """"""")) res.substring(1, res.length - 1) else res
       }
     }
+
     object ScalaAnnotation {
       def apply(expr: Tree) = {
         val sexpr = expr.toString
@@ -307,7 +308,7 @@ object ModelMacro {
           c.abort(c.enclosingPosition, s"Invalid annotation $sexpr")
         else {
           val name = sexpr.substring("new ".length, sexpr.indexOf('('))
-          val params = sexpr.substring(sexpr.indexOf('(')+1, sexpr.lastIndexOf(')')).split(',').map {
+          val params = sexpr.substring(sexpr.indexOf('(') + 1, sexpr.lastIndexOf(')')).split(',').map {
             case it if (it.contains("=")) =>
               c.abort(c.enclosingPosition, s"Named parameters not uspported on  Slick-macros Annotations")
             case other =>
@@ -317,6 +318,7 @@ object ModelMacro {
         }
       }
     }
+
     object FldDesc {
       def apply(fieldTree: Tree, clsTree: Tree, allClasses: List[ClsDesc]) = {
         val ValDef(mod, name, tpt, rhs) = fieldTree
@@ -572,17 +574,17 @@ object ModelMacro {
       if (name == null || name.length == 0) {
         name;
       } else {
-        val chars = name.toCharArray();
+        val chars = name.toCharArray()
         var i = 0
         while (i < chars.length && Character.isUpperCase(chars(i))) {
           if (i > 0 && i < chars.length - 1 && Character.isLowerCase(chars(i + 1))) {
 
           } else {
-            chars(i) = Character.toLowerCase(chars(i));
+            chars(i) = Character.toLowerCase(chars(i))
           }
           i = i + 1
         }
-        new String(chars);
+        new String(chars)
       }
     }
 
@@ -590,6 +592,7 @@ object ModelMacro {
       val plur = caseDefs.find(typeName == _.name).map(_.plural).getOrElse(plural(decapitalize(typeName)))
       s"${plur}"
     }
+
     //def objectName(typeName: String) = s"${plural(decapitalize(typeName))}"
     //def objectName(typeName: String) = s"${decapitalize(typeName)}Query"
 
@@ -832,7 +835,7 @@ object ModelMacro {
 
         val vparams = q"""${newTermName("tag")}:${newTypeName("Tag")}""" :: Nil
         val body = if (augment) idCol :: times :: desc.dateDefs ++ defdefs ++ indexdefs ++ foreignKeys else times :: indexdefs ++ defdefs ++ foreignKeys
-        val plur = plural(decapitalize(desc.name))
+        val plur = plural(decapitalize(desc.name)).toLowerCase()
         val tableDef = q"""class ${newTypeName(tableName(desc.name))}(${newTermName("tag")}:${newTypeName("Tag")}) extends Table[${newTypeName(desc.name)}](${newTermName("tag")}, ${Constant(plur)}){ ..$body }"""
         val tableDef2 =
           ClassDef(Modifiers(),
