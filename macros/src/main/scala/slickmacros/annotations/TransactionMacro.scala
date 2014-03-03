@@ -84,7 +84,7 @@ object TransactionMacro {
             it =>
               (it, None)
           } getOrElse {
-            ("_dbOptions", Some(List(q"implicit val _dbOptions:DbConnectionInfos") :: Nil))
+            ("_dbOptions", Some(List(q"implicit val _dbOptions:slickmacros.annotations.DbConnectionInfos") :: Nil))
           }
           val implicitValName = newTermName(implictParam._1)
 
