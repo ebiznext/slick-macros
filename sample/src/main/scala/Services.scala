@@ -5,7 +5,7 @@ import scala.slick.driver.PostgresDriver.simple._
 
 
 object Services {
-  implicit val dbConnectionInfo = DbConnectionInfos(url = "jdbc:postgresql:SampleApp", user = "postgres", password = "e-z12B24", driverClassName = "org.postgresql.Driver")
+  implicit val dbConnectionInfo = DBConnectionInfo(url = "jdbc:h2:mem:smacros", driverClassName = "org.h2.Driver")
 
 
   val ddls = companies.ddl ++ members.ddl ++ projects.ddl ++ project2Members.ddl
