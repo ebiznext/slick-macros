@@ -4,9 +4,7 @@ import slickemf.export._
 
 
 object SampleApp extends App {
-  Services.populate(0, null)
-  //queryDB
+  Services.populate()
   val descs = new ObjectRef(model.XDb).reflect
   new Export().export2EMF(descs, "database/slickemf.ecore")
-
 }

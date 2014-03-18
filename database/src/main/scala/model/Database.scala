@@ -5,9 +5,8 @@ import slickmacros.annotations.ModelMacro._
 import slickmacros.annotations.ModelMacro.FieldIndex._
 import scala.slick.model.ForeignKeyAction.Cascade
 
-
 @Model("PostgresDriver")
-object XDb  extends Timestamps {
+object XDb extends Timestamps {
   object UserRights extends Enumeration {
     type UserRights = Value
     val ADMIN = Value("ADMIN")

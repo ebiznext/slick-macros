@@ -1,39 +1,33 @@
 import model.XDb._
+import scala.util.Try
 import slickmacros.annotations._
 import slickmacros.Implicits._
 import scala.slick.driver.PostgresDriver.simple._
 
-
 object Services {
-  implicit val dbConnectionInfo = DBConnectionInfo(url = "jdbc:h2:mem:smacros", driverClassName = "org.h2.Driver")
-
+  implicit val dbConnectionInfo = DBConnectionInfo(url = "jdbc:postgresql:smacros",
+    user = "smacros",
+    password = "smacros",
+    driverClassName = "org.postgresql.Driver")
 
   val ddls = companies.ddl ++ members.ddl ++ projects.ddl ++ project2Members.ddl
-  val stmts = ddls.createStatements ++ ddls.dropStatements
-  stmts.foreach(println)
 
-  @DBSession def populate(i:Int, c:Company) {
-    val csize = companies.list.size
-    val id = companies.insert(Company(None, "test", "test"))
-    val comp = companies.byId(id)
-    println(comp)
+  @DBSession def populate() {
+    Try(ddls.drop)
+    ddls.create
 
-    if (csize == 0) {
-      val typesafeId = companies returning (companies.map(_.id)) insert (Company(None, "typesafe", "http://www.typesafe.com"))
-      val martinId = members returning (members.map(_.id)) insert (Member(None, "modersky", UserRights.ADMIN, Address(1, "ici", "10001"), typesafeId, None))
-      val szeigerId = members returning (members.map(_.id)) insert (Member(None, "szeiger", UserRights.GUEST, Address(1, "ici", "10001"), typesafeId, Some(martinId)))
-      println(typesafeId + "," + martinId + "," + szeigerId)
-      val slickId = projects.insert(Project(None, "Slick", typesafeId))
-      project2Members.insert(Project2Member(slickId, martinId))
-      val project = projects.where(_.name === "Slick").first
-      project.addMember(szeigerId)
-    }
-    else
-      println(csize)
+    val typesafeId = companies.insert(Company(None, "typesafe", "http://www.typesafe.com"))
+    val martinId = members.insert(Member(None, "modersky", UserRights.ADMIN, Address(1, "ici", "10001"), typesafeId, None))
+    val szeigerId = members.insert(Member(None, "szeiger", UserRights.GUEST, Address(1, "ici", "10001"), typesafeId, Some(martinId)))
+
+    val slickId = projects.insert(Project(None, "Slick", typesafeId))
+    project2Members.insert(Project2Member(slickId, martinId))
+
+    val project = projects.where(_.name === "Slick").first
+    project.addMember(szeigerId)
   }
 
   @DBSession def queryDB() {
-    val query = companies.where(_.id === 1L)
     val mappedQuery = companies.map(row => (row.name, row.website))
     mappedQuery.update(("newCompanyName", "http://newWebSite.com"))
 
@@ -52,12 +46,7 @@ object Services {
     val project = projects.where(_.name === "Slick").first
 
     //val members = project.mymembers.list
-    members.foreach {
-      m =>
-        m.loadManager.map(println)
-    }
+    members.foreach(m => m.loadManager.map(println))
     project.loadMembers.drop(1).take(1).list.foreach(println)
   }
-
-
 }
