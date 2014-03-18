@@ -27,15 +27,14 @@ class DBNewSession extends StaticAnnotation {
 }
 
 
-case class DbConnectionInfos(
-                              jndiName: String = null,
-                              dataSource: DataSource = null,
-                              url: String = null,
-                              user: String = null,
-                              password: String = null,
-                              driverClassName: String = null,
-                              driver: Driver = null,
-                              properties: Properties = null)
+case class DBConnectionInfo(jndiName: String = null,
+                            dataSource: DataSource = null,
+                            url: String = null,
+                            user: String = null,
+                            password: String = null,
+                            driverClassName: String = null,
+                            driver: Driver = null,
+                            properties: Properties = null)
 
 /**
  * Work in progress
@@ -73,7 +72,7 @@ object TransactionMacro {
             it =>
               it match {
                 // "$IMPLICIT ..." did not work here
-                case q"$mods val $name:$tpt = $rhs" :: Nil if mods.hasFlag(implict) && tpt.toString == "DbConnectionInfos" => true
+                case q"$mods val $name:$tpt = $rhs" :: Nil if mods.hasFlag(implict) && tpt.toString == "DBConnectionInfo" => true
                 case _ => false
               }
           } map {
@@ -84,7 +83,7 @@ object TransactionMacro {
             it =>
               (it, None)
           } getOrElse {
-            ("_dbOptions", Some(List(q"implicit val _dbOptions:slickmacros.annotations.DbConnectionInfos") :: Nil))
+            ("_dbOptions", Some(List(q"implicit val _dbOptions:slickmacros.annotations.DBConnectionInfo") :: Nil))
           }
           val implicitValName = newTermName(implictParam._1)
 

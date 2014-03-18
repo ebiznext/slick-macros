@@ -772,7 +772,7 @@ object ModelMacro {
     }
     import ColInfo._
 
-    def caseInfos(body: List[Tree]): Map[ColInfo, List[(ColInfo, (String, Tree))]] = {
+    def caseInfo(body: List[Tree]): Map[ColInfo, List[(ColInfo, (String, Tree))]] = {
       body collect {
         case Apply(Ident(func), List(Ident(field), dbType)) if func.decoded == "dbType" => (DBTYPE, (field.decoded, dbType))
         case Apply(Ident(func), List(literal)) if func.decoded == "timestamps" => (TIMESTAMPS, (null, literal))
