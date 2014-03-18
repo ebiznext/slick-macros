@@ -19,11 +19,11 @@ object SampleBuild extends Build {
     "sample",
     file("."),
     settings = buildSettings ++ Seq(
-	libraryDependencies ++= Seq(
-	 "com.typesafe.slick" %% "slick" % "2.0.0",
-	 "postgresql" % "postgresql" % "9.1-901.jdbc4",
-	"com.ebiznext.slickmacros" %% "emfexport" % "0.0.1-SNAPSHOT",
-	"com.ebiznext.slickmacros" %% "slickmacros" % "0.0.1-SNAPSHOT",
-	 "com.ebiznext.slickmacros" %% "database" % "0.0.1-SNAPSHOT")))	  
+      libraryDependencies ++= Seq(
+        "com.typesafe.slick" %% "slick" % "2.0.0",
+        "postgresql" % "postgresql" % "9.1-901.jdbc4",
+        "com.ebiznext.slickmacros"  %% "emfexport"   % "0.0.1-SNAPSHOT",
+        "com.ebiznext.slickmacros"  %% "slickmacros" % "0.0.1-SNAPSHOT",
+        "com.ebiznext.slickmacros"  %% "database"    % "0.0.1-SNAPSHOT")))
 }
 
