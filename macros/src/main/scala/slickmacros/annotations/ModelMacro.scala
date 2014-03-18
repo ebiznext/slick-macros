@@ -877,12 +877,6 @@ object ModelMacro {
           implicit val caseDefs = allDefs.getOrElse(CLASSDEF, Nil).map(it => ClsDesc(it._2, timestampsAll))
           caseDefs.foreach(_.parseBody(caseDefs))
           val tableDefList = caseDefs.flatMap(mkTable(_))
-          println("--> Generated queries :")
-          caseDefs.foreach {
-            x =>
-              println(objectName(x.name))
-          }
-          println("--> End of generated queries.")
 
           val enumDefList = allDefs.getOrElse(ENUMDEF, Nil).map(_._2)
           val defdefList = allDefs.getOrElse(DEFDEF, Nil).map(_._2)
@@ -908,7 +902,6 @@ object ModelMacro {
           c.abort(c.enclosingPosition, s"Only module defs allowed here")
       }
     }
-    println(result)
     val pw = new java.io.PrintWriter(new java.io.File("./slick-macros.log"))
     pw.write(result.toString)
     pw.close

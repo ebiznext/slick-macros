@@ -117,7 +117,6 @@ object TransactionMacro {
         case _ => c.abort(c.enclosingPosition, "Transaction may be attached to a method definition only")
       }
     }
-    println(result)
     c.Expr[Any](result)
   }
 
