@@ -1,0 +1,1054 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns='http://www.w3.org/2005/Atom' xmlns:openSearch='http://a9.com/-/spec/opensearchrss/1.0/'
+      xmlns:gCal='http://schemas.google.com/gCal/2005' xmlns:gd='http://schemas.google.com/g/2005'>
+    <id>http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full</id>
+    <updated>2014-04-23T20:41:49.000Z</updated>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+    <title type='text'>jean-christian.vicari@ebiznext.com</title>
+    <subtitle type='text'>jean-christian.vicari@ebiznext.com</subtitle>
+    <link rel='alternate' type='text/html'
+          href='https://www.google.com/calendar/embed?src=jean-christian.vicari%40ebiznext.com'/>
+    <link rel='http://schemas.google.com/g/2005#feed' type='application/atom+xml'
+          href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full'/>
+    <link rel='http://schemas.google.com/g/2005#batch' type='application/atom+xml'
+          href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/batch'/>
+    <link rel='self' type='application/atom+xml'
+          href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full?max-results=25'/>
+    <link rel='next' type='application/atom+xml'
+          href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full?start-index=26&amp;max-results=25'/>
+    <author>
+        <name>Jean-Christian Vicari</name>
+        <email>jean-christian.vicari@ebiznext.com</email>
+    </author>
+    <generator version='1.0' uri='http://www.google.com/calendar'>Google Calendar</generator>
+    <openSearch:totalResults>383</openSearch:totalResults>
+    <openSearch:startIndex>1</openSearch:startIndex>
+    <openSearch:itemsPerPage>25</openSearch:itemsPerPage>
+    <gCal:timezone value='Europe/Paris'/>
+    <gCal:timesCleaned value='0'/>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/49fqf2qftl0rbj4gbqmg58d20s
+        </id>
+        <published>2014-04-23T15:48:56.000Z</published>
+        <updated>2014-04-23T20:41:49.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>EBIZNEXT / EDEN RED : point sujets stratégiques</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=NDlmcWYycWZ0bDByYmo0Z2JxbWc1OGQyMHMgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/49fqf2qftl0rbj4gbqmg58d20s'/>
+        <author>
+            <name>hayssam.saleh@ebiznext.com</name>
+            <email>hayssam.saleh@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/49fqf2qftl0rbj4gbqmg58d20s/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString='Edenred France S.A.S., Boulevard Gabriel Péri, Malakoff, France'/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='Jean-Christian Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='hayssam.saleh@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Hayssam Saleh'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='paul.lavoquet@edenred.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='paul.lavoquet@edenred.com'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.invited'/>
+        </gd:who>
+        <gd:when endTime='2014-05-05T18:00:00.000+02:00' startTime='2014-05-05T17:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='49fqf2qftl0rbj4gbqmg58d20s@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/tvvibpevmkbaf6kf6dkg559p58
+        </id>
+        <published>2014-04-23T12:17:43.000Z</published>
+        <updated>2014-04-23T12:17:58.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Factory systèmes : pablo juste directeur technique</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=dHZ2aWJwZXZta2JhZjZrZjZka2c1NTlwNTggamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/tvvibpevmkbaf6kf6dkg559p58'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/tvvibpevmkbaf6kf6dkg559p58/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString='Rue Vladimir Jankelevitch, Émerainville, France'/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-04-23T16:00:00.000+02:00' startTime='2014-04-23T15:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='tvvibpevmkbaf6kf6dkg559p58@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/mpfood9d5geen6usct9uo1l23s
+        </id>
+        <published>2014-04-23T12:17:14.000Z</published>
+        <updated>2014-04-23T12:17:14.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Dej aziz</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=bXBmb29kOWQ1Z2VlbjZ1c2N0OXVvMWwyM3MgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/mpfood9d5geen6usct9uo1l23s'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/mpfood9d5geen6usct9uo1l23s/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-04-23T13:00:00.000+02:00' startTime='2014-04-23T12:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='mpfood9d5geen6usct9uo1l23s@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/47u3ni9v2ubtlr1ndtukl3be90
+        </id>
+        <published>2014-04-22T16:00:36.000Z</published>
+        <updated>2014-04-22T16:01:19.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Banque de France : point mission aziz</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=NDd1M25pOXYydWJ0bHIxbmR0dWtsM2JlOTAgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/47u3ni9v2ubtlr1ndtukl3be90'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/47u3ni9v2ubtlr1ndtukl3be90/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString='Rue Croix des Petits Champs, I arrondissement di Parigi, Paris, France'/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-04-23T11:00:00.000+02:00' startTime='2014-04-23T10:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='1'/>
+        <gCal:uid value='47u3ni9v2ubtlr1ndtukl3be90@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/79u2flj57o6ouemf21psmh9320
+        </id>
+        <published>2014-04-22T10:34:55.000Z</published>
+        <updated>2014-04-22T11:12:35.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>EBIZNEXT / PERCEPTIVE / COLAS : dématérialisation des factures</title>
+        <content type='text'>Objet : dématérialisation de 1,4 million de factures.
+
+            L'objectif de la réunion est de bien cerner le périmètre de SPEIG, et de faire une démonstration de l'outil
+            de dématéraialisation éditée par la société Perceptive Software.
+
+            Cdt,
+        </content>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=Nzl1MmZsajU3bzZvdWVtZjIxcHNtaDkzMjAgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/79u2flj57o6ouemf21psmh9320'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/79u2flj57o6ouemf21psmh9320/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString='Allée Latécoère, Vélizy-Villacoublay, France'/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='ferran@speig.fr' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='ferran@speig.fr'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='jocelyne.vicari@perceptivesoftware.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='jocelyne.vicari@perceptivesoftware.com'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.invited'/>
+        </gd:who>
+        <gd:when endTime='2014-05-16T15:30:00.000+02:00' startTime='2014-05-16T14:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='79u2flj57o6ouemf21psmh9320@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g6co38ca58cqkcchl6l146hhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6gp30chg6crjag9n68o38h1k6513egpl6sp34ghp68s44h9i8kqg
+        </id>
+        <published>2014-04-18T15:06:45.000Z</published>
+        <updated>2014-04-22T09:34:01.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Point projet Ged/ Worklfow Urgo</title>
+        <content type='text'>N° téléconférence :0176773738
+            Code de conférence : 9205075143#
+        </content>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=XzYwcTMwYzFnNjBvMzBlMWk2MG80YWMxZzYwcmo4Z3BsODhyajJjMWg4NHMzNGg5ZzYwczMwYzFnNjBvMzBjMWc2Y28zOGNhNThjcWtjY2hsNmwxNDZoaGc2NG8zMGMxZzYwbzMwYzFnNjBvMzBjMWc2MG8zMmMxZzYwbzMwYzFnNmdwMzBjaGc2Y3JqYWc5bjY4bzM4aDFrNjUxM2VncGw2c3AzNGdocDY4czQ0aDlpOGtxZyBqZWFuLWNocmlzdGlhbi52aWNhcmlAZWJpem5leHQuY29t'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g6co38ca58cqkcchl6l146hhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6gp30chg6crjag9n68o38h1k6513egpl6sp34ghp68s44h9i8kqg'/>
+        <author>
+            <name>jocelyne.vicari@perceptivesoftware.com</name>
+            <email>jocelyne.vicari@perceptivesoftware.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g6co38ca58cqkcchl6l146hhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6gp30chg6crjag9n68o38h1k6513egpl6sp34ghp68s44h9i8kqg/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString='à déterminer'/>
+        <gd:who email='hayssam.saleh@ebiznext.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='Hayssam Saleh'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='Jean-Christian Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='jocelyne.vicari@perceptivesoftware.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jocelyne Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='sbouvier@vivasante.fr' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='sbouvier@vivasante.fr'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:when endTime='2014-04-22T15:00:00.000+02:00' startTime='2014-04-22T14:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid
+                value='040000008200E00074C5B7101A82E008000000003041EC5F255BCF0100000000000000001000000042020375A7204D41B7C5722B928BE2E5'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g60o32h23612j4cph6l146hhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6l144gpn6l34ce216gq4aghk8913cdpl6933acpj84pjag9i8p30
+        </id>
+        <published>2014-04-18T16:13:24.000Z</published>
+        <updated>2014-04-18T19:57:23.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>briefing Urgo</title>
+        <content type='text'>N° téléconférence :0176773738
+            Code de conférence : 9205075143#
+        </content>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=XzYwcTMwYzFnNjBvMzBlMWk2MG80YWMxZzYwcmo4Z3BsODhyajJjMWg4NHMzNGg5ZzYwczMwYzFnNjBvMzBjMWc2MG8zMmgyMzYxMmo0Y3BoNmwxNDZoaGc2NG8zMGMxZzYwbzMwYzFnNjBvMzBjMWc2MG8zMmMxZzYwbzMwYzFnNmwxNDRncG42bDM0Y2UyMTZncTRhZ2hrODkxM2NkcGw2OTMzYWNwajg0cGphZzlpOHAzMCBqZWFuLWNocmlzdGlhbi52aWNhcmlAZWJpem5leHQuY29t'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g60o32h23612j4cph6l146hhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6l144gpn6l34ce216gq4aghk8913cdpl6933acpj84pjag9i8p30'/>
+        <author>
+            <name>jocelyne.vicari@perceptivesoftware.com</name>
+            <email>jocelyne.vicari@perceptivesoftware.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g60o32h23612j4cph6l146hhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6l144gpn6l34ce216gq4aghk8913cdpl6933acpj84pjag9i8p30/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString='TBD'/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='Jean-Christian Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.invited'/>
+        </gd:who>
+        <gd:who email='jocelyne.vicari@perceptivesoftware.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jocelyne Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='hayssam.saleh@ebiznext.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='Hayssam Saleh'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:when endTime='2014-04-22T10:00:00.000+02:00' startTime='2014-04-22T09:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid
+                value='040000008200E00074C5B7101A82E00800000000001DC0E2315BCF010000000000000000100000005BBC75FF8A44EB4BB6752F533A35A2FF'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/gg6dj6fe31ij8mdbncrgvsliks
+        </id>
+        <published>2014-04-08T15:44:08.000Z</published>
+        <updated>2014-04-16T15:54:19.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Dejeuner Taki : eden red</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=Z2c2ZGo2ZmUzMWlqOG1kYm5jcmd2c2xpa3MgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/gg6dj6fe31ij8mdbncrgvsliks'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/gg6dj6fe31ij8mdbncrgvsliks/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString='Malakoff, France'/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='taki.ahmed@ebiznext.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='Taki Ahmed'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:when endTime='2014-04-18T14:00:00.000+02:00' startTime='2014-04-18T12:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='1'/>
+        <gCal:uid value='gg6dj6fe31ij8mdbncrgvsliks@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/pvc5s1shb04on692a5qf1hmnm8
+        </id>
+        <published>2014-04-11T12:16:43.000Z</published>
+        <updated>2014-04-12T12:05:51.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Photo Agile</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=cHZjNXMxc2hiMDRvbjY5MmE1cWYxaG1ubTggamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/pvc5s1shb04on692a5qf1hmnm8'/>
+        <author>
+            <name>hayssam.saleh@ebiznext.com</name>
+            <email>hayssam.saleh@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/pvc5s1shb04on692a5qf1hmnm8/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString='ebiznext'/>
+        <gd:who email='hayssam.saleh@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Hayssam Saleh'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='Jean-Christian Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='all@ebiznext.com' rel='http://schemas.google.com/g/2005#event.attendee' valueString='EBIZNEXT'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.invited'/>
+        </gd:who>
+        <gd:when endTime='2014-04-14T19:00:00.000+02:00' startTime='2014-04-14T18:30:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='pvc5s1shb04on692a5qf1hmnm8@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/6cjh51ttubua6fjkjcn74gj5go_20140414T080000Z
+        </id>
+        <published>2013-01-11T11:28:57.000Z</published>
+        <updated>2014-04-11T11:56:54.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>entretien</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=NmNqaDUxdHR1YnVhNmZqa2pjbjc0Z2o1Z29fMjAxNDA0MTRUMDgwMDAwWiBqZWFuLWNocmlzdGlhbi52aWNhcmlAZWJpem5leHQuY29t'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/6cjh51ttubua6fjkjcn74gj5go_20140414T080000Z'/>
+        <author>
+            <name>nadine.coron@ebiznext.com</name>
+            <email>nadine.coron@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/6cjh51ttubua6fjkjcn74gj5go_20140414T080000Z/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.canceled'/>
+        <gd:where valueString=''/>
+        <gd:originalEvent
+                href='http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/6cjh51ttubua6fjkjcn74gj5go'
+                id='6cjh51ttubua6fjkjcn74gj5go'>
+            <gd:when startTime='2014-04-14T10:00:00.000+02:00'/>
+        </gd:originalEvent>
+        <gd:who email='nadine.coron@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='nadine.coron@ebiznext.com'/>
+        <gd:when endTime='2014-04-14T13:00:00.000+02:00' startTime='2014-04-14T11:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='3'/>
+        <gCal:uid value='6cjh51ttubua6fjkjcn74gj5go@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/gu42thabigqq4d3hgb8t9c026g
+        </id>
+        <published>2014-04-09T08:51:53.000Z</published>
+        <updated>2014-04-09T08:51:53.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>SAVANE CONSULTING : profil AXA</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=Z3U0MnRoYWJpZ3FxNGQzaGdiOHQ5YzAyNmcgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/gu42thabigqq4d3hgb8t9c026g'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/gu42thabigqq4d3hgb8t9c026g/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-04-09T16:00:00.000+02:00' startTime='2014-04-09T15:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='gu42thabigqq4d3hgb8t9c026g@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/pj6jgk6c43lqko3la2ab1hcb54
+        </id>
+        <published>2014-04-08T14:46:45.000Z</published>
+        <updated>2014-04-08T14:46:45.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>RENOUVELLEMENT CONTRAT DE NAJEH PRU AXA BANQUE</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=cGo2amdrNmM0M2xxa28zbGEyYWIxaGNiNTQgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/pj6jgk6c43lqko3la2ab1hcb54'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/pj6jgk6c43lqko3la2ab1hcb54/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-05-12T15:00:00.000+02:00' startTime='2014-05-12T14:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='pj6jgk6c43lqko3la2ab1hcb54@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/se5pf0t0rc0sub6j0vrh5fodt4
+        </id>
+        <published>2014-04-08T08:31:03.000Z</published>
+        <updated>2014-04-08T08:38:41.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Dej Axones</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=c2U1cGYwdDByYzBzdWI2ajB2cmg1Zm9kdDQgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/se5pf0t0rc0sub6j0vrh5fodt4'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/se5pf0t0rc0sub6j0vrh5fodt4/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-04-08T14:30:00.000+02:00' startTime='2014-04-08T12:30:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='1'/>
+        <gCal:uid value='se5pf0t0rc0sub6j0vrh5fodt4@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/otqf73342ov6guumsgv1tsgob4
+        </id>
+        <published>2014-04-02T08:57:05.000Z</published>
+        <updated>2014-04-07T15:40:05.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>pagesjaunes : rdv Mr QUACH</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=b3RxZjczMzQyb3Y2Z3V1bXNndjF0c2dvYjQgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/otqf73342ov6guumsgv1tsgob4'/>
+        <author>
+            <name>jcvicari@gmail.com</name>
+            <email>jcvicari@gmail.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/otqf73342ov6guumsgv1tsgob4/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jcvicari@gmail.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='jc vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='Jean-Christian Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:when endTime='2014-04-09T10:30:00.000+02:00' startTime='2014-04-09T09:30:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='otqf73342ov6guumsgv1tsgob4@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/c892f8ptfhi2qki00hbj1a9ds8
+        </id>
+        <published>2014-04-07T15:35:03.000Z</published>
+        <updated>2014-04-07T15:36:15.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Plastic Omnium : Point téléphonique achats</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=Yzg5MmY4cHRmaGkycWtpMDBoYmoxYTlkczggamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/c892f8ptfhi2qki00hbj1a9ds8'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/c892f8ptfhi2qki00hbj1a9ds8/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString='@phone : 01 55 66 43 04'/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='herve.poirey@plasticomnium.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='herve.poirey@plasticomnium.com'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.invited'/>
+        </gd:who>
+        <gd:when endTime='2014-04-08T17:45:00.000+02:00' startTime='2014-04-08T17:30:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='c892f8ptfhi2qki00hbj1a9ds8@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/a7uqt291oijrfa6dm37vq75lfc
+        </id>
+        <published>2014-04-03T08:49:51.000Z</published>
+        <updated>2014-04-03T09:48:26.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>SNCF : déjeuner proche place de budapest</title>
+        <content type='text'>arriver pour 11H45</content>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=YTd1cXQyOTFvaWpyZmE2ZG0zN3ZxNzVsZmMgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/a7uqt291oijrfa6dm37vq75lfc'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/a7uqt291oijrfa6dm37vq75lfc/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString='Place de Budapest, Paris, France'/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='francois.giry@sncf.fr' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='francois.giry@sncf.fr'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:when endTime='2014-04-10T13:15:00.000+02:00' startTime='2014-04-10T11:45:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='1'/>
+        <gCal:uid value='a7uqt291oijrfa6dm37vq75lfc@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/c5r3qv30v8p4lmfri3fg650s8s
+        </id>
+        <published>2014-03-31T08:18:45.000Z</published>
+        <updated>2014-04-03T08:32:26.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Dej Plastic Omnium</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=YzVyM3F2MzB2OHA0bG1mcmkzZmc2NTBzOHMgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/c5r3qv30v8p4lmfri3fg650s8s'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/c5r3qv30v8p4lmfri3fg650s8s/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-04-04T14:30:00.000+02:00' startTime='2014-04-04T13:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='1'/>
+        <gCal:uid value='c5r3qv30v8p4lmfri3fg650s8s@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/g316d38qhll046rn7saebipqc8
+        </id>
+        <published>2014-03-31T08:57:06.000Z</published>
+        <updated>2014-03-31T17:26:57.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>VEOLIA EAU IDF : présentation POC Big Data en général + "Production"</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=ZzMxNmQzOHFobGwwNDZybjdzYWViaXBxYzggamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/g316d38qhll046rn7saebipqc8'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/g316d38qhll046rn7saebipqc8/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString='nanterre, immeuble du carillon (juste au dessus de la sortie RER)'/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='hayssam.saleh@ebiznext.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='Hayssam Saleh'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.declined'/>
+        </gd:who>
+        <gd:who email='xavier.darizcuren@veoliaeau.fr' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='xavier.darizcuren@veolia.com'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:when endTime='2014-04-17T16:00:00.000+02:00' startTime='2014-04-17T15:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='g316d38qhll046rn7saebipqc8@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/9ubocunkqpfi3mqn5fuhbqaeuc
+        </id>
+        <published>2014-03-31T10:23:43.000Z</published>
+        <updated>2014-03-31T10:23:43.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Déjeuner Pagesjaunes</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=OXVib2N1bmtxcGZpM21xbjVmdWhicWFldWMgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/9ubocunkqpfi3mqn5fuhbqaeuc'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/9ubocunkqpfi3mqn5fuhbqaeuc/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-03-12T13:00:00.000+01:00' startTime='2014-03-12T12:00:00.000+01:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='9ubocunkqpfi3mqn5fuhbqaeuc@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/61gi73gm3v22gk6rg75f6noeck
+        </id>
+        <published>2014-03-31T10:13:23.000Z</published>
+        <updated>2014-03-31T10:16:51.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Dej Bull</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=NjFnaTczZ20zdjIyZ2s2cmc3NWY2bm9lY2sgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/61gi73gm3v22gk6rg75f6noeck'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/61gi73gm3v22gk6rg75f6noeck/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-02-05T13:00:00.000+01:00' startTime='2014-02-05T12:00:00.000+01:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='61gi73gm3v22gk6rg75f6noeck@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/entk86lej9fl1noqkbr21lpiuk
+        </id>
+        <published>2014-03-31T10:13:31.000Z</published>
+        <updated>2014-03-31T10:13:46.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Dej SAIPEM</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=ZW50azg2bGVqOWZsMW5vcWticjIxbHBpdWsgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/entk86lej9fl1noqkbr21lpiuk'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/entk86lej9fl1noqkbr21lpiuk/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-02-04T13:00:00.000+01:00' startTime='2014-02-04T12:00:00.000+01:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='entk86lej9fl1noqkbr21lpiuk@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/ncqv1d5tls2ie4f8qkqtf31a08
+        </id>
+        <published>2014-03-31T09:28:13.000Z</published>
+        <updated>2014-03-31T09:28:13.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Pgaesjaunes : dej Nicolas DURAND</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=bmNxdjFkNXRsczJpZTRmOHFrcXRmMzFhMDggamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/ncqv1d5tls2ie4f8qkqtf31a08'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/ncqv1d5tls2ie4f8qkqtf31a08/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-01-23T13:30:00.000+01:00' startTime='2014-01-23T12:30:00.000+01:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='ncqv1d5tls2ie4f8qkqtf31a08@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/d16in3g7pabhu4128t16jbnutk
+        </id>
+        <published>2014-03-31T08:19:47.000Z</published>
+        <updated>2014-03-31T08:19:48.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>PagesJaunes</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=ZDE2aW4zZzdwYWJodTQxMjh0MTZqYm51dGsgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/d16in3g7pabhu4128t16jbnutk'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/d16in3g7pabhu4128t16jbnutk/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-04-02T16:30:00.000+02:00' startTime='2014-04-02T15:30:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='d16in3g7pabhu4128t16jbnutk@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/1vsigamlkt7p1bp839jm770ing
+        </id>
+        <published>2014-03-28T10:56:56.000Z</published>
+        <updated>2014-03-28T10:57:04.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>Déjeuner Banque de France : Alliance High Tech</title>
+        <content type='text'/>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=MXZzaWdhbWxrdDdwMWJwODM5am03NzBpbmcgamVhbi1jaHJpc3RpYW4udmljYXJpQGViaXpuZXh0LmNvbQ'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/1vsigamlkt7p1bp839jm770ing'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/1vsigamlkt7p1bp839jm770ing/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='Jean-Christian Vicari'/>
+        <gd:when endTime='2014-03-28T14:30:00.000+01:00' startTime='2014-03-28T12:30:00.000+01:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='true'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid value='1vsigamlkt7p1bp839jm770ing@google.com'/>
+    </entry>
+    <entry>
+        <id>
+            http://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g8ko32h246t234h9n6gsk6hhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8kojgchg8grk6g9k65336g9k8gsj0h9k8kr3icpp8kp42ga58d1g
+        </id>
+        <published>2014-03-27T17:10:24.000Z</published>
+        <updated>2014-03-27T17:10:38.000Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/>
+        <title type='text'>RDV DA</title>
+        <content type='text'>
+
+            Cordialement,
+
+            Valérie Lauberton
+            Natixis
+            Direction des Achats
+            Prestations Intellectuelles &amp; Conseil
+            5, avenue de la Liberté - 94220 Charenton-le-Pont
+            BP 4 - 75060 Paris Cedex 02
+            Tél. : (+33) 1 58 32 98 61
+            valerie.lauberton@natixis.com&lt;http://www.natixis.com/&gt;
+            www.natixis.com&lt;http://www.natixis.com/&gt;
+
+
+        </content>
+        <link rel='alternate' type='text/html'
+              href='https://www.google.com/calendar/event?eid=XzYwcTMwYzFnNjBvMzBlMWk2MG80YWMxZzYwcmo4Z3BsODhyajJjMWg4NHMzNGg5ZzYwczMwYzFnNjBvMzBjMWc4a28zMmgyNDZ0MjM0aDluNmdzazZoaGc2NG8zMGMxZzYwbzMwYzFnNjBvMzBjMWc2MG8zMmMxZzYwbzMwYzFnOGtvamdjaGc4Z3JrNmc5azY1MzM2ZzlrOGdzajBoOWs4a3IzaWNwcDhrcDQyZ2E1OGQxZyBqZWFuLWNocmlzdGlhbi52aWNhcmlAZWJpem5leHQuY29t'
+              title='alternate'/>
+        <link rel='self' type='application/atom+xml'
+              href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g8ko32h246t234h9n6gsk6hhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8kojgchg8grk6g9k65336g9k8gsj0h9k8kr3icpp8kp42ga58d1g'/>
+        <author>
+            <name>jean-christian.vicari@ebiznext.com</name>
+            <email>jean-christian.vicari@ebiznext.com</email>
+        </author>
+        <gd:comments>
+            <gd:feedLink
+                    href='https://www.google.com/calendar/feeds/jean-christian.vicari%40ebiznext.com/private/full/_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g8ko32h246t234h9n6gsk6hhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8kojgchg8grk6g9k65336g9k8gsj0h9k8kr3icpp8kp42ga58d1g/comments'/>
+        </gd:comments>
+        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'/>
+        <gd:where valueString=''/>
+        <gd:who email='jean-christian.vicari@ebiznext.com' rel='http://schemas.google.com/g/2005#event.attendee'
+                valueString='Jean-Christian Vicari'>
+            <gd:attendeeStatus value='http://schemas.google.com/g/2005#event.accepted'/>
+        </gd:who>
+        <gd:who email='valerie.lauberton@natixis.com' rel='http://schemas.google.com/g/2005#event.organizer'
+                valueString='valerie.lauberton@natixis.com'/>
+        <gd:when endTime='2014-04-17T10:45:00.000+02:00' startTime='2014-04-17T10:00:00.000+02:00'/>
+        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'/>
+        <gd:visibility value='http://schemas.google.com/g/2005#event.default'/>
+        <gCal:anyoneCanAddSelf value='false'/>
+        <gCal:guestsCanInviteOthers value='false'/>
+        <gCal:guestsCanModify value='false'/>
+        <gCal:guestsCanSeeGuests value='true'/>
+        <gCal:privateCopy value='true'/>
+        <gCal:sequence value='0'/>
+        <gCal:uid
+                value='040000008200E00074C5B7101A82E00800000000E01DD7D2E749CF01000000000000000010000000E1820D7CA41F3A4D90E4E6939E2AAECC'/>
+    </entry>
+</feed>
