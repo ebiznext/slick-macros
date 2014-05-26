@@ -64,7 +64,6 @@ object TransactionMacro {
     val param = scala.reflect.internal.Flags.PARAM.asInstanceOf[Long].asInstanceOf[FlagSet]
     val implict = scala.reflect.internal.Flags.IMPLICIT.asInstanceOf[Long].asInstanceOf[FlagSet]
 
-    // Quasiquotes would be more than welcome here :(
     val result = {
       annottees.map(_.tree).toList match {
         case q"$mods def $name[..$tparams](...$vparamss): $tpt = $body" :: Nil =>
@@ -117,7 +116,7 @@ object TransactionMacro {
         case _ => c.abort(c.enclosingPosition, "Transaction may be attached to a method definition only")
       }
     }
-    println(result)
+    //println(result)
     c.Expr[Any](result)
   }
 
