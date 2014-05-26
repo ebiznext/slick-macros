@@ -1,12 +1,12 @@
 package slickmacros.annotations
 
-import scala.reflect.macros.Context
+import scala.reflect.macros.whitebox.Context
 import scala.annotation.StaticAnnotation
 import scala.language.existentials
 import language.experimental.macros
-import scala.slick.lifted._
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Set
+import scala.slick.model.ForeignKeyAction
 
 class Model(driver: String = "PostgresDriver", timestamps: Boolean = false) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro ModelMacro.impl
@@ -287,9 +287,9 @@ object ModelMacro {
 
       def pk: Boolean = flags.exists(_ == FieldFlag.PK)
 
-      def onDeleteAction = s"scala.slick.lifted.ForeignKeyAction.$onDelete"
+      def onDeleteAction = s"scala.slick.model.ForeignKeyAction.$onDelete"
 
-      def onUpdateAction = s"scala.slick.lifted.ForeignKeyAction.$onUpdate"
+      def onUpdateAction = s"scala.slick.model.ForeignKeyAction.$onUpdate"
     }
 
     case class ScalaAnnotation(val name: String, val fields: Array[String]) {
