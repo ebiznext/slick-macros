@@ -62,7 +62,7 @@ object DynamicAccessors {
 }
 
 object Implicits {
-  implicit def productQueryToDynamicUpdateInvoker[T](q: LQuery[_, T]) = new {
+  implicit def productQueryToDynamicUpdateInvoker[T, C[_]](q: LQuery[_, T, C]) = new {
     def doUpdate = new Dynamic {
       def applyDynamicNamed(name: String)(args: (String, Any)*): Int = macro DynamicAccessors.updateImpl[T]
     }
